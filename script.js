@@ -1,7 +1,6 @@
 /* FINAL PRE-MVP KINETIC PORTFOLIO v18.0 - SCRIPT
    Super fast responsive experience section scroll bar
    ================================================================================== */
-
 'use strict';
 
 // THEME
