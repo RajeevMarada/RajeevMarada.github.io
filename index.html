@@ -21,22 +21,22 @@
   <div class="magnetic-cursor"></div>
   <div class="cursor-follower"></div>
 
-  <!-- SCROLL BAR - VISIBLE ON RIGHT SIDE -->
+  <!-- MAIN PAGE SCROLL BAR -->
   <div class="scroll-bar-container">
     <div class="scroll-bar-track">
       <div class="scroll-bar-thumb"></div>
     </div>
   </div>
 
-  <!-- ANIMATED LOADER -->
+  <!-- LOADER -->
   <div id="kinetic-preloader">
     <div class="loader-container">
       <div class="loader-icons">
         <div class="loader-icon"><i data-lucide="cpu"></i></div>
         <div class="loader-icon"><i data-lucide="zap"></i></div>
-        <div class="loader-icon"><i data-lucide="shield"></i></div>
+        <div class="loader-icon"><i data-lucide="shield-check"></i></div>
       </div>
-      <div class="loader-text">ARCHITECTING</div>
+      <div class="loader-text">INITIALIZING SYSTEM</div>
       <div class="loader-progress-wrapper">
         <div class="loader-progress-bar">
           <div class="loader-progress"></div>
@@ -82,34 +82,51 @@
     </div>
   </nav>
 
+  <!-- NEW SCROLL TO TOP BUTTON -->
+  <button id="scrollTop" class="scroll-top-btn" data-magnet>
+    <i data-lucide="arrow-up"></i>
+  </button>
+
   <!-- HERO -->
   <section id="hero" class="hero-section kinetic-section">
-    <div class="hero-glitch-bg"></div>
+    <!-- DYNAMIC BACKGROUND LAYERS -->
+    <div class="hero-bg-elemental"></div>
+    <div class="hero-bg-electric"></div>
+    <div class="hero-bg-grid"></div>
+    
     <div class="hero-container container">
-      <div class="hero-pretitle">ARCHITECTING TOMORROW</div>
+      <div class="hero-pretitle reveal-text">ARCHITECTING TOMORROW</div>
 
-      <h1 class="hero-title">
+      <h1 class="hero-title reveal-text" style="transition-delay: 0.1s">
         <span class="name-accent dynamic-glow">RAJEEV MARADA</span>
       </h1>
 
-      <div class="hero-subtitle dynamic-float">
+      <div class="hero-subtitle dynamic-float reveal-text" style="transition-delay: 0.2s">
         VLSI Engineer • Hardware Architect • Real-time Systems
       </div>
 
-      <div class="kpi-dashboard dynamic-pulse">
-        <div class="kpi-stat">
+      <!-- NEW: RESUME BUTTON -->
+      <div class="hero-cta reveal-up" style="transition-delay: 0.25s">
+        <a href="assets/resume.pdf" download class="resume-btn" data-magnet>
+          <i data-lucide="file-down"></i>
+          <span>Download Resume</span>
+        </a>
+      </div>
+
+      <div class="kpi-dashboard dynamic-pulse reveal-up" style="transition-delay: 0.3s">
+        <div class="kpi-stat" data-magnet-small>
           <span class="stat-num glow-pulse" data-target="9.4">0.0</span>
           <span class="stat-label">CGPA</span>
         </div>
-        <div class="kpi-stat">
+        <div class="kpi-stat" data-magnet-small>
           <span class="stat-num glow-pulse" data-target="4">0</span>
           <span class="stat-label">Projects</span>
         </div>
-        <div class="kpi-stat">
+        <div class="kpi-stat" data-magnet-small>
           <span class="stat-num glow-pulse" data-target="1">0</span>
           <span class="stat-label">Patent</span>
         </div>
-        <div class="kpi-stat">
+        <div class="kpi-stat" data-magnet-small>
           <span class="stat-num glow-pulse" data-target="2">0</span>
           <span class="stat-label">Papers</span>
         </div>
@@ -121,13 +138,13 @@
   <section id="about" class="kinetic-section about-section">
     <div class="container">
       <div class="editorial-grid">
-        <div class="editorial-left">
+        <div class="editorial-left reveal-side">
           <h2 class="section-heading">THE<br>ENGINEER</h2>
         </div>
 
-        <div class="editorial-right">
+        <div class="editorial-right reveal-up">
           <div class="impact-statement">
-            <strong>I turn hardware concepts into working silicon.</strong>
+            I turn hardware concepts into <strong>working silicon.</strong>
           </div>
 
           <div class="quick-summary">
@@ -152,12 +169,12 @@
   <!-- EXPERIENCE & EDUCATION -->
   <section id="experience" class="kinetic-section experience-section">
     <div class="container">
-      <h2 class="section-heading">JOURNEY</h2>
+      <h2 class="section-heading reveal-side">JOURNEY</h2>
 
       <div class="journey-subsection">
-        <h3 class="subsection-title">Experience</h3>
+        <h3 class="subsection-title reveal-up">Experience</h3>
 
-        <div class="experience-snap-container" id="experienceContainer">
+        <div class="experience-snap-container reveal-up" id="experienceContainer">
           <div class="exp-card">
             <div class="timeline-year">AUG 2024 – PRESENT</div>
             <h4>Programmer Analyst</h4>
@@ -196,27 +213,26 @@
           </div>
         </div>
 
-        <!-- EXPERIENCE SCROLL BAR - SUPER FAST & RESPONSIVE -->
-        <div class="exp-scrollbar-container" id="expScrollbarContainer">
+        <div class="exp-scrollbar-container reveal-up" id="expScrollbarTrack">
           <div class="exp-scrollbar-track">
             <div class="exp-scrollbar-thumb" id="expScrollbarThumb"></div>
           </div>
         </div>
 
-        <div class="scroll-hint">← Scroll to explore →</div>
+        <div class="scroll-hint reveal-up">← Drag or scroll to explore →</div>
       </div>
 
       <div class="journey-subsection">
-        <h3 class="subsection-title">Education</h3>
+        <h3 class="subsection-title reveal-up">Education</h3>
         <div class="education-grid">
 
-          <div class="education-item">
+          <div class="education-item reveal-up" style="transition-delay: 0.1s">
             <div class="education-year">FEB 2024 – DEC 2024</div>
             <h4>VLSI Certification</h4>
             <p class="company-name">Indian Institute of Science (IISc)</p>
           </div>
 
-          <div class="education-item">
+          <div class="education-item reveal-up" style="transition-delay: 0.2s">
             <div class="education-year">JUN 2019 – MAY 2023</div>
             <h4>Bachelor of Technology</h4>
             <p class="company-name">SRM Institute of Science and Technology</p>
@@ -230,12 +246,12 @@
   <!-- PROJECTS -->
   <section id="projects" class="kinetic-section projects-section">
     <div class="container">
-      <h2 class="section-heading">ARCHIVES</h2>
+      <h2 class="section-heading reveal-side">ARCHIVES</h2>
 
       <div class="parallax-gallery">
 
-        <div class="gallery-item">
-          <div class="gallery-image-wrapper">
+        <div class="gallery-item reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
             <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop');"></div>
             <div class="gallery-overlay"></div>
           </div>
@@ -252,8 +268,8 @@
           </div>
         </div>
 
-        <div class="gallery-item reverse-layout">
-          <div class="gallery-image-wrapper">
+        <div class="gallery-item reverse-layout reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
             <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=2070&auto=format&fit=crop');"></div>
             <div class="gallery-overlay"></div>
           </div>
@@ -269,8 +285,8 @@
           </div>
         </div>
 
-        <div class="gallery-item">
-          <div class="gallery-image-wrapper">
+        <div class="gallery-item reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
             <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=2134&auto=format&fit=crop');"></div>
             <div class="gallery-overlay"></div>
           </div>
@@ -286,8 +302,8 @@
           </div>
         </div>
 
-        <div class="gallery-item reverse-layout">
-          <div class="gallery-image-wrapper">
+        <div class="gallery-item reverse-layout reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
             <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop');"></div>
             <div class="gallery-overlay"></div>
           </div>
@@ -310,28 +326,25 @@
   <!-- SKILLS -->
   <section id="skills" class="kinetic-section skills-section">
     <div class="container">
-      <h2 class="section-heading">TECHNICAL ARSENAL</h2>
+      <h2 class="section-heading reveal-side">TECHNICAL ARSENAL</h2>
 
-      <div class="skills-ticker-container">
+      <div class="skills-ticker-container reveal-up">
         <div class="skills-ticker-track">
-          <span>VLSI ENGINEER</span>
-          <span class="sep">•</span>
-          <span>HARDWARE ARCHITECT</span>
-          <span class="sep">•</span>
-          <span>DIGITAL DESIGNER</span>
-          <span class="sep">•</span>
-          <span>VERIFICATION</span>
-          <span class="sep">•</span>
-          <span>SOC DESIGN</span>
-          <span class="sep">•</span>
-          <span>FPGA</span>
-          <span class="sep">•</span>
+          <div class="ticker-item">VLSI ENGINEER</div><div class="sep">•</div>
+          <div class="ticker-item">HARDWARE ARCHITECT</div><div class="sep">•</div>
+          <div class="ticker-item">DIGITAL DESIGNER</div><div class="sep">•</div>
+          <div class="ticker-item">VERIFICATION</div><div class="sep">•</div>
+          <div class="ticker-item">SOC DESIGN</div><div class="sep">•</div>
+          <div class="ticker-item">FPGA</div><div class="sep">•</div>
         </div>
       </div>
 
       <div class="skills-interactive">
-        <div class="skill-category">
-          <h3 class="skill-cat-title">🎯 Digital Design & Verification</h3>
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.1s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="cpu"></i>
+            Digital Design & Verification
+          </h3>
           <div class="skills-list">
             <span class="skill-tag">SystemVerilog</span>
             <span class="skill-tag">Verilog RTL</span>
@@ -341,8 +354,11 @@
           </div>
         </div>
 
-        <div class="skill-category">
-          <h3 class="skill-cat-title">🛠️ Languages & Tools</h3>
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.2s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="code-2"></i>
+            Languages & Tools
+          </h3>
           <div class="skills-list">
             <span class="skill-tag">Python</span>
             <span class="skill-tag">C/C++</span>
@@ -352,8 +368,11 @@
           </div>
         </div>
 
-        <div class="skill-category">
-          <h3 class="skill-cat-title">🏗️ System Architecture</h3>
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.3s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="layers"></i>
+            System Architecture
+          </h3>
           <div class="skills-list">
             <span class="skill-tag">SoC Design</span>
             <span class="skill-tag">Neuromorphic</span>
@@ -370,18 +389,15 @@
   <section id="awards" class="kinetic-section awards-section">
     <div class="container">
       <div class="awards-layout">
-        <div class="awards-heading">
+        <div class="awards-heading reveal-side">
           <h2 class="section-heading">PATENTS &<br>PUBLICATIONS</h2>
         </div>
 
         <div class="awards-content">
 
-          <div class="award-card featured">
+          <div class="award-card featured reveal-up" data-tilt style="transition-delay: 0.1s">
             <div class="award-icon patent-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="2" y="3" width="20" height="18" rx="2"/>
-                <path d="M12 7v10M7 12h10M12 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
-              </svg>
+              <i data-lucide="shield-check"></i>
             </div>
             <div class="award-details">
               <h3>Autonomous Vehicle Safety</h3>
@@ -391,14 +407,9 @@
             </div>
           </div>
 
-          <div class="award-card">
+          <div class="award-card reveal-up" data-tilt style="transition-delay: 0.2s">
             <div class="award-icon paper-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-                <line x1="9" y1="13" x2="15" y2="13"/>
-                <line x1="9" y1="17" x2="15" y2="17"/>
-              </svg>
+              <i data-lucide="file-text"></i>
             </div>
             <div class="award-details">
               <h3>Error Correction in SoC</h3>
@@ -408,12 +419,9 @@
             </div>
           </div>
 
-          <div class="award-card">
+          <div class="award-card reveal-up" data-tilt style="transition-delay: 0.3s">
             <div class="award-icon journal-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-              </svg>
+              <i data-lucide="book-open"></i>
             </div>
             <div class="award-details">
               <h3>IoT Healthcare Systems</h3>
@@ -431,13 +439,13 @@
   <!-- CONTACT -->
   <section id="contact" class="kinetic-section contact-section">
     <div class="container contact-container">
-      <h2 class="section-heading">Let's Build Together</h2>
+      <h2 class="section-heading reveal-up">Let's Build Together</h2>
 
-      <p class="contact-desc">
+      <p class="contact-desc reveal-up" style="transition-delay: 0.1s">
         Open to collaborations on VLSI research, hardware innovation, and next-gen computing challenges.
       </p>
 
-      <div class="contact-links-styled">
+      <div class="contact-links-styled reveal-up" style="transition-delay: 0.2s">
         <a href="mailto:rajeevmarada02@gmail.com" class="contact-item" data-magnet>
           <div class="contact-icon">
             <i data-lucide="mail"></i>
@@ -473,16 +481,13 @@
 
   <footer class="kinetic-footer">
     <div class="container">
-      <div class="footer-copy">
+      <div class="footer-copy reveal-up">
         © 2025 Rajeev Marada. Architecting Tomorrow.
       </div>
     </div>
   </footer>
 
-  <script>
-    lucide.createIcons();
-  </script>
-
   <script src="script.js"></script>
+
 </body>
 </html>
