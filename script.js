@@ -1,33 +1,10 @@
-/* POST-MVP v1.0 - KINETIC PORTFOLIO - 60FPS PERFORMANCE OPTIMIZED
-   All functionality preserved. Performance enhanced for smooth 60fps.
+/* POST-MVP 3.0 - SCROLL TO TOP ADDITION
    ================================================================================== */
 
 'use strict';
 
 // ============================================================================
-// PERFORMANCE: Requestanimation frame frame limiter for consistent 60fps
-// ============================================================================
-class FPSLimiter {
-  constructor(targetFPS = 60) {
-    this.targetFPS = targetFPS;
-    this.frameTime = 1000 / targetFPS;
-    this.lastTime = performance.now();
-  }
-
-  shouldFrame(now) {
-    const elapsed = now - this.lastTime;
-    if (elapsed >= this.frameTime) {
-      this.lastTime = now - (elapsed % this.frameTime);
-      return true;
-    }
-    return false;
-  }
-}
-
-const fpslimiter = new FPSLimiter(60);
-
-// ============================================================================
-// THEME
+// THEME MANAGER
 // ============================================================================
 class ThemeManager {
   constructor() {
@@ -55,552 +32,508 @@ class ThemeManager {
 }
 
 // ============================================================================
-// VISIBLE SCROLL BAR - INSTANT RESPONSIVE - OPTIMIZED
+// CUSTOM PAGE SCROLL BAR
 // ============================================================================
 class VisibleScrollBar {
   constructor() {
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+
     this.container = document.querySelector('.scroll-bar-container');
     this.track = document.querySelector('.scroll-bar-track');
     this.thumb = document.querySelector('.scroll-bar-thumb');
-
     if (!this.container || !this.track || !this.thumb) return;
 
     this.isDragging = false;
-    this.ptrY = 0;
-    this.trackRect = null;
-    this.thumbPx = 0;
-    this.totalScrollY = 0;
-    this.movable = 1;
-    this.startScrollY = 0;
     this.startY = 0;
-    this._rafId = null;
+    this.startThumbY = 0;
     this.init();
   }
 
   init() {
-    this.thumb.style.willChange = 'top, height';
-    window.addEventListener('scroll', () => this.updateBar(), { passive: true });
-    window.addEventListener('resize', () => this.updateBar(), { passive: true });
+    this.updateDimensions();
+    window.addEventListener('resize', () => this.updateDimensions(), { passive: true });
+    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
 
-    this.thumb.addEventListener('pointerdown', (e) => this.startDrag(e));
-    this.thumb.addEventListener('pointermove', (e) => this.onPointerMove(e), { passive: false });
-    window.addEventListener('pointermove', (e) => this.onPointerMove(e), { passive: false });
-    window.addEventListener('pointerup', () => this.stopDrag());
-    this.track.addEventListener('pointerdown', (e) => this.onTrackJump(e));
-
-    this.updateBar();
+    this.thumb.addEventListener('pointerdown', this.startDrag.bind(this));
+    window.addEventListener('pointermove', this.onDrag.bind(this), { passive: false });
+    window.addEventListener('pointerup', this.stopDrag.bind(this));
+    this.track.addEventListener('click', this.onTrackClick.bind(this));
   }
 
-  updateBar() {
-    const doc = document.documentElement;
-    const totalHeight = Math.max(0, doc.scrollHeight - window.innerHeight);
+  updateDimensions() {
+    this.trackHeight = this.track.offsetHeight;
+    const docHeight = document.documentElement.scrollHeight;
+    const winHeight = window.innerHeight;
+    this.thumbHeight = Math.max((winHeight / docHeight) * this.trackHeight, 30);
+    this.thumb.style.height = `${this.thumbHeight}px`;
+    this.scrollRatio = (docHeight - winHeight) / (this.trackHeight - this.thumbHeight);
+    this.onScroll();
+  }
 
-    if (totalHeight === 0) {
-      this.thumb.style.top = '0%';
-      this.thumb.style.height = '100%';
-      return;
-    }
-
-    const thumbHeightPct = Math.max((window.innerHeight / doc.scrollHeight) * 100, 10);
-    const maxTopPct = 100 - thumbHeightPct;
-    const scrolledRatio = window.scrollY / totalHeight;
-    const topPct = Math.min(maxTopPct, Math.max(0, scrolledRatio * maxTopPct));
-
-    this.thumb.style.height = thumbHeightPct + '%';
-    this.thumb.style.top = topPct + '%';
+  onScroll() {
+    if (this.isDragging) return;
+    requestAnimationFrame(() => {
+      const scrollPos = window.scrollY;
+      const thumbPos = scrollPos / this.scrollRatio;
+      this.thumb.style.transform = `translate3d(0, ${Math.min(Math.max(0, thumbPos), this.trackHeight - this.thumbHeight)}px, 0)`;
+    });
   }
 
   startDrag(e) {
     e.preventDefault();
     this.isDragging = true;
-    this.thumb.setPointerCapture?.(e.pointerId);
-    this.container.classList.add('dragging');
-    document.body.classList.add('no-select');
-
-    if (window.lenis?.stop) window.lenis.stop();
-
-    this.trackRect = this.track.getBoundingClientRect();
-    this.thumbPx = this.thumb.offsetHeight;
-    const doc = document.documentElement;
-    this.totalScrollY = Math.max(0, doc.scrollHeight - window.innerHeight);
-    this.movable = Math.max(1, this.trackRect.height - this.thumbPx);
     this.startY = e.clientY;
-    this.ptrY = e.clientY;
-    this.startScrollY = window.scrollY;
-
-    __forwardCursorMove(this.ptrY ? e.clientX : 0, this.ptrY);
-    this._startRAF();
-    document.body.classList.add('hide-custom-cursor');
+    const style = window.getComputedStyle(this.thumb);
+    const matrix = new WebKitCSSMatrix(style.transform);
+    this.startThumbY = matrix.m42;
+    document.body.style.userSelect = 'none';
+    this.thumb.classList.add('dragging');
   }
 
-  onPointerMove(e) {
+  onDrag(e) {
     if (!this.isDragging) return;
     e.preventDefault();
-    this.ptrY = e.clientY;
-    __forwardCursorMove(e.clientX, e.clientY);
-  }
-
-  _startRAF() {
-    const loop = () => {
-      if (!this.isDragging) return;
-      const deltaY = this.ptrY - this.startY;
-      const ratio = this.totalScrollY / this.movable;
-      const newScrollY = Math.max(0, Math.min(this.totalScrollY, this.startScrollY + deltaY * ratio));
-      window.scrollTo(0, newScrollY);
-      this.updateBar();
-      this._rafId = requestAnimationFrame(loop);
-    };
-    this._rafId = requestAnimationFrame(loop);
+    const deltaY = e.clientY - this.startY;
+    const newThumbY = Math.min(Math.max(0, this.startThumbY + deltaY), this.trackHeight - this.thumbHeight);
+    
+    requestAnimationFrame(() => {
+      this.thumb.style.transform = `translate3d(0, ${newThumbY}px, 0)`;
+      window.scrollTo(0, newThumbY * this.scrollRatio);
+    });
   }
 
   stopDrag() {
-    if (!this.isDragging) return;
     this.isDragging = false;
-    this.container.classList.remove('dragging');
-    document.body.classList.remove('no-select');
-    if (this._rafId) cancelAnimationFrame(this._rafId);
-    this._rafId = null;
-    if (window.lenis?.start) window.lenis.start();
-    this.updateBar();
-    document.body.classList.remove('hide-custom-cursor');
+    document.body.style.userSelect = '';
+    this.thumb.classList.remove('dragging');
   }
 
-  onTrackJump(e) {
+  onTrackClick(e) {
     if (e.target === this.thumb) return;
     const rect = this.track.getBoundingClientRect();
-    const doc = document.documentElement;
-    const totalHeight = Math.max(0, doc.scrollHeight - window.innerHeight);
-    if (totalHeight === 0) return;
-    const thumbPx = this.thumb.offsetHeight;
-    const movable = Math.max(1, rect.height - thumbPx);
     const clickY = e.clientY - rect.top;
-    const ratio = Math.min(1, Math.max(0, (clickY - thumbPx / 2) / movable));
-    window.scrollTo({ top: ratio * totalHeight, behavior: 'smooth' });
-  }
-}
-
-// ============================================================================
-// EXPERIENCE SCROLLBAR - SUPER FAST & RESPONSIVE - OPTIMIZED
-// ============================================================================
-class ExperienceScrollbar {
-  constructor() {
-    this.container = document.getElementById('experienceContainer') || document.querySelector('.experience-snap-container');
-    this.scrollbarTrack = document.querySelector('.exp-scrollbar-track');
-    this.scrollbarThumb = document.getElementById('expScrollbarThumb') || document.querySelector('.exp-scrollbar-thumb');
-
-    if (!this.container || !this.scrollbarTrack || !this.scrollbarThumb) return;
-
-    this.isDragging = false;
-    this.ptrX = 0;
-    this.ptrY = 0;
-    this.trackRect = null;
-    this.thumbPx = 0;
-    this.totalScroll = 0;
-    this.movable = 1;
-    this.startScrollLeft = 0;
-    this.startX = 0;
-    this._rafId = null;
-    this.init();
-  }
-
-  init() {
-    this.scrollbarThumb.style.willChange = 'left, width';
-    this.container.addEventListener('scroll', () => this.updateScrollbar(), { passive: true });
-    window.addEventListener('resize', () => this.updateScrollbar(), { passive: true });
-
-    this.scrollbarThumb.addEventListener('pointerdown', (e) => this.startDrag(e));
-    this.scrollbarThumb.addEventListener('pointermove', (e) => this.onPointerMove(e), { passive: false });
-    window.addEventListener('pointermove', (e) => this.onPointerMove(e), { passive: false });
-    window.addEventListener('pointerup', () => this.stopDrag());
-    this.scrollbarTrack.addEventListener('pointerdown', (e) => this.onTrackJump(e));
-
-    this.updateScrollbar();
-  }
-
-  updateScrollbar() {
-    const { scrollLeft, scrollWidth, clientWidth } = this.container;
-
-    if (scrollWidth <= clientWidth) {
-      this.scrollbarThumb.style.left = '0%';
-      this.scrollbarThumb.style.width = '100%';
-      return;
-    }
-
-    const thumbWidthPct = Math.max((clientWidth / scrollWidth) * 100, 15);
-    const maxLeftPct = 100 - thumbWidthPct;
-    const scrollPct = scrollLeft / (scrollWidth - clientWidth);
-    const leftPct = Math.min(maxLeftPct, Math.max(0, scrollPct * maxLeftPct));
-
-    this.scrollbarThumb.style.width = thumbWidthPct + '%';
-    this.scrollbarThumb.style.left = leftPct + '%';
-  }
-
-  startDrag(e) {
-    e.preventDefault();
-    this.isDragging = true;
-    this.scrollbarThumb.setPointerCapture?.(e.pointerId);
-    this.scrollbarThumb.classList.add('dragging');
-    document.body.classList.add('no-select');
-
-    this.trackRect = this.scrollbarTrack.getBoundingClientRect();
-    this.thumbPx = this.scrollbarThumb.offsetWidth;
-    this.totalScroll = Math.max(0, this.container.scrollWidth - this.container.clientWidth);
-    this.movable = Math.max(1, this.trackRect.width - this.thumbPx);
-    this.startX = e.clientX;
-    this.ptrX = e.clientX;
-    this.ptrY = e.clientY;
-    this.startScrollLeft = this.container.scrollLeft;
-
-    __forwardCursorMove(this.ptrX, this.ptrY);
-    this._startRAF();
-  }
-
-  onPointerMove(e) {
-    if (!this.isDragging) return;
-    e.preventDefault();
-    this.ptrX = e.clientX;
-    this.ptrY = e.clientY;
-    __forwardCursorMove(this.ptrX, this.ptrY);
-  }
-
-  _startRAF() {
-    const loop = () => {
-      if (!this.isDragging) return;
-      const deltaX = this.ptrX - this.startX;
-      const ratio = this.totalScroll / this.movable;
-      const newScrollLeft = Math.max(0, Math.min(this.totalScroll, this.startScrollLeft + deltaX * ratio));
-      this.container.scrollLeft = newScrollLeft;
-      this.updateScrollbar();
-      __forwardCursorMove(this.ptrX, this.ptrY);
-      this._rafId = requestAnimationFrame(loop);
-    };
-    this._rafId = requestAnimationFrame(loop);
-  }
-
-  stopDrag() {
-    if (!this.isDragging) return;
-    this.isDragging = false;
-    this.scrollbarThumb.classList.remove('dragging');
-    document.body.classList.remove('no-select');
-    if (this._rafId) cancelAnimationFrame(this._rafId);
-    this._rafId = null;
-    this.updateScrollbar();
-  }
-
-  onTrackJump(e) {
-    if (e.target === this.scrollbarThumb) return;
-    const rect = this.scrollbarTrack.getBoundingClientRect();
-    const thumbPx = this.scrollbarThumb.offsetWidth;
-    const movable = Math.max(1, rect.width - thumbPx);
-    const clickX = e.clientX - rect.left;
-    const ratio = Math.min(1, Math.max(0, (clickX - thumbPx / 2) / movable));
-    this.container.scrollTo({
-      left: ratio * (this.container.scrollWidth - this.container.clientWidth),
+    const thumbY = clickY - (this.thumbHeight / 2);
+    window.scrollTo({
+      top: Math.min(Math.max(0, thumbY), this.trackHeight - this.thumbHeight) * this.scrollRatio,
       behavior: 'smooth'
     });
   }
 }
 
 // ============================================================================
-// CURSOR - OPTIMIZED FOR 60FPS
+// MAGNETIC CURSOR
 // ============================================================================
 class MagneticCursor {
   constructor() {
+    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
     this.cursor = document.querySelector('.magnetic-cursor');
     this.follower = document.querySelector('.cursor-follower');
-    this.x = 0;
-    this.y = 0;
-    this.tx = 0;
-    this.ty = 0;
+    this.pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.mouse = { x: this.pos.x, y: this.pos.y };
+    this.speed = 0.6;
+    this.activeMagnet = null;
     this.init();
   }
 
   init() {
-    document.addEventListener('mousemove', (e) => {
-      this.x = e.clientX;
-      this.y = e.clientY;
-    }, { passive: true });
-
-    window.addEventListener("pointermove", (e) => {
-      updateCursorPosition(e.clientX, e.clientY);
+    window.addEventListener('pointermove', (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; }, {passive: true});
+    document.querySelectorAll('[data-magnet]').forEach(el => {
+      el.addEventListener('mouseenter', () => this.activateMagnet(el));
+      el.addEventListener('mouseleave', () => this.deactivateMagnet());
     });
-
-    const magnets = document.querySelectorAll('[data-magnet]');
-    magnets.forEach(el => {
-      el.addEventListener('mouseenter', () => this.attract(el));
-      el.addEventListener('mouseleave', () => this.release());
+     document.querySelectorAll('[data-magnet-small]').forEach(el => {
+      el.addEventListener('mouseenter', () => this.activateMagnet(el, true));
+      el.addEventListener('mouseleave', () => this.deactivateMagnet());
     });
-
     this.animate();
   }
 
-  attract(el) {
-    const rect = el.getBoundingClientRect();
-    this.tx = rect.left + rect.width / 2;
-    this.ty = rect.top + rect.height / 2;
+  activateMagnet(el, isSmall = false) {
+    this.activeMagnet = el;
+    this.cursor.classList.add('cursor-hover-magnet');
+    this.follower.classList.add('follower-hover-magnet');
+    if (isSmall) this.cursor.style.transform = 'translate(-50%, -50%) scale(0.5)';
   }
 
-  release() {
-    this.tx = this.x;
-    this.ty = this.y;
+  deactivateMagnet() {
+    this.activeMagnet = null;
+    this.cursor.classList.remove('cursor-hover-magnet');
+    this.follower.classList.remove('follower-hover-magnet');
+    this.cursor.style.transform = 'translate(-50%, -50%) scale(1)';
   }
 
   animate() {
-    const lerp = 0.18;
-    this.tx += (this.x - this.tx) * lerp;
-    this.ty += (this.y - this.ty) * lerp;
-
-    if (this.cursor) {
-      this.cursor.style.left = this.x + 'px';
-      this.cursor.style.top = this.y + 'px';
+    let targetX = this.mouse.x, targetY = this.mouse.y;
+    if (this.activeMagnet) {
+      const rect = this.activeMagnet.getBoundingClientRect();
+      targetX = rect.left + rect.width / 2 + (this.mouse.x - (rect.left + rect.width / 2)) * 0.2;
+      targetY = rect.top + rect.height / 2 + (this.mouse.y - (rect.top + rect.height/2)) * 0.2;
     }
-
-    if (this.follower) {
-      this.follower.style.left = this.tx + 'px';
-      this.follower.style.top = this.ty + 'px';
-    }
-
+    this.pos.x += (targetX - this.pos.x) * this.speed;
+    this.pos.y += (targetY - this.pos.y) * this.speed;
+    this.cursor.style.transform = `translate3d(${this.mouse.x}px, ${this.mouse.y}px, 0) translate(-50%, -50%)`;
+    this.follower.style.transform = `translate3d(${this.pos.x}px, ${this.pos.y}px, 0) translate(-50%, -50%)`;
     requestAnimationFrame(() => this.animate());
   }
 }
 
 // ============================================================================
+// SEAMLESS MARQUEE (MOBILE SCALED)
+// ============================================================================
+class SeamlessMarquee {
+  constructor() {
+    this.container = document.querySelector('.skills-ticker-container');
+    this.track = document.querySelector('.skills-ticker-track');
+    if (!this.container || !this.track) return;
+    this.speed = 0.5;
+    this.offset = 0;
+    this.isDragging = false;
+    this.startX = 0;
+    this.startY = 0;
+    this.lastX = 0;
+    this.dragVelocity = 0;
+    this.init();
+  }
+
+  init() {
+    const originalContent = this.track.innerHTML;
+    while (this.track.scrollWidth < window.innerWidth * 5) {
+      this.track.insertAdjacentHTML('beforeend', originalContent);
+    }
+    this.loop();
+    this.bindEvents();
+  }
+
+  bindEvents() {
+    this.container.addEventListener('pointerdown', (e) => {
+      this.isDragging = true;
+      this.startX = e.clientX;
+      this.startY = e.clientY;
+      this.lastX = e.clientX;
+      this.dragVelocity = 0;
+      this.track.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('pointermove', (e) => {
+      if (!this.isDragging) return;
+      const deltaX = Math.abs(e.clientX - this.startX);
+      const deltaY = Math.abs(e.clientY - this.startY);
+      if (deltaY > deltaX) {
+          this.isDragging = false;
+          this.track.style.cursor = 'grab';
+          return;
+      }
+      e.preventDefault();
+      const isMobile = window.innerWidth < 768;
+      const dragMultiplier = isMobile ? 1.5 : 1.0;
+      const delta = (e.clientX - this.lastX) * dragMultiplier;
+      this.offset += delta;
+      this.dragVelocity = delta;
+      this.lastX = e.clientX;
+    }, { passive: false });
+
+    window.addEventListener('pointerup', () => {
+      this.isDragging = false;
+      this.track.style.cursor = 'grab';
+    });
+    window.addEventListener('pointercancel', () => {
+        this.isDragging = false;
+        this.track.style.cursor = 'grab';
+    });
+  }
+
+  loop() {
+    if (!this.isDragging) {
+      this.offset -= this.speed + this.dragVelocity;
+      this.dragVelocity *= 0.95;
+    }
+    const trackWidth = this.track.scrollWidth / 2;
+    if (this.offset <= -trackWidth) this.offset += trackWidth;
+    else if (this.offset > 0) this.offset -= trackWidth;
+
+    this.track.style.transform = `translate3d(${this.offset}px, 0, 0)`;
+    requestAnimationFrame(() => this.loop());
+  }
+}
+
+// ============================================================================
+// SCROLL REVEALS
+// ============================================================================
+class ScrollReveals {
+  constructor() {
+    this.options = { root: null, rootMargin: '0px', threshold: 0.15 };
+    this.observer = new IntersectionObserver(this.onIntersect.bind(this), this.options);
+    this.targets = document.querySelectorAll('.reveal-up, .reveal-side, .reveal-text');
+    this.init();
+  }
+  init() { this.targets.forEach(target => this.observer.observe(target)); }
+  onIntersect(entries) {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        this.observer.unobserve(entry.target);
+      }
+    });
+  }
+}
+
+// ============================================================================
+// UNIFIED PROJECT OBSERVER
+// ============================================================================
+class ProjectObserver {
+    constructor() {
+        this.options = { root: null, rootMargin: '-25% 0px -25% 0px', threshold: 0.5 };
+        this.observer = new IntersectionObserver(this.onIntersect.bind(this), this.options);
+        this.targets = document.querySelectorAll('.gallery-image-wrapper');
+        this.init();
+    }
+    init() { this.targets.forEach(target => this.observer.observe(target)); }
+    onIntersect(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('is-visible');
+            else entry.target.classList.remove('is-visible');
+        });
+    }
+}
+
+// ============================================================================
+// MOBILE TOUCH FIX
+// ============================================================================
+class MobileTouchFix {
+    constructor() {
+        this.targets = document.querySelectorAll('a, button, .kpi-stat, .exp-card, .education-item, .tech-tags li, .skill-category, .skill-tag, .award-card, .contact-item, .scroll-top-btn');
+        this.init();
+    }
+    init() {
+        this.targets.forEach(el => {
+            el.addEventListener('touchstart', () => el.classList.add('active-touch'), {passive: true});
+            el.addEventListener('touchend', () => setTimeout(() => el.classList.remove('active-touch'), 150), {passive: true});
+            el.addEventListener('touchcancel', () => el.classList.remove('active-touch'), {passive: true});
+        });
+    }
+}
+
+// ============================================================================
 // PRELOADER
 // ============================================================================
-class PreloaderManager {
+class Preloader {
   constructor() {
     this.preloader = document.getElementById('kinetic-preloader');
+    this.progress = document.querySelector('.loader-progress');
     if (!this.preloader) return;
-    this.animate();
+    this.start();
   }
-
-  animate() {
-    const progress = this.preloader.querySelector('.loader-progress');
-    gsap.to(progress, {
-      width: '100%',
-      duration: 1.8,
-      ease: 'power2.inOut',
-      onComplete: () => this.hide()
-    });
+  start() {
+    let width = 0;
+    const interval = setInterval(() => {
+      width += Math.random() * 15;
+      if (width > 100) width = 100;
+      this.progress.style.width = width + '%';
+      if (width === 100) {
+        clearInterval(interval);
+        setTimeout(() => this.hide(), 500);
+      }
+    }, 100);
   }
-
   hide() {
     gsap.to(this.preloader, {
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.out',
-      onComplete: () => {
-        this.preloader.style.display = 'none';
-        document.body.classList.remove('loading');
-      }
+      opacity: 0, duration: 0.8, ease: 'power2.inOut',
+      onComplete: () => { this.preloader.remove(); document.body.classList.remove('loading'); ScrollTrigger.refresh(); }
     });
   }
 }
 
 // ============================================================================
-// KPI COUNTER
+// 3D TILT EFFECT
 // ============================================================================
-class KPICounter {
+class TiltEffect {
   constructor() {
-    const items = document.querySelectorAll('[data-target]');
-    items.forEach(item => {
-      const target = parseFloat(item.getAttribute('data-target'));
-      const isDecimal = item.getAttribute('data-target').includes('.');
-
-      gsap.to({ val: 0 }, {
-        val: target,
-        duration: 2,
-        delay: 0.8,
-        ease: 'power3.out',
-        onUpdate: function() {
-          const value = isDecimal ? 
-            this.targets()[0].val.toFixed(1) : 
-            Math.floor(this.targets()[0].val);
-          item.textContent = value;
-        }
-      });
+    if (window.matchMedia('(hover: none)').matches) return;
+    this.cards = document.querySelectorAll('[data-tilt]');
+    this.init();
+  }
+  init() {
+    this.cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => this.handleMove(e, card));
+      card.addEventListener('mouseleave', () => this.handleLeave(card));
     });
+  }
+  handleMove(e, card) {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+  }
+  handleLeave(card) {
+    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
   }
 }
 
 // ============================================================================
-// SCROLL ANIMATIONS - OPTIMIZED
+// EXPERIENCE SCROLL
 // ============================================================================
-class ScrollAnimations {
-  constructor() {
-    gsap.registerPlugin(ScrollTrigger);
-    this.initParallaxGallery();
-    this.initDockNavigation();
-  }
-
-  initParallaxGallery() {
-    const images = document.querySelectorAll('.gallery-image');
-    images.forEach(img => {
-      const wrapper = img.closest('.gallery-image-wrapper');
-
-      gsap.to(img, {
-        yPercent: 20,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: wrapper,
-          start: 'top center',
-          end: 'bottom center',
-          scrub: 0.5
-        }
+class ExperienceScroll {
+    constructor() {
+      this.container = document.getElementById('experienceContainer');
+      this.track = document.getElementById('expScrollbarTrack');
+      this.thumb = document.getElementById('expScrollbarThumb');
+      if (!this.container || !this.track) return;
+      this.isDown = false; this.startX = 0; this.scrollLeft = 0;
+      this.init();
+    }
+    init() {
+      this.container.addEventListener('pointerdown', (e) => {
+        this.isDown = true;
+        this.container.classList.add('is-dragging');
+        this.startX = e.pageX - this.container.offsetLeft;
+        this.scrollLeft = this.container.scrollLeft;
       });
-    });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(evt => 
+          this.container.addEventListener(evt, () => {
+              this.isDown = false;
+              this.container.classList.remove('is-dragging');
+          })
+      );
+      this.container.addEventListener('pointermove', (e) => {
+        if (!this.isDown) return;
+        e.preventDefault();
+        const x = e.pageX - this.container.offsetLeft;
+        const walk = (x - this.startX) * 1.5;
+        this.container.scrollLeft = this.scrollLeft - walk;
+      });
+  
+      this.container.addEventListener('scroll', () => this.updateThumb());
+      window.addEventListener('resize', () => this.updateThumb());
+      this.updateThumb();
+  
+      this.track.addEventListener('click', (e) => {
+          if (e.target === this.thumb) return;
+          const rect = this.track.getBoundingClientRect();
+          const clickRatio = (e.clientX - rect.left) / rect.width;
+          this.container.scrollTo({ left: clickRatio * (this.container.scrollWidth - this.container.clientWidth), behavior: 'smooth' });
+      });
+
+      let thumbDown = false, thumbStartX = 0, thumbStartLeft = 0;
+      this.thumb.addEventListener('pointerdown', (e) => {
+          thumbDown = true;
+          thumbStartX = e.clientX;
+          thumbStartLeft = this.container.scrollLeft;
+          this.thumb.classList.add('dragging');
+          e.stopPropagation();
+      });
+      window.addEventListener('pointerup', () => { thumbDown = false; this.thumb.classList.remove('dragging'); });
+      window.addEventListener('pointermove', (e) => {
+          if(!thumbDown) return;
+          e.preventDefault();
+          const delta = e.clientX - thumbStartX;
+          const trackWidth = this.track.clientWidth;
+          const scrollableWidth = this.container.scrollWidth - this.container.clientWidth;
+          const ratio = scrollableWidth / trackWidth;
+          this.container.scrollLeft = thumbStartLeft + (delta * ratio);
+      });
+    }
+  
+    updateThumb() {
+      const { scrollLeft, scrollWidth, clientWidth } = this.container;
+      const maxScroll = scrollWidth - clientWidth;
+      if (maxScroll <= 0) { this.thumb.style.width = '100%'; this.thumb.style.left = '0%'; return; }
+      const thumbWidth = (clientWidth / scrollWidth) * 100;
+      const thumbLeft = (scrollLeft / maxScroll) * (100 - thumbWidth);
+      this.thumb.style.width = `${thumbWidth}%`;
+      this.thumb.style.left = `${thumbLeft}%`;
+    }
   }
 
-  initDockNavigation() {
-    const dockItems = document.querySelectorAll('.dock-item');
-    const sections = document.querySelectorAll('.kinetic-section');
-
+// ============================================================================
+// SCROLL TO TOP
+// ============================================================================
+class ScrollTop {
+  constructor(lenisInstance) {
+    this.btn = document.getElementById('scrollTop');
+    this.lenis = lenisInstance;
+    if (!this.btn) return;
+    this.init();
+  }
+  init() {
     window.addEventListener('scroll', () => {
-      let current = '';
-
-      sections.forEach(section => {
-        if (scrollY >= section.offsetTop - 250) {
-          current = section.getAttribute('id');
-        }
-      });
-
-      dockItems.forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href') === `#${current}`) {
-          item.classList.add('active');
-        }
-      });
+      if (window.scrollY > 500) this.btn.classList.add('visible');
+      else this.btn.classList.remove('visible');
     }, { passive: true });
+    this.btn.addEventListener('click', () => {
+      if (this.lenis) this.lenis.scrollTo(0);
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   }
 }
 
 // ============================================================================
-// SMOOTH SCROLLING
+// PARALLAX & INITIALIZATION
 // ============================================================================
-function initSmoothScroll() {
-  const lenis = new Lenis({
-    duration: 0.75,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    direction: 'vertical',
-    gestureDirection: 'vertical',
-    smooth: true,
-    mouseMultiplier: 1.15,
-    smoothTouch: false,
-    touchMultiplier: 1.8,
-    infinite: false,
+function initParallax() {
+  gsap.registerPlugin(ScrollTrigger);
+  document.querySelectorAll('.gallery-image-wrapper').forEach(wrapper => {
+    gsap.to(wrapper.querySelector('.gallery-image'), {
+      y: '20%', ease: 'none',
+      scrollTrigger: { trigger: wrapper, start: 'top bottom', end: 'bottom top', scrub: true }
+    });
   });
 
-  window.lenis = lenis;
-
-  function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
-
-  requestAnimationFrame(raf);
-}
-
-// ============================================================================
-// INFINITE TICKER - OPTIMIZED
-// ============================================================================
-class InfiniteTicker {
-  constructor() {
-    const ticker = document.querySelector('.skills-ticker-track');
-    if (!ticker) return;
-
-    const items = ticker.querySelectorAll('span');
-    if (items.length === 0) return;
-
-    const firstItem = items[0];
-    const clone = firstItem.cloneNode(true);
-    ticker.appendChild(clone);
-
-    const itemWidth = firstItem.offsetWidth;
-
-    gsap.to(ticker, {
-      x: -itemWidth,
-      duration: 20,
-      ease: 'none',
-      repeat: -1,
-      modifiers: {
-        x: gsap.utils.unitize(x => parseFloat(x) % itemWidth)
-      }
+  const sections = document.querySelectorAll('section');
+  const navItems = document.querySelectorAll('.dock-item[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      const sectionTop = section.offsetTop;
+      if (scrollY >= sectionTop - section.clientHeight / 3) current = section.getAttribute('id');
     });
-  }
-}
-
-// ============================================================================
-// HOVER EFFECTS - OPTIMIZED
-// ============================================================================
-class HoverEffects {
-  constructor() {
-    const cards = document.querySelectorAll('.skill-category, .contact-item, .award-card, .exp-card, .education-item, .tech-tags li');
-    cards.forEach(card => {
-      if (card.tagName === 'LI') return;
-
-      card.addEventListener('mouseenter', () => {
-        gsap.to(card, { y: -6, duration: 0.2, ease: 'power2.out' });
-      });
-      card.addEventListener('mouseleave', () => {
-        gsap.to(card, { y: 0, duration: 0.2, ease: 'power2.out' });
-      });
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('href') === `#${current}`) item.classList.add('active');
     });
-  }
+  }, { passive: true });
 }
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
   new ThemeManager();
+  new Preloader();
   new VisibleScrollBar();
   new MagneticCursor();
-  new PreloaderManager();
-  new KPICounter();
-  new ScrollAnimations();
-  new ExperienceScrollbar();
-  new InfiniteTicker();
-  new HoverEffects();
-
-  initSmoothScroll();
+  new SeamlessMarquee();
+  new ScrollReveals();
+  new ProjectObserver();
+  new MobileTouchFix();
+  new ExperienceScroll();
+  new TiltEffect();
+  initParallax();
   lucide.createIcons();
 
-  // Smooth scroll for links
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = document.querySelector(link.getAttribute('href'));
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
+  const kpiObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('[data-target]').forEach(counter => {
+          const target = parseFloat(counter.getAttribute('data-target'));
+          gsap.to(counter, {
+            textContent: target, duration: 2.5, ease: 'power2.out', snap: { textContent: 0.1 },
+            onUpdate: function() { counter.textContent = Number.isInteger(target) ? Math.round(this.targets()[0].textContent) : parseFloat(this.targets()[0].textContent).toFixed(1); }
+          });
+        });
+        kpiObserver.unobserve(entry.target);
       }
     });
+  }, { threshold: 0.5 });
+  const kpiSection = document.querySelector('.kpi-dashboard');
+  if (kpiSection) kpiObserver.observe(kpiSection);
+
+  const lenis = new Lenis({ duration: 0.9, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothTouch: false });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) { e.preventDefault(); lenis.scrollTo(this.getAttribute('href')); });
   });
+
+  new ScrollTop(lenis); // Initialize ScrollTop with Lenis instance
 });
-
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    gsap.globalTimeline.pause();
-  } else {
-    gsap.globalTimeline.play();
-  }
-});
-
-// ============================================================================
-// CURSOR HELPER
-// ============================================================================
-function __forwardCursorMove(x, y) {
-  try {
-    const evt = new MouseEvent('mousemove', {
-      clientX: x,
-      clientY: y,
-      bubbles: true,
-      cancelable: false,
-      view: window
-    });
-    document.dispatchEvent(evt);
-  } catch (_) { /* no-op */ }
-}
-
-function updateCursorPosition(x, y) {
-  // Helper for cursor position updates
-}
