@@ -48,7 +48,7 @@ class VisibleScrollBar {
     let resizeTimer;
     window.addEventListener('resize', () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => this.updateDimensions(), 150);
+      resizeTimer = setTimeout(() => this.updateDimensions(), 200); // Increased debounce
     }, { passive: true });
 
     // SYNC UPDATE DIRECTLY WITH LENIS SCROLL EVENT FOR FLUIDITY
@@ -258,7 +258,6 @@ class SeamlessMarquee {
     window.addEventListener('pointermove', (e) => {
       if (!this.isDragging) return;
       e.preventDefault();
-      // Uniform drag sensitivity for both desktop and mobile
       const delta = (e.clientX - this.lastX) * 1.5;
       this.offset += delta;
       this.dragVelocity = delta;
@@ -275,7 +274,6 @@ class SeamlessMarquee {
       this.isDragging = false;
       this.track.style.cursor = 'grab';
 
-      // Unified Snapping Logic for all devices
       if (Math.abs(this.dragVelocity) > 1) {
           const direction = Math.sign(this.dragVelocity);
           const currentItemIndex = Math.round(-this.offset / this.itemWidth);
@@ -483,11 +481,9 @@ document.addEventListener('DOMContentLoaded', () => {
   new ProjectObserver(); new MobileTouchFix(); new ExperienceScroll();
   new TiltEffect(); new ScrollTop(); initParallax(); lucide.createIcons();
 
-  // DOCK TOOLTIP FIX: Temporarily hide tooltips after click
   document.querySelectorAll('.dock-item').forEach(item => {
       item.addEventListener('click', () => {
           item.classList.add('tooltip-dismissed');
-          // Remove class after 800ms so it can show again on hover later
           setTimeout(() => item.classList.remove('tooltip-dismissed'), 800);
       });
   });
