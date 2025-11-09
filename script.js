@@ -1,7 +1,9 @@
-/* POST-MVP 3.0 - SCROLL TO TOP ADDITION
+/* FINAL PERFORMANCE OPTIMIZED & POLISHED SCRIPT
    ================================================================================== */
 
 'use strict';
+
+let lenis;
 
 // ============================================================================
 // THEME MANAGER
@@ -12,18 +14,11 @@ class ThemeManager {
     this.apply();
     this.init();
   }
-
-  apply() {
-    document.documentElement.setAttribute('data-theme', this.theme);
-  }
-
+  apply() { document.documentElement.setAttribute('data-theme', this.theme); }
   init() {
     const btn = document.getElementById('theme-switch');
-    if (btn) {
-      btn.addEventListener('click', () => this.toggle());
-    }
+    if (btn) btn.addEventListener('click', () => this.toggle());
   }
-
   toggle() {
     this.theme = this.theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('theme', this.theme);
@@ -32,17 +27,15 @@ class ThemeManager {
 }
 
 // ============================================================================
-// CUSTOM PAGE SCROLL BAR
+// OPTIMIZED CUSTOM SCROLL BAR (SYNCED WITH LENIS RAF)
 // ============================================================================
 class VisibleScrollBar {
   constructor() {
     if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
-
     this.container = document.querySelector('.scroll-bar-container');
     this.track = document.querySelector('.scroll-bar-track');
     this.thumb = document.querySelector('.scroll-bar-thumb');
     if (!this.container || !this.track || !this.thumb) return;
-
     this.isDragging = false;
     this.startY = 0;
     this.startThumbY = 0;
@@ -51,8 +44,20 @@ class VisibleScrollBar {
 
   init() {
     this.updateDimensions();
-    window.addEventListener('resize', () => this.updateDimensions(), { passive: true });
-    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    // Debounce resize for performance
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => this.updateDimensions(), 150);
+    }, { passive: true });
+
+    // SYNC UPDATE DIRECTLY WITH LENIS SCROLL EVENT FOR FLUIDITY
+    lenis.on('scroll', ({ scroll }) => {
+       if (!this.isDragging) {
+           const thumbPos = scroll / this.scrollRatio;
+           this.thumb.style.transform = `translate3d(0, ${thumbPos}px, 0)`;
+       }
+    });
 
     this.thumb.addEventListener('pointerdown', this.startDrag.bind(this));
     window.addEventListener('pointermove', this.onDrag.bind(this), { passive: false });
@@ -62,21 +67,14 @@ class VisibleScrollBar {
 
   updateDimensions() {
     this.trackHeight = this.track.offsetHeight;
-    const docHeight = document.documentElement.scrollHeight;
-    const winHeight = window.innerHeight;
-    this.thumbHeight = Math.max((winHeight / docHeight) * this.trackHeight, 30);
+    this.docHeight = document.documentElement.scrollHeight;
+    this.winHeight = window.innerHeight;
+    this.thumbHeight = Math.max((this.winHeight / this.docHeight) * this.trackHeight, 30);
     this.thumb.style.height = `${this.thumbHeight}px`;
-    this.scrollRatio = (docHeight - winHeight) / (this.trackHeight - this.thumbHeight);
-    this.onScroll();
-  }
-
-  onScroll() {
-    if (this.isDragging) return;
-    requestAnimationFrame(() => {
-      const scrollPos = window.scrollY;
-      const thumbPos = scrollPos / this.scrollRatio;
-      this.thumb.style.transform = `translate3d(0, ${Math.min(Math.max(0, thumbPos), this.trackHeight - this.thumbHeight)}px, 0)`;
-    });
+    this.scrollRatio = (this.docHeight - this.winHeight) / (this.trackHeight - this.thumbHeight);
+    // Initial position update
+    const thumbPos = lenis.scroll / this.scrollRatio;
+    this.thumb.style.transform = `translate3d(0, ${thumbPos}px, 0)`;
   }
 
   startDrag(e) {
@@ -95,11 +93,8 @@ class VisibleScrollBar {
     e.preventDefault();
     const deltaY = e.clientY - this.startY;
     const newThumbY = Math.min(Math.max(0, this.startThumbY + deltaY), this.trackHeight - this.thumbHeight);
-    
-    requestAnimationFrame(() => {
-      this.thumb.style.transform = `translate3d(0, ${newThumbY}px, 0)`;
-      window.scrollTo(0, newThumbY * this.scrollRatio);
-    });
+    lenis.scrollTo(newThumbY * this.scrollRatio, { immediate: true });
+    this.thumb.style.transform = `translate3d(0, ${newThumbY}px, 0)`;
   }
 
   stopDrag() {
@@ -111,17 +106,13 @@ class VisibleScrollBar {
   onTrackClick(e) {
     if (e.target === this.thumb) return;
     const rect = this.track.getBoundingClientRect();
-    const clickY = e.clientY - rect.top;
-    const thumbY = clickY - (this.thumbHeight / 2);
-    window.scrollTo({
-      top: Math.min(Math.max(0, thumbY), this.trackHeight - this.thumbHeight) * this.scrollRatio,
-      behavior: 'smooth'
-    });
+    const thumbY = (e.clientY - rect.top) - (this.thumbHeight / 2);
+    lenis.scrollTo(Math.min(Math.max(0, thumbY), this.trackHeight - this.thumbHeight) * this.scrollRatio);
   }
 }
 
 // ============================================================================
-// MAGNETIC CURSOR
+// SMART MAGNETIC CURSOR (AUTO-HIDE & RESET)
 // ============================================================================
 class MagneticCursor {
   constructor() {
@@ -132,11 +123,37 @@ class MagneticCursor {
     this.mouse = { x: this.pos.x, y: this.pos.y };
     this.speed = 0.6;
     this.activeMagnet = null;
+    this.isActive = false;
     this.init();
   }
 
   init() {
-    window.addEventListener('pointermove', (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; }, {passive: true});
+    // Track mouse position and visibility
+    window.addEventListener('pointermove', (e) => {
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+        if (!this.isActive) {
+            this.isActive = true;
+            this.animate();
+        }
+    }, {passive: true});
+
+    // Auto-hide on leave
+    document.addEventListener('mouseleave', () => {
+        this.cursor.style.opacity = '0';
+        this.follower.style.opacity = '0';
+    });
+
+    // Show on enter and reset position instantly
+    document.addEventListener('mouseenter', (e) => {
+        this.cursor.style.opacity = '1';
+        this.follower.style.opacity = '0.5';
+        this.pos.x = e.clientX;
+        this.pos.y = e.clientY;
+        this.mouse.x = e.clientX;
+        this.mouse.y = e.clientY;
+    });
+
     document.querySelectorAll('[data-magnet]').forEach(el => {
       el.addEventListener('mouseenter', () => this.activateMagnet(el));
       el.addEventListener('mouseleave', () => this.deactivateMagnet());
@@ -145,7 +162,6 @@ class MagneticCursor {
       el.addEventListener('mouseenter', () => this.activateMagnet(el, true));
       el.addEventListener('mouseleave', () => this.deactivateMagnet());
     });
-    this.animate();
   }
 
   activateMagnet(el, isSmall = false) {
@@ -169,16 +185,23 @@ class MagneticCursor {
       targetX = rect.left + rect.width / 2 + (this.mouse.x - (rect.left + rect.width / 2)) * 0.2;
       targetY = rect.top + rect.height / 2 + (this.mouse.y - (rect.top + rect.height/2)) * 0.2;
     }
+
     this.pos.x += (targetX - this.pos.x) * this.speed;
     this.pos.y += (targetY - this.pos.y) * this.speed;
     this.cursor.style.transform = `translate3d(${this.mouse.x}px, ${this.mouse.y}px, 0) translate(-50%, -50%)`;
     this.follower.style.transform = `translate3d(${this.pos.x}px, ${this.pos.y}px, 0) translate(-50%, -50%)`;
-    requestAnimationFrame(() => this.animate());
+
+    const delta = Math.abs(targetX - this.pos.x) + Math.abs(targetY - this.pos.y);
+    if (delta < 0.1 && !this.activeMagnet) {
+        this.isActive = false;
+    } else {
+        requestAnimationFrame(() => this.animate());
+    }
   }
 }
 
 // ============================================================================
-// SEAMLESS MARQUEE (MOBILE SCALED)
+// UNIFIED DRAGGABLE MARQUEE (DESKTOP & MOBILE)
 // ============================================================================
 class SeamlessMarquee {
   constructor() {
@@ -189,9 +212,10 @@ class SeamlessMarquee {
     this.offset = 0;
     this.isDragging = false;
     this.startX = 0;
-    this.startY = 0;
     this.lastX = 0;
     this.dragVelocity = 0;
+    this.isVisible = false;
+    this.itemWidth = 0;
     this.init();
   }
 
@@ -200,15 +224,32 @@ class SeamlessMarquee {
     while (this.track.scrollWidth < window.innerWidth * 5) {
       this.track.insertAdjacentHTML('beforeend', originalContent);
     }
-    this.loop();
+    this.measureItem();
+    window.addEventListener('resize', () => this.measureItem(), {passive: true});
+
+    const observer = new IntersectionObserver((entries) => {
+        this.isVisible = entries[0].isIntersecting;
+        if (this.isVisible && !this.animationFrame) this.loop();
+    });
+    observer.observe(this.container);
+
     this.bindEvents();
+  }
+
+  measureItem() {
+      const firstItem = this.track.querySelector('.ticker-item');
+      const sep = this.track.querySelector('.sep');
+      if (firstItem && sep) {
+          this.itemWidth = firstItem.offsetWidth + sep.offsetWidth + 
+                           parseInt(window.getComputedStyle(firstItem).marginLeft) * 2 +
+                           parseInt(window.getComputedStyle(sep).marginLeft) * 2;
+      }
   }
 
   bindEvents() {
     this.container.addEventListener('pointerdown', (e) => {
       this.isDragging = true;
       this.startX = e.clientX;
-      this.startY = e.clientY;
       this.lastX = e.clientX;
       this.dragVelocity = 0;
       this.track.style.cursor = 'grabbing';
@@ -216,156 +257,136 @@ class SeamlessMarquee {
 
     window.addEventListener('pointermove', (e) => {
       if (!this.isDragging) return;
-      const deltaX = Math.abs(e.clientX - this.startX);
-      const deltaY = Math.abs(e.clientY - this.startY);
-      if (deltaY > deltaX) {
-          this.isDragging = false;
-          this.track.style.cursor = 'grab';
-          return;
-      }
       e.preventDefault();
-      const isMobile = window.innerWidth < 768;
-      const dragMultiplier = isMobile ? 1.5 : 1.0;
-      const delta = (e.clientX - this.lastX) * dragMultiplier;
+      // Uniform drag sensitivity for both desktop and mobile
+      const delta = (e.clientX - this.lastX) * 1.5;
       this.offset += delta;
       this.dragVelocity = delta;
       this.lastX = e.clientX;
+      this.updateTrackPosition();
     }, { passive: false });
 
-    window.addEventListener('pointerup', () => {
+    window.addEventListener('pointerup', this.onDragEnd.bind(this));
+    window.addEventListener('pointercancel', this.onDragEnd.bind(this));
+  }
+
+  onDragEnd() {
+      if (!this.isDragging) return;
       this.isDragging = false;
       this.track.style.cursor = 'grab';
-    });
-    window.addEventListener('pointercancel', () => {
-        this.isDragging = false;
-        this.track.style.cursor = 'grab';
-    });
+
+      // Unified Snapping Logic for all devices
+      if (Math.abs(this.dragVelocity) > 1) {
+          const direction = Math.sign(this.dragVelocity);
+          const currentItemIndex = Math.round(-this.offset / this.itemWidth);
+          const targetIndex = currentItemIndex - direction;
+          gsap.to(this, {
+              offset: -targetIndex * this.itemWidth,
+              duration: 0.6,
+              ease: "power2.out",
+              onUpdate: () => this.updateTrackPosition()
+          });
+      }
   }
 
   loop() {
+    if (!this.isVisible) { this.animationFrame = null; return; }
     if (!this.isDragging) {
       this.offset -= this.speed + this.dragVelocity;
       this.dragVelocity *= 0.95;
     }
+    this.updateTrackPosition();
+    this.animationFrame = requestAnimationFrame(() => this.loop());
+  }
+
+  updateTrackPosition() {
     const trackWidth = this.track.scrollWidth / 2;
     if (this.offset <= -trackWidth) this.offset += trackWidth;
     else if (this.offset > 0) this.offset -= trackWidth;
-
     this.track.style.transform = `translate3d(${this.offset}px, 0, 0)`;
-    requestAnimationFrame(() => this.loop());
   }
 }
 
 // ============================================================================
-// SCROLL REVEALS
+// OPTIMIZED OBSERVERS & HELPERS
 // ============================================================================
 class ScrollReveals {
   constructor() {
-    this.options = { root: null, rootMargin: '0px', threshold: 0.15 };
-    this.observer = new IntersectionObserver(this.onIntersect.bind(this), this.options);
-    this.targets = document.querySelectorAll('.reveal-up, .reveal-side, .reveal-text');
-    this.init();
-  }
-  init() { this.targets.forEach(target => this.observer.observe(target)); }
-  onIntersect(entries) {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-        this.observer.unobserve(entry.target);
-      }
-    });
+    this.observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          requestAnimationFrame(() => entry.target.classList.add('revealed'));
+          this.observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal-up, .reveal-side, .reveal-text').forEach(t => this.observer.observe(t));
   }
 }
 
-// ============================================================================
-// UNIFIED PROJECT OBSERVER
-// ============================================================================
 class ProjectObserver {
     constructor() {
-        this.options = { root: null, rootMargin: '-25% 0px -25% 0px', threshold: 0.5 };
-        this.observer = new IntersectionObserver(this.onIntersect.bind(this), this.options);
-        this.targets = document.querySelectorAll('.gallery-image-wrapper');
-        this.init();
-    }
-    init() { this.targets.forEach(target => this.observer.observe(target)); }
-    onIntersect(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) entry.target.classList.add('is-visible');
-            else entry.target.classList.remove('is-visible');
-        });
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting !== entry.target.classList.contains('is-visible')) {
+                     entry.target.classList.toggle('is-visible', entry.isIntersecting);
+                }
+            });
+        }, { rootMargin: '10% 0px', threshold: 0 });
+        document.querySelectorAll('.gallery-image-wrapper').forEach(t => this.observer.observe(t));
     }
 }
 
-// ============================================================================
-// MOBILE TOUCH FIX
-// ============================================================================
 class MobileTouchFix {
     constructor() {
-        this.targets = document.querySelectorAll('a, button, .kpi-stat, .exp-card, .education-item, .tech-tags li, .skill-category, .skill-tag, .award-card, .contact-item, .scroll-top-btn');
-        this.init();
-    }
-    init() {
-        this.targets.forEach(el => {
+        document.querySelectorAll('a, button, .kpi-stat, .exp-card, .education-item, .tech-tags li, .skill-category, .skill-tag, .award-card, .contact-item, .scroll-top-btn').forEach(el => {
             el.addEventListener('touchstart', () => el.classList.add('active-touch'), {passive: true});
             el.addEventListener('touchend', () => setTimeout(() => el.classList.remove('active-touch'), 150), {passive: true});
-            el.addEventListener('touchcancel', () => el.classList.remove('active-touch'), {passive: true});
         });
     }
 }
 
-// ============================================================================
-// PRELOADER
-// ============================================================================
 class Preloader {
   constructor() {
     this.preloader = document.getElementById('kinetic-preloader');
     this.progress = document.querySelector('.loader-progress');
-    if (!this.preloader) return;
-    this.start();
+    if (this.preloader) this.start();
   }
   start() {
     let width = 0;
-    const interval = setInterval(() => {
-      width += Math.random() * 15;
-      if (width > 100) width = 100;
-      this.progress.style.width = width + '%';
-      if (width === 100) {
-        clearInterval(interval);
-        setTimeout(() => this.hide(), 500);
-      }
-    }, 100);
+    const update = () => {
+        width += Math.random() * 2.5; 
+        if (width > 100) width = 100;
+        this.progress.style.width = width + '%';
+        if (width < 100) requestAnimationFrame(update);
+        else setTimeout(() => this.hide(), 200);
+    };
+    requestAnimationFrame(update);
   }
   hide() {
     gsap.to(this.preloader, {
       opacity: 0, duration: 0.8, ease: 'power2.inOut',
-      onComplete: () => { this.preloader.remove(); document.body.classList.remove('loading'); ScrollTrigger.refresh(); }
+      onComplete: () => { 
+          this.preloader.remove(); 
+          document.body.classList.remove('loading'); 
+          ScrollTrigger.refresh(); 
+      }
     });
   }
 }
 
-// ============================================================================
-// 3D TILT EFFECT
-// ============================================================================
 class TiltEffect {
   constructor() {
     if (window.matchMedia('(hover: none)').matches) return;
-    this.cards = document.querySelectorAll('[data-tilt]');
-    this.init();
-  }
-  init() {
-    this.cards.forEach(card => {
-      card.addEventListener('mousemove', (e) => this.handleMove(e, card));
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      card.addEventListener('mousemove', (e) => requestAnimationFrame(() => this.handleMove(e, card)));
       card.addEventListener('mouseleave', () => this.handleLeave(card));
     });
   }
   handleMove(e, card) {
     const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -8;
-    const rotateY = ((x - centerX) / centerX) * 8;
+    const rotateX = ((e.clientY - rect.top - rect.height / 2) / (rect.height / 2)) * -5;
+    const rotateY = ((e.clientX - rect.left - rect.width / 2) / (rect.width / 2)) * 5;
     card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
   }
   handleLeave(card) {
@@ -373,9 +394,6 @@ class TiltEffect {
   }
 }
 
-// ============================================================================
-// EXPERIENCE SCROLL
-// ============================================================================
 class ExperienceScroll {
     constructor() {
       this.container = document.getElementById('experienceContainer');
@@ -401,139 +419,96 @@ class ExperienceScroll {
       this.container.addEventListener('pointermove', (e) => {
         if (!this.isDown) return;
         e.preventDefault();
-        const x = e.pageX - this.container.offsetLeft;
-        const walk = (x - this.startX) * 1.5;
-        this.container.scrollLeft = this.scrollLeft - walk;
+        this.container.scrollLeft = this.scrollLeft - (e.pageX - this.container.offsetLeft - this.startX) * 1.5;
       });
-  
-      this.container.addEventListener('scroll', () => this.updateThumb());
-      window.addEventListener('resize', () => this.updateThumb());
+      this.container.addEventListener('scroll', () => requestAnimationFrame(() => this.updateThumb()), { passive: true });
+      window.addEventListener('resize', () => this.updateThumb(), { passive: true });
       this.updateThumb();
   
       this.track.addEventListener('click', (e) => {
           if (e.target === this.thumb) return;
-          const rect = this.track.getBoundingClientRect();
-          const clickRatio = (e.clientX - rect.left) / rect.width;
-          this.container.scrollTo({ left: clickRatio * (this.container.scrollWidth - this.container.clientWidth), behavior: 'smooth' });
-      });
-
-      let thumbDown = false, thumbStartX = 0, thumbStartLeft = 0;
-      this.thumb.addEventListener('pointerdown', (e) => {
-          thumbDown = true;
-          thumbStartX = e.clientX;
-          thumbStartLeft = this.container.scrollLeft;
-          this.thumb.classList.add('dragging');
-          e.stopPropagation();
-      });
-      window.addEventListener('pointerup', () => { thumbDown = false; this.thumb.classList.remove('dragging'); });
-      window.addEventListener('pointermove', (e) => {
-          if(!thumbDown) return;
-          e.preventDefault();
-          const delta = e.clientX - thumbStartX;
-          const trackWidth = this.track.clientWidth;
-          const scrollableWidth = this.container.scrollWidth - this.container.clientWidth;
-          const ratio = scrollableWidth / trackWidth;
-          this.container.scrollLeft = thumbStartLeft + (delta * ratio);
+          const ratio = (e.clientX - this.track.getBoundingClientRect().left) / this.track.clientWidth;
+          this.container.scrollTo({ left: ratio * (this.container.scrollWidth - this.container.clientWidth), behavior: 'smooth' });
       });
     }
-  
     updateThumb() {
-      const { scrollLeft, scrollWidth, clientWidth } = this.container;
-      const maxScroll = scrollWidth - clientWidth;
-      if (maxScroll <= 0) { this.thumb.style.width = '100%'; this.thumb.style.left = '0%'; return; }
-      const thumbWidth = (clientWidth / scrollWidth) * 100;
-      const thumbLeft = (scrollLeft / maxScroll) * (100 - thumbWidth);
+      const maxScroll = this.container.scrollWidth - this.container.clientWidth;
+      const thumbWidth = (this.container.clientWidth / this.container.scrollWidth) * 100;
       this.thumb.style.width = `${thumbWidth}%`;
-      this.thumb.style.left = `${thumbLeft}%`;
+      this.thumb.style.left = `${(this.container.scrollLeft / maxScroll) * (100 - thumbWidth)}%`;
     }
   }
 
-// ============================================================================
-// SCROLL TO TOP
-// ============================================================================
 class ScrollTop {
-  constructor(lenisInstance) {
+  constructor() {
     this.btn = document.getElementById('scrollTop');
-    this.lenis = lenisInstance;
     if (!this.btn) return;
-    this.init();
-  }
-  init() {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 500) this.btn.classList.add('visible');
-      else this.btn.classList.remove('visible');
-    }, { passive: true });
-    this.btn.addEventListener('click', () => {
-      if (this.lenis) this.lenis.scrollTo(0);
-      else window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
+    lenis.on('scroll', ({ scroll }) => this.btn.classList.toggle('visible', scroll > 500));
+    this.btn.addEventListener('click', () => lenis.scrollTo(0));
   }
 }
 
-// ============================================================================
-// PARALLAX & INITIALIZATION
-// ============================================================================
 function initParallax() {
   gsap.registerPlugin(ScrollTrigger);
   document.querySelectorAll('.gallery-image-wrapper').forEach(wrapper => {
     gsap.to(wrapper.querySelector('.gallery-image'), {
-      y: '20%', ease: 'none',
+      y: '15%', ease: 'none',
       scrollTrigger: { trigger: wrapper, start: 'top bottom', end: 'bottom top', scrub: true }
     });
   });
 
-  const sections = document.querySelectorAll('section');
   const navItems = document.querySelectorAll('.dock-item[href^="#"]');
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      if (scrollY >= sectionTop - section.clientHeight / 3) current = section.getAttribute('id');
-    });
-    navItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('href') === `#${current}`) item.classList.add('active');
-    });
-  }, { passive: true });
+  const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+              const id = entry.target.getAttribute('id');
+              navItems.forEach(item => item.classList.toggle('active', item.getAttribute('href') === `#${id}`));
+          }
+      });
+  }, { rootMargin: '-10% 0px -80% 0px', threshold: [0, 0.5, 1] });
+  document.querySelectorAll('section').forEach(s => sectionObserver.observe(s));
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  new ThemeManager();
-  new Preloader();
-  new VisibleScrollBar();
-  new MagneticCursor();
-  new SeamlessMarquee();
-  new ScrollReveals();
-  new ProjectObserver();
-  new MobileTouchFix();
-  new ExperienceScroll();
-  new TiltEffect();
-  initParallax();
-  lucide.createIcons();
+  lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothTouch: true, touchMultiplier: 1.5,
+  });
+  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+
+  new ThemeManager(); new Preloader(); new VisibleScrollBar();
+  new MagneticCursor(); new SeamlessMarquee(); new ScrollReveals();
+  new ProjectObserver(); new MobileTouchFix(); new ExperienceScroll();
+  new TiltEffect(); new ScrollTop(); initParallax(); lucide.createIcons();
+
+  // DOCK TOOLTIP FIX: Temporarily hide tooltips after click
+  document.querySelectorAll('.dock-item').forEach(item => {
+      item.addEventListener('click', () => {
+          item.classList.add('tooltip-dismissed');
+          // Remove class after 800ms so it can show again on hover later
+          setTimeout(() => item.classList.remove('tooltip-dismissed'), 800);
+      });
+  });
 
   const kpiObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.querySelectorAll('[data-target]').forEach(counter => {
-          const target = parseFloat(counter.getAttribute('data-target'));
-          gsap.to(counter, {
-            textContent: target, duration: 2.5, ease: 'power2.out', snap: { textContent: 0.1 },
-            onUpdate: function() { counter.textContent = Number.isInteger(target) ? Math.round(this.targets()[0].textContent) : parseFloat(this.targets()[0].textContent).toFixed(1); }
+        entry.target.querySelectorAll('[data-target]').forEach(c => {
+          const t = parseFloat(c.getAttribute('data-target'));
+          gsap.to(c, { textContent: t, duration: 2.5, ease: 'power2.out', snap: { textContent: 0.1 },
+            onUpdate: function() { c.textContent = Number.isInteger(t) ? Math.round(this.targets()[0].textContent) : parseFloat(this.targets()[0].textContent).toFixed(1); }
           });
         });
         kpiObserver.unobserve(entry.target);
       }
     });
   }, { threshold: 0.5 });
-  const kpiSection = document.querySelector('.kpi-dashboard');
-  if (kpiSection) kpiObserver.observe(kpiSection);
+  const kpi = document.querySelector('.kpi-dashboard');
+  if (kpi) kpiObserver.observe(kpi);
 
-  const lenis = new Lenis({ duration: 0.9, easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothTouch: false });
-  function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-  requestAnimationFrame(raf);
-  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) { e.preventDefault(); lenis.scrollTo(this.getAttribute('href')); });
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', function (e) { e.preventDefault(); lenis.scrollTo(this.getAttribute('href')); });
   });
-
-  new ScrollTop(lenis); // Initialize ScrollTop with Lenis instance
 });

@@ -1,4 +1,4 @@
-/* POST-MVP 3.0 - SCROLL TO TOP ADDITION
+/* POST-MVP 3.0 - FINAL POLISH & FLUIDITY
    ======================================================================================== */
 
 :root {
@@ -77,8 +77,9 @@ body::before {
 /* -------------------------------------------------------------------------- */
 /* Cursor */
 /* -------------------------------------------------------------------------- */
-.magnetic-cursor { position: fixed; width: 10px; height: 10px; background-color: var(--cursor-color); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); box-shadow: 0 0 12px var(--cursor-color); will-change: transform, width, height; transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease; }
-.cursor-follower { position: fixed; width: 35px; height: 35px; border: 1.5px solid var(--text-primary); border-radius: 50%; pointer-events: none; z-index: 9998; opacity: 0.5; transform: translate(-50%, -50%); will-change: transform, width, height, opacity; }
+/* Transition added for smooth opacity change on enter/leave */
+.magnetic-cursor { position: fixed; width: 10px; height: 10px; background-color: var(--cursor-color); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); box-shadow: 0 0 12px var(--cursor-color); will-change: transform, width, height, opacity; transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease, opacity 0.3s ease; }
+.cursor-follower { position: fixed; width: 35px; height: 35px; border: 1.5px solid var(--text-primary); border-radius: 50%; pointer-events: none; z-index: 9998; opacity: 0.5; transform: translate(-50%, -50%); will-change: transform, width, height, opacity; transition: opacity 0.3s ease; }
 .cursor-hover-magnet { width: 50px !important; height: 50px !important; background-color: transparent !important; border: 1px solid var(--glow-accent); opacity: 1 !important; }
 .follower-hover-magnet { opacity: 0 !important; transform: translate(-50%, -50%) scale(0.8); }
 
@@ -86,8 +87,8 @@ body::before {
 /* Hero Section */
 /* -------------------------------------------------------------------------- */
 .hero-section { min-height: 100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; padding-top:40px; }
-.hero-bg-elemental { position: absolute; inset: -50%; width: 200%; height: 200%; background-image: radial-gradient(ellipse at center, var(--frost-color-1) 0%, transparent 70%), radial-gradient(ellipse at bottom right, var(--frost-color-2) 0%, transparent 60%); filter: blur(80px); opacity: 0.7; animation: haze-drift 25s infinite alternate ease-in-out; will-change: transform; }
-@keyframes haze-drift { 0% { transform: translate(-5%, 0) rotate(0deg); } 100% { transform: translate(5%, 5%) rotate(3deg); } }
+.hero-bg-elemental { position: absolute; inset: -50%; width: 200%; height: 200%; background-image: radial-gradient(ellipse at center, var(--frost-color-1) 0%, transparent 70%), radial-gradient(ellipse at bottom right, var(--frost-color-2) 0%, transparent 60%); filter: blur(80px); opacity: 0.7; animation: haze-drift 25s infinite alternate ease-in-out; will-change: transform; transform: translateZ(0); }
+@keyframes haze-drift { 0% { transform: translate3d(-5%, 0, 0) rotate(0deg); } 100% { transform: translate3d(5%, 5%, 0) rotate(3deg); } }
 .hero-bg-electric { position: absolute; inset: 0; width: 100%; height: 100%; background-image: radial-gradient(1px 1px at 10% 10%, var(--spark-color) 50%, transparent 100%), radial-gradient(1px 1px at 20% 30%, var(--spark-color) 50%, transparent 100%), radial-gradient(2px 2px at 40% 70%, var(--spark-color) 50%, transparent 100%), radial-gradient(2px 2px at 60% 20%, var(--spark-color) 50%, transparent 100%), radial-gradient(1px 1px at 80% 50%, var(--spark-color) 50%, transparent 100%), radial-gradient(1.5px 1.5px at 90% 90%, var(--spark-color) 50%, transparent 100%); background-size: 120% 120%; opacity: 0.6; animation: spark-flicker 0.2s infinite alternate; will-change: opacity; }
 @keyframes spark-flicker { 0% { opacity: 0.3; } 100% { opacity: 0.7; } }
 .hero-bg-grid { position: absolute; inset: 0; width: 100%; height: 100%; background: repeating-linear-gradient(90deg, transparent 0, transparent 50px, rgba(var(--glow-rgb), 0.03) 50px, rgba(var(--glow-rgb), 0.03) 51px); mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%); -webkit-mask-image: radial-gradient(circle at 50% 50%, black 30%, transparent 80%); opacity: 0.5; animation: scanline-move 10s linear infinite; will-change: background-position; }
@@ -105,7 +106,7 @@ body::before {
 @keyframes name-glow-pulse-light{ 0%,100%{text-shadow:0 0 25px rgba(210, 105, 30, 0.6)} 50%{text-shadow:0 0 50px rgba(210, 105, 30, 0.8), 0 0 15px rgba(255, 160, 0, 0.6)}}
 .hero-subtitle { font-family: var(--font-mono); font-size: 1rem; font-weight: 400; letter-spacing: .1em; color: var(--text-secondary); margin-bottom: 35px; }
 .dynamic-float { animation: float-subtle 5s ease-in-out infinite; }
-@keyframes float-subtle{0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}}
+@keyframes float-subtle{0%,100%{transform:translate3d(0,0,0)} 50%{transform:translate3d(0,-10px,0)}}
 
 /* Resume Button Styles */
 .hero-cta { margin-bottom: 45px; }
@@ -113,7 +114,7 @@ body::before {
 .resume-btn:hover, .resume-btn.active-touch { background: var(--glow-accent); color: var(--bg-primary); box-shadow: 0 0 30px rgba(var(--glow-rgb), 0.4); transform: translateY(-3px); }
 .resume-btn i { width: 18px; height: 18px; }
 
-.kpi-dashboard { display:flex; justify-content:center; gap:35px; padding:25px 40px; background: rgba(var(--glow-rgb), 0.04); border:1px solid var(--border-muted); border-radius:20px; max-width:700px; margin:0 auto; flex-wrap:wrap; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.kpi-dashboard { display:flex; justify-content:center; gap:35px; padding:25px 40px; background: rgba(var(--glow-rgb), 0.04); border:1px solid var(--border-muted); border-radius:20px; max-width:700px; margin:0 auto; flex-wrap:wrap; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); transition: transform 0.3s ease, box-shadow 0.3s ease; will-change: transform; }
 .kpi-dashboard:hover { transform: translateY(-5px); box-shadow: 0 10px 30px -10px rgba(var(--glow-rgb), 0.2); }
 .dynamic-pulse { animation: dashboard-pulse 5s ease-in-out infinite; }
 @keyframes dashboard-pulse{0%,100%{border-color:var(--border-muted)} 50%{border-color:rgba(var(--glow-rgb),.4)}}
@@ -153,7 +154,7 @@ body::before {
 .loader-progress-bar { width: 100%; height: 3px; background-color: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
 .loader-progress { height: 100%; width: 0%; background: linear-gradient(90deg, var(--glow-accent), var(--accent-copper)); box-shadow: 0 0 10px rgba(var(--glow-rgb), 0.4); will-change: width; }
 
-.floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 1000; width: auto; max-width: 90vw; }
+.floating-dock { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateZ(0); z-index: 1000; width: auto; max-width: 90vw; will-change: transform; }
 .dock-container { display: flex; align-items: center; gap: 8px; padding: 12px 18px; background: rgba(20,20,20,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border-muted); border-radius: 40px; box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5); transition: background-color 0.3s ease, box-shadow 0.3s ease; justify-content: center; }
 [data-theme="light"] .dock-container { background: rgba(255,255,255,0.85); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1); }
 .dock-item { position: relative; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; color: var(--text-secondary); transition: all .25s cubic-bezier(.25,1.5,.5,1); cursor: none; background: transparent; border: none; }
@@ -162,6 +163,9 @@ body::before {
 .dock-divider { width:1px; height:20px; background: var(--border-muted); margin: 0 8px; }
 .tooltip { position:absolute; bottom:100%; left:50%; transform:translateX(-50%) translateY(8px); background: var(--bg-secondary); color: var(--text-primary); padding: 6px 12px; border-radius:4px; font-size:10px; font-weight:700; opacity:0; pointer-events:none; transition: all .2s ease; margin-bottom:14px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 .dock-item:hover .tooltip { opacity:1; transform:translateX(-50%) translateY(0); }
+/* NEW: Utility class to forcefully hide tooltip after click */
+.dock-item.tooltip-dismissed .tooltip { opacity: 0 !important; visibility: hidden; }
+
 #theme-switch .theme-icon-sun{display:none} #theme-switch .theme-icon-moon{display:block}
 [data-theme="light"] #theme-switch .theme-icon-sun{display:block} [data-theme="light"] #theme-switch .theme-icon-moon{display:none}
 
@@ -218,7 +222,7 @@ body::before {
 .gallery-item.reverse-layout .tech-tags{justify-content:flex-end}
 .gallery-image-wrapper { height:65vh; overflow:hidden; position:relative; border-radius:20px; background: var(--surface); border:none; will-change: transform; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.5); transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.5s ease; }
 .gallery-image-wrapper:hover, .gallery-image-wrapper.active-touch { transform: scale(1.02); }
-.gallery-image { width:110%; height:130%; left: -5%; top: -15%; position: absolute; background-size:cover; background-position:center; filter: grayscale(100%) brightness(0.7) contrast(1.2); transition: filter 0.5s ease; will-change: filter, transform; }
+.gallery-image { width:110%; height:130%; left: -5%; top: -15%; position: absolute; background-size:cover; background-position:center; filter: grayscale(100%) brightness(0.7) contrast(1.2); transition: filter 0.8s ease-in-out; will-change: filter, transform; }
 /* UNIFIED AUTO-COLOR: runs on all devices if .is-visible OR :hover */
 .gallery-image-wrapper.is-visible .gallery-image,
 .gallery-image-wrapper:hover .gallery-image { filter: grayscale(0%) brightness(1) contrast(1); }
@@ -311,12 +315,17 @@ body::before {
   .scroll-bar-container { display: none; }
   .reveal-up, .reveal-side { transition-duration: 1s; transform: translateY(40px); }
   
-  /* OPTIMIZED MOBILE DOCK: ensure it fits and icons are tappable */
-  .floating-dock { bottom: 25px; max-width: 98vw; left: 50%; transform: translateX(-50%); }
+  /* OPTIMIZED MOBILE DOCK */
+  .floating-dock { bottom: 25px; max-width: 98vw; left: 50%; transform: translateX(-50%) translateZ(0); }
   .dock-container { padding: 10px 14px; gap: 6px; }
   .dock-item { width: 44px; height: 44px; }
   .dock-divider { margin: 0 5px; }
   
-  /* MOBILE SCROLL TOP: positioned above dock */
+  /* MOBILE SCROLL TOP */
   .scroll-top-btn { bottom: 90px; right: 20px; width: 45px; height: 45px; }
+
+  /* NEW: Mobile Tech Arsenal optimized styles */
+  .skills-ticker-container { padding: 30px 0; margin-bottom: 50px; }
+  .ticker-item { font-size: 2.5rem; /* Smaller text for mobile */ margin: 0 20px; }
+  .skills-ticker-track .sep { font-size: 2.5rem; margin: 0 20px; }
 }
