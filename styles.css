@@ -1,4 +1,4 @@
-/* POST-MVP 3.0 - ULTIMATE PERFORMANCE
+/* POST-MVP 3.0 - FINAL POLISH & FLUIDITY
    ======================================================================================== */
 
 :root {
@@ -229,7 +229,7 @@ body::before {
 .tech-tags li:hover, .tech-tags li.active-touch { border-color: var(--glow-accent); background: rgba(var(--glow-rgb), 0.1); color: var(--glow-accent); transform: translateY(-3px); }
 
 .skills-section { background: linear-gradient(160deg, transparent, rgba(var(--glow-rgb), 0.02)); }
-.skills-ticker-container { width: 100vw; margin-left: -50vw; left: 50%; position: relative; overflow: hidden; padding: 50px 0; border-top: 1px solid var(--border-muted); border-bottom: 1px solid var(--border-muted); margin-bottom: 80px; mask-image: none; -webkit-mask-image: none; background: linear-gradient(90deg, transparent, rgba(var(--glow-rgb), 0.03), transparent); touch-action: pan-y; }
+.skills-ticker-container { width: 100vw; margin-left: -50vw; left: 50%; position: relative; overflow: hidden; padding: 50px 0; border-top: 1px solid var(--border-muted); border-bottom: 1px solid var(--border-muted); margin-bottom: 80px; mask-image: none; -webkit-mask-image: none; background: linear-gradient(90deg, transparent, rgba(var(--glow-rgb), 0.03), transparent); touch-action: pan-y; user-select: none; /* Prevent text selection on drag */ }
 .skills-ticker-track { display: flex; white-space: nowrap; will-change: transform; cursor: grab; min-width: 200%; }
 .skills-ticker-track:active { cursor: grabbing; }
 /* FIXED MOBILE SIZE: clamp() ensures it scales down on small screens */
@@ -308,14 +308,14 @@ body::before {
   .scroll-bar-container { display: none; }
   .reveal-up, .reveal-side { transition-duration: 1s; transform: translateY(40px); }
   
-  /* OPTIMIZED MOBILE DOCK */
-  .floating-dock { bottom: 25px; max-width: 98vw; left: 50%; transform: translateX(-50%) translateZ(0); }
-  .dock-container { padding: 10px 14px; gap: 6px; }
+  /* OPTIMIZED MOBILE DOCK with better overflow handling and Z-index */
+  .floating-dock { bottom: 25px; max-width: 95vw; left: 50%; transform: translateX(-50%) translateZ(0); z-index: 1001; /* Higher than scroll top button */ }
+  .dock-container { padding: 10px 12px; gap: 5px; overflow: visible; } /* Ensure tooltips don't get clipped if they exceed container slightly */
   .dock-item { width: 44px; height: 44px; }
   .dock-divider { margin: 0 5px; }
   
-  /* MOBILE SCROLL TOP */
-  .scroll-top-btn { bottom: 90px; right: 20px; width: 45px; height: 45px; }
+  /* MOBILE SCROLL TOP - lower Z-index than dock to avoid overlap issues */
+  .scroll-top-btn { bottom: 90px; right: 20px; width: 45px; height: 45px; z-index: 900; }
 
   /* NEW: Mobile Tech Arsenal optimized styles */
   .skills-ticker-container { padding: 30px 0; margin-bottom: 50px; }

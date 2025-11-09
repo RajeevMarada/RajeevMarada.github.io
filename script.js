@@ -258,6 +258,7 @@ class SeamlessMarquee {
     window.addEventListener('pointermove', (e) => {
       if (!this.isDragging) return;
       e.preventDefault();
+      // Uniform drag sensitivity for both desktop and mobile
       const delta = (e.clientX - this.lastX) * 1.5;
       this.offset += delta;
       this.dragVelocity = delta;
@@ -274,6 +275,7 @@ class SeamlessMarquee {
       this.isDragging = false;
       this.track.style.cursor = 'grab';
 
+      // Unified Snapping Logic for all devices
       if (Math.abs(this.dragVelocity) > 1) {
           const direction = Math.sign(this.dragVelocity);
           const currentItemIndex = Math.round(-this.offset / this.itemWidth);
@@ -481,11 +483,15 @@ document.addEventListener('DOMContentLoaded', () => {
   new ProjectObserver(); new MobileTouchFix(); new ExperienceScroll();
   new TiltEffect(); new ScrollTop(); initParallax(); lucide.createIcons();
 
+  // Enhanced tool-tip dismissal
   document.querySelectorAll('.dock-item').forEach(item => {
-      item.addEventListener('click', () => {
+      const dismissTooltip = () => {
           item.classList.add('tooltip-dismissed');
-          setTimeout(() => item.classList.remove('tooltip-dismissed'), 800);
-      });
+          // Ensure it stays hidden long enough for dragging/interacting to finish
+          setTimeout(() => item.classList.remove('tooltip-dismissed'), 1500);
+      };
+      item.addEventListener('click', dismissTooltip);
+      item.addEventListener('touchstart', dismissTooltip, {passive: true});
   });
 
   const kpiObserver = new IntersectionObserver((entries) => {
