@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en" class="lenis">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rajeev Marada — VLSI & Hardware Design</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="loading">
+
+  <div class="magnetic-cursor"></div>
+  <div class="cursor-follower"></div>
+
+  <div class="scroll-bar-container">
+    <div class="scroll-bar-track">
+      <div class="scroll-bar-thumb"></div>
+    </div>
+  </div>
+
+  <div id="kinetic-preloader">
+    <div class="loader-container">
+      <div class="loader-icons">
+        <div class="loader-icon"><i data-lucide="cpu"></i></div>
+        <div class="loader-icon"><i data-lucide="zap"></i></div>
+        <div class="loader-icon"><i data-lucide="shield-check"></i></div>
+      </div>
+      <div class="loader-text">INITIALIZING SYSTEM</div>
+      <div class="loader-progress-wrapper">
+        <div class="loader-progress-bar">
+          <div class="loader-progress"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="floating-dock">
+    <div class="dock-container">
+      <a href="#hero" class="dock-item active" data-magnet>
+        <i data-lucide="home"></i>
+        <span class="tooltip">Home</span>
+      </a>
+      <a href="#about" class="dock-item" data-magnet>
+        <i data-lucide="user"></i>
+        <span class="tooltip">About</span>
+      </a>
+      <a href="#experience" class="dock-item" data-magnet>
+        <i data-lucide="briefcase"></i>
+        <span class="tooltip">Journey</span>
+      </a>
+      <a href="#projects" class="dock-item" data-magnet>
+        <i data-lucide="folder-open"></i>
+        <span class="tooltip">Work</span>
+      </a>
+      <a href="#skills" class="dock-item" data-magnet>
+        <i data-lucide="zap"></i>
+        <span class="tooltip">Skills</span>
+      </a>
+      <a href="#awards" class="dock-item" data-magnet>
+        <i data-lucide="award"></i>
+        <span class="tooltip">Patents</span>
+      </a>
+
+      <div class="dock-divider"></div>
+
+      <button id="theme-switch" class="dock-item" data-magnet>
+        <i data-lucide="sun" class="theme-icon-sun"></i>
+        <i data-lucide="moon" class="theme-icon-moon"></i>
+        <span class="tooltip">Theme</span>
+      </button>
+    </div>
+  </nav>
+
+  <button id="scrollTop" class="scroll-top-btn" data-magnet>
+    <i data-lucide="arrow-up"></i>
+  </button>
+
+  <section id="hero" class="hero-section kinetic-section">
+    <div class="hero-bg-elemental"></div>
+    <div class="hero-bg-electric"></div>
+    <div class="hero-bg-grid"></div>
+    
+    <div class="hero-container container">
+      <div class="hero-pretitle reveal-text">ARCHITECTING TOMORROW</div>
+
+      <h1 class="hero-title reveal-text" style="transition-delay: 0.1s">
+        <!-- *** CHANGE: Added data-text attribute for the 2-layer glow fix *** -->
+        <span class="name-accent dynamic-glow" id="kinetic-title" data-text="RAJEEV MARADA">RAJEEV MARADA</span>
+      </h1>
+      <div class="hero-subtitle dynamic-float reveal-text" style="transition-delay: 0.2s">
+        VLSI & Hardware Design • SoC Architecture • PC Builder
+      </div>
+
+      <div class="hero-cta reveal-up" style="transition-delay: 0.25s">
+        <a href="assets/resume.pdf" download class="resume-btn" data-magnet>
+          <i data-lucide="file-down"></i>
+          <span>Download Resume</span>
+        </a>
+      </div>
+
+      <div class="kpi-dashboard dynamic-pulse reveal-up" style="transition-delay: 0.3s">
+        <div class="kpi-stat" data-magnet-small>
+          <span class="stat-num glow-pulse" data-target="9.4">0.0</span>
+          <span class="stat-label">CGPA</span>
+        </div>
+        <div class="kpi-stat" data-magnet-small>
+          <span class="stat-num glow-pulse" data-target="5">0</span>
+          <span class="stat-label">Projects</span>
+        </div>
+        <div class="kpi-stat" data-magnet-small>
+          <span class="stat-num glow-pulse" data-target="1">0</span>
+          <span class="stat-label">Patent</span>
+        </div>
+        <div class="kpi-stat" data-magnet-small>
+          <span class="stat-num glow-pulse" data-target="2">0</span>
+          <span class="stat-label">Papers</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="kinetic-section about-section">
+    <div class="container">
+      <div class="editorial-grid">
+        <div class="editorial-left reveal-side">
+          <h2 class="section-heading">THE<br>ENGINEER</h2>
+        </div>
+
+        <div class="editorial-right reveal-up">
+          <div class="about-column-grid">
+            
+            <div class="about-column-what">
+              <!-- *** CHANGE: Removed 'glitch-hover' class *** -->
+              <div class="impact-statement" data-text="I turn hardware concepts into working silicon.">
+                I turn hardware concepts into <strong>working silicon.</strong>
+              </div>
+    
+              <div class="quick-summary">
+                <p>
+                  <strong>Advanced VLSI Certification from IISc Bangalore</strong> with expertise in digital design, verification, and SoC architecture.
+                </p>
+                <p>
+                  <strong>Published researcher</strong> with 1 granted patent (IN 564400) and 2 peer-reviewed papers.
+                </p>
+              </div>
+            </div>
+
+            <div class="about-column-why">
+              <h3 class="subsection-title-small">My Origin Story</h3>
+              <div class="bio-text">
+                <p>
+                  My journey in tech didn't start with a degree. It started when my <span class="highlight-hover">PlayStation 2</span> stopped working. I decided to open it up, and the hands-on experience of troubleshooting it myself taught me about patience and the satisfaction of fixing something complex.
+                </p>
+                <p>
+                  This curiosity grew. I learned to install <span class="highlight-hover">custom ROMs on my Galaxy Tab 2</span> to enhance performance, and eventually, I <strong>researched and <span class="highlight-hover">built my first PC</span></strong> from scratch. That foundational, hands-on approach is how I tackle engineering challenges today.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="experience" class="kinetic-section experience-section">
+    <div class="container">
+      <h2 class="section-heading reveal-side">JOURNEY</h2>
+      
+      <p class="section-intro reveal-up">
+        My path has been one of continuous, focused learning. An early-career layoff proved to be a pivotal moment, strengthening my resolve and leading me to pursue deep, specialized VLSI training at IISc.
+      </p>
+
+      <div class="journey-subsection">
+        <h3 class="subsection-title reveal-up">Experience</h3>
+
+        <!-- *** REVERTED ***: This is the original V6.3 layout. -->
+        <div class="experience-snap-container reveal-up" id="experienceContainer">
+          
+          <div class="exp-card" data-exp-id="cognizant">
+            <div class="timeline-year">AUG 2024 – PRESENT</div>
+            <h4>Programmer Analyst</h4>
+            <p class="company-name">Cognizant Technology Solutions</p>
+            <ul>
+              <li>Automated key business workflows...</li>
+            </ul>
+            <!-- *** ADDED ***: Click Indicator -->
+            <i class="card-click-indicator" data-lucide="mouse-pointer-click"></i>
+          </div>
+
+          <div class="exp-card" data-exp-id="insemi">
+            <div class="timeline-year">JUL 2023 – OCT 2023</div>
+            <h4>Design Verification Engineer</h4>
+            <p class="company-name">Insemi Technology Services</p>
+            <ul>
+              <li>UVM testbench with 100% coverage...</li>
+            </ul>
+            <i class="card-click-indicator" data-lucide="mouse-pointer-click"></i>
+          </div>
+
+          <div class="exp-card" data-exp-id="maven">
+            <div class="timeline-year">DEC 2022 – JAN 2023</div>
+            <h4>Digital Design Intern</h4>
+            <p class="company-name">Maven Silicon</p>
+            <ul>
+              <li>AMBA AHB-APB bridge in Verilog...</li>
+            </ul>
+            <i class="card-click-indicator" data-lucide="mouse-pointer-click"></i>
+          </div>
+
+          <div class="exp-card" data-exp-id="coreel">
+            <div class="timeline-year">JUN 2022 – JUL 2022</div>
+            <h4>Verification Intern</h4>
+            <p class="company-name">CoreEL Technologies</p>
+            <ul>
+              <li>SystemVerilog testbench...</li>
+            </ul>
+            <i class="card-click-indicator" data-lucide="mouse-pointer-click"></i>
+          </div>
+        </div>
+
+        <div class="exp-scrollbar-container reveal-up" id="expScrollbarTrack">
+          <div class="exp-scrollbar-track">
+            <div class="exp-scrollbar-thumb" id="expScrollbarThumb"></div>
+          </div>
+        </div>
+
+        <div class="scroll-hint reveal-up">← Drag or scroll to explore →</div>
+
+        <div id="experience-detail-container" class="experience-detail-wrapper reveal-up">
+          <div class="detail-placeholder">
+            <i data-lucide="mouse-pointer-click"></i>
+            <span>Click a card above to see details</span>
+          </div>
+        </div>
+        <!-- *** END REVERT *** -->
+        
+      </div>
+
+      <div class="journey-subsection">
+        <h3 class="subsection-title reveal-up">Education</h3>
+        <div class="education-grid">
+
+          <div class="education-item interactive reveal-up" style="transition-delay: 0.1s">
+            <div class="education-header">
+              <div class="education-info">
+                <div class="education-year">FEB 2024 – DEC 2024</div>
+                <h4>PG Level Advanced Certification in VLSI Chip Design</h4>
+                <p class="company-name">Indian Institute of Science (IISc)</p>
+                <span class="grade-pill">80% Score</span>
+              </div>
+              </div>
+            <div class="coursework-list">
+              <h5>Relevant Coursework:</h5>
+              <ul>
+                <li>Analog & Digital Integrated Circuit Design</li>
+                <li>Advanced Digital Design & FPGA-based Design</li>
+                <li>RISC-V Architecture</li>
+              </ul>
+            </div>
+            <div class="card-tooltip">Click to see coursework</div>
+          </div>
+
+          <div class="education-item interactive reveal-up" style="transition-delay: 0.2s">
+            <div class="education-header">
+              <div class="education-info">
+                <div class="education-year">JUN 2019 – MAY 2023</div>
+                <h4>Bachelor of Technology, ECE</h4>
+                <p class="company-name">SRM Institute of Science and Technology</p>
+                <span class="grade-pill">9.4 CGPA</span>
+              </div>
+              </div>
+            <div class="coursework-list">
+              <h5>Relevant Coursework:</h5>
+              <ul>
+                <li>Digital Design</li>
+                <li>ARM-based Embedded System Design</li>
+                <li>VLSI Design Methodology</li>
+              </ul>
+            </div>
+            <div class="card-tooltip">Click to see coursework</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects" class="kinetic-section projects-section">
+    <div class="container">
+      <h2 class="section-heading reveal-side">ARCHIVES</h2>
+
+      <div class="parallax-gallery">
+
+        <div class="gallery-item reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
+            <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1035&auto=format&fit=crop');"></div>
+          </div>
+          <div class="gallery-content">
+            <h3>RISC-V ECG Accelerator</h3>
+            <p class="project-meta">Heterogeneous SoC Design</p>
+            <p>Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via AXI Stream, achieving 92% accuracy in real-time ECG classification. Validated the complete design through FPGA deployment.</p>
+            <ul class="tech-tags">
+              <li>RISC-V</li>
+              <li>AXI Stream</li>
+              <li>Neural Networks</li>
+              <li>FPGA</li>
+            </ul>
+            <button class="read-more-btn" data-magnet-small>Read More <i data-lucide="chevron-down"></i></button>
+            <div class="project-deep-context">
+              <p>This project was the culmination of my IISc certification, synthesizing system architecture, hardware design, and machine learning. The goal was to accelerate ECG classification for real-time, portable medical devices.</p>
+              <p>We designed a custom neural network accelerator in Verilog and integrated it with a RISC-V core using the AXI Stream protocol for high-throughput data transfer. The system achieved 92% accuracy through Q1.15 fixed-point arithmetic optimization, balancing performance with resource constraints.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item reverse-layout reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
+            <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?q=80&w=1035&auto=format&fit=crop');"></div>
+          </div>
+          <div class="gallery-content">
+            <h3>Neural Net RTL Engine</h3>
+            <p class="project-meta">Hardware Inference</p>
+            <p>Designed a Verilog RTL 3-layer neural network inference engine with ROM-based weights, achieving over 85% accuracy on the Semeion dataset. Performed full simulation, synthesis, and implementation in Xilinx Vivado.</p>
+            <ul class="tech-tags">
+              <li>Verilog RTL</li>
+              <li>Neural Networks</li>
+              <li>Vivado</li>
+            </ul>
+            <button class="read-more-btn" data-magnet-small>Read More <i data-lucide="chevron-down"></i></button>
+            <div class="project-deep-context">
+              <p>This was a deep dive into implementing AI directly in hardware. I designed a 3-layer neural network from scratch in Verilog, complete with custom ROM-based weights and a FIFO input buffer. The entire engine was verified, synthesized, and implemented in Xilinx Vivado, successfully passing timing closure and proving its readiness for FPGA deployment.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
+            <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1035&auto=format&fit=crop');"></div>
+          </div>
+          <div class="gallery-content">
+            <h3>APB UVM Testbench</h3>
+            <p class="project-meta">Advanced Verification</p>
+            <p>Architected a modular UVM testbench with reusable master/slave agents to rigorously validate APB protocol compliance. Achieved 100% functional and code coverage and confirmed design robustness with complete assertion coverage.</p>
+            <ul class="tech-tags">
+              <li>UVM</li>
+              <li>SystemVerilog</li>
+              <li>100% Coverage</li>
+            </ul>
+            <button class="read-more-btn" data-magnet-small>Read More <i data-lucide="chevron-down"></i></button>
+            <div class="project-deep-context">
+              <p>This project was a practical, industry-focused dive into advanced verification. I learned to think like a verification engineer, building a complete testbench from scratch with drivers, monitors, scoreboards, and assertions. Achieving 100% functional and code coverage required systematic test planning and creative stimulus generation to hit every edge case.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item reverse-layout reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
+            <div class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1067&auto=format&fit=crop');"></div>
+          </div>
+          <div class="gallery-content">
+            <h3>SEC-DED-DAEC Module</h3>
+            <p class="project-meta">Data Integrity (IEEE Published)</p>
+            <p>Led development of a novel error-correcting module, optimizing reversible logic to achieve a 5.67% power reduction and 4.52% delay improvement over other designs, culminating in an IEEE publication.</p>
+            <ul class="tech-tags">
+              <li>Error Correction</li>
+              <li>Low-Power</li>
+              <li>IEEE Published</li>
+            </ul>
+            <button class="read-more-btn" data-magnet-small>Read More <i data-lucide="chevron-down"></i></button>
+            <div class="project-deep-context">
+              <p>This was my final year project, born from the question: "How do we handle burst errors?" We designed a comprehensive Single Error Correction, Double Error Detection, and Double Adjacent Error Correction (SEC-DED-DAEC) architecture.</p>
+              <p>A key milestone was integrating this completed module with the **AMBA AHB-APB bridge** I had built during my Maven Silicon internship. This connected a complex academic project to a practical, industry-standard component, proving its system-level applicability.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery-item reveal-up">
+          <div class="gallery-image-wrapper" data-magnet-small>
+            <!-- *** CHANGE: Updated URL and added ID *** -->
+            <div id="hybrid-hack-image" class="gallery-image" style="background-image: url('https://images.unsplash.com/photo-1613665813446-82a78c468a1d?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1458');"></div>
+          </div>
+          <div class="gallery-content">
+            <h3>Hybrid Hack 2021 Finalist</h3>
+            <p class="project-meta">Cross-Domain Innovation</p>
+            <p>Co-developed "Charge On Go," a novel vehicle-mounted hybrid power system. My role involved simulating the system's electrical performance, projecting an annual energy generation of 465.15 kWh per unit.</p>
+            <ul class="tech-tags">
+              <li>Python</li>
+              <li>HOMER Pro</li>
+              <li>Unity & C#</li>
+              <li>Data Visualization</li>
+            </ul>
+            <button class="read-more-btn" data-magnet-small>Read More <i data-lucide="chevron-down"></i></button>
+            <div class="project-deep-context">
+              <p>This hackathon was a pivotal moment in cross-domain thinking. While my core task was technical analysis using Python and HOMER Pro to simulate energy generation, our team needed a way to *show* our complex solution to investors.</p>
+              <p>I leveraged my personal hobby in game development to build an **interactive 3D simulation in Unity**. This tool visualized our system's performance dynamically, making the abstract data tangible and compelling. It was a powerful lesson in using creative tools to solve engineering communication problems.</p>
+            </div>
+          </div>
+        </div>
+        </div>
+    </div>
+  </section>
+
+  <section id="skills" class="kinetic-section skills-section">
+    <div class="container">
+      <h2 class="section-heading reveal-side">TECHNICAL ARSENAL</h2>
+
+      <div class="skills-ticker-container reveal-up">
+        <div class="skills-ticker-track">
+          <div class="ticker-item">VLSI DESIGN</div><div class="sep">•</div>
+          <div class="ticker-item">HARDWARE ARCHITECTURE</div><div class="sep">•</div>
+          <div class="ticker-item">DIGITAL DESIGN</div><div class="sep">•</div>
+          <div class="ticker-item">VERIFICATION</div><div class="sep">•</div>
+          <div class="ticker-item">SOC DESIGN</div><div class="sep">•</div>
+          <div class="ticker-item">FPGA</div><div class="sep">•</div>
+        </div>
+      </div>
+
+      <div class="skills-interactive">
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.1s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="cpu"></i>
+            Digital Design & Verification
+          </h3>
+          <div class="skills-list">
+            <span class="skill-tag" data-skill="SystemVerilog">SystemVerilog</span>
+            <span class="skill-tag" data-skill="Verilog RTL">Verilog RTL</span>
+            <span class="skill-tag" data-skill="UVM">UVM</span>
+            <span class="skill-tag" data-skill="FPGA">FPGA</span>
+            <span class="skill-tag" data-skill="Coverage">Coverage</span>
+          </div>
+        </div>
+
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.2s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="code-2"></i>
+            Languages & Tools
+          </h3>
+          <div class="skills-list">
+            <span class="skill-tag" data-skill="Python">Python</span>
+            <span class="skill-tag" data-skill="C/C++">C/C++</span>
+            <span class="skill-tag" data-skill="MATLAB">MATLAB</span>
+            <span class="skill-tag" data-skill="Vivado">Vivado</span>
+            <span class="skill-tag" data-skill="ModelSim">ModelSim</span>
+          </div>
+        </div>
+
+        <div class="skill-category ambient-float reveal-up" style="transition-delay: 0.3s">
+          <h3 class="skill-cat-title">
+            <i data-lucide="layers"></i>
+            System Architecture
+          </h3>
+          <div class="skills-list">
+            <span class="skill-tag" data-skill="SoC Design">SoC Design</span>
+            <span class="skill-tag" data-skill="Neuromorphic">Neuromorphic</span>
+            <span class="skill-tag" data-skill="Low-Power">Low-Power</span>
+            <span class="skill-tag" data-skill="RISC-V">RISC-V</span>
+            <span class="skill-tag" data-skill="Real-time">Real-time</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="awards" class="kinetic-section awards-section">
+    <div class="container">
+      <div class="awards-layout">
+        <div class="awards-heading reveal-side">
+          <h2 class="section-heading">PATENTS &<br>PUBLICATIONS</h2>
+        </div>
+
+        <div class="awards-content">
+
+          <div class="award-card featured reveal-up" data-tilt style="transition-delay: 0.1s">
+            <div class="award-icon patent-icon">
+              <i data-lucide="shield-check"></i>
+            </div>
+            <div class="award-details">
+              <h3>Autonomous Vehicle Safety</h3>
+              <p class="award-meta">IN 564400 | March 2025</p>
+              <p class="award-desc">This system addresses the critical safety risk of driver incapacitation (e.g., a medical emergency). It uses a dual-processor (Arduino + Raspberry Pi) architecture to monitor real-time vital signs like pulse and heart rate, triggering a safe autonomous takeover if distress is detected.</p>
+              
+              <h5 class="project-motivation-title">Project Motivation</h5>
+              <p class="project-motivation-desc">
+                This project was directly informed by my volunteer work at NSS medical camps, allowing me to apply engineering principles to a community need I had seen firsthand.
+              </p>
+
+              <span class="award-type">PATENT GRANTED</span>
+            </div>
+          </div>
+          <div class="award-card reveal-up" data-tilt style="transition-delay: 0.2s">
+            <div class="award-icon paper-icon">
+              <i data-lucide="file-text"></i>
+            </div>
+            <div class="award-details">
+              <h3>Error Correction in SoC</h3>
+              <p class="award-meta">RAEEUCCI 2023 | May 2023</p>
+              <p class="award-desc">Reversible logic-based error detection and correction on AHB-APB bridge. Published in IEEE conference.</p>
+              <span class="award-type">IEEE CONFERENCE</span>
+            </div>
+          </div>
+
+          <div class="award-card reveal-up" data-tilt style="transition-delay: 0.3s">
+            <div class="award-icon journal-icon">
+              <i data-lucide="book-open"></i>
+            </div>
+            <div class="award-details">
+              <h3>IoT Healthcare Systems</h3>
+              <p class="award-meta">GIJET | June 2022</p>
+              <p class="award-desc">Survey on Affordable IoT-Enabled Healthcare Systems. Published in Grenze International Journal.</p>
+              <span class="award-type">JOURNAL ARTICLE</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="interests" class="kinetic-section idle-section">
+    <div class="container">
+      <h2 class="section-heading reveal-side">IDLE CYCLES</h2>
+      <p class="section-intro reveal-up">
+        When I'm not compiling code or designing circuits, I spend my time on a few other passions.
+      </p>
+      
+      <div class="interest-grid">
+        <div class="interest-card reveal-up" style="transition-delay: 0.1s" data-tilt>
+          <div class="interest-content">
+            <div class="interest-icon">
+              <i data-lucide="camera"></i>
+            </div>
+            <h3 class="interest-title">Photography</h3>
+            <p class="interest-desc">Chasing the perfect shot.</p>
+          </div>
+          <div class="interest-shine"></div>
+        </div>
+        
+        <div class="interest-card reveal-up" style="transition-delay: 0.2s" data-tilt>
+          <div class="interest-content">
+            <div class="interest-icon">
+              <i data-lucide="music"></i>
+            </div>
+            <h3 class="interest-title">Music</h3>
+            <p class="interest-desc">Curating the perfect playlist.</p>
+          </div>
+          <div class="interest-shine"></div>
+        </div>
+
+        <div class="interest-card reveal-up" style="transition-delay: 0.3s" data-tilt>
+          <div class="interest-content">
+            <div class="interest-icon">
+              <i data-lucide="mouse-pointer-click"></i>
+            </div>
+            <h3 class="interest-title">eSports</h3>
+            <p class="interest-desc">Competitive analysis (and some gaming).</p>
+          </div>
+          <div class="interest-shine"></div>
+        </div>
+
+        <div class="interest-card reveal-up" style="transition-delay: 0.4s" data-tilt>
+          <div class="interest-content">
+            <div class="interest-icon">
+              <i data-lucide="dribbble"></i>
+            </div>
+            <h3 class="interest-title">Cricket</h3>
+            <p class="interest-desc">Following the on-field strategy.</p>
+          </div>
+          <div class="interest-shine"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="contact" class="kinetic-section contact-section">
+    <div class="container contact-container">
+      <h2 class="section-heading reveal-up">Let's Build Together</h2>
+
+      <p class="contact-desc reveal-up" style="transition-delay: 0.1s">
+        Open to collaborations on VLSI research, hardware innovation, and next-gen computing challenges.
+      </p>
+
+      <div class="contact-links-styled reveal-up" style="transition-delay: 0.2s">
+        <a href="mailto:rajeevmarada02@gmail.com" class="contact-item" data-magnet>
+          <div class="contact-icon">
+            <i data-lucide="mail"></i>
+          </div>
+          <div class="contact-details">
+            <span class_name="contact-label">Email</span>
+            <span class_name="contact-value">rajeevmarada02@gmail.com</span>
+          </div>
+        </a>
+
+        <a href="https://linkedin.com/in/rajeevmarada" target="_blank" class="contact-item" data-magnet>
+          <div class="contact-icon">
+            <i data-lucide="linkedin"></i>
+          </div>
+          <div class="contact-details">
+            <span class_name="contact-label">LinkedIn</span>
+            <span class_name="contact-value">rajeevmarada</span>
+          </div>
+        </a>
+
+        <a href="https://github.com/RajeevMarada" target="_blank" class="contact-item" data-magnet>
+          <div class="contact-icon">
+            <i data-lucide="github"></i>
+          </div>
+          <div class="contact-details">
+            <span class_name="contact-label">GitHub</span>
+            <span class_name="contact-value">RajeevMarada</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="kinetic-footer">
+    <div class="container">
+      <div class="footer-copy reveal-up">
+        © 2025 Rajeev Marada. Built with curiosity.
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
