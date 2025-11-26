@@ -8,7 +8,7 @@ import {
     Calendar, MapPin, MousePointer2, Smartphone, HardDrive,
     ChevronDown, ArrowUp, Code2, Cpu as Chip,
     Briefcase, GraduationCap, MessageSquare, Send, Sparkles, Loader2,
-    Copy, Check
+    Copy, Check, HelpCircle
 } from 'lucide-react';
 
 /* ========================================
@@ -460,8 +460,31 @@ const Navbar = ({ activeSection }) => {
         { id: 'patents', icon: Award, label: 'Patents' }
     ];
 
+    // Mobile Smart Scroll Logic
+    const [isVisible, setIsVisible] = useState(true);
+    const lastScrollY = useRef(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            if (currentScrollY < 50) {
+                setIsVisible(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                setIsVisible(false); // Scrolling Down
+            } else {
+                setIsVisible(true); // Scrolling Up
+            }
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <nav className="fixed top-6 left-0 right-0 z-50 flex justify-center pointer-events-none px-4">
+        <nav
+            className={`fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}
+        >
             <div className="dock-container">
 
                 {/* Pro Monogram Logo */}
@@ -511,16 +534,22 @@ const TechExplainerModal = ({ term, onClose }) => {
             const prompt = `Explain the VLSI technical term "${term}" to a non-technical person in 2 simple sentences. Then, add one sentence explaining why this skill is critical for a Silicon Architect like Rajeev. Keep it professional but accessible.`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
                 });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
                 const data = await response.json();
                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not retrieve explanation.";
                 setExplanation(text);
             } catch (e) {
-                setExplanation("System offline. Please try again.");
+                console.error(e);
+                setExplanation("System offline. Please check API key configuration.");
             } finally {
                 setLoading(false);
             }
@@ -551,7 +580,7 @@ const TechExplainerModal = ({ term, onClose }) => {
                 )}
 
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Powered by Gemini 2.0 Flash</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Powered by Gemini 1.5 Flash</span>
                     <button onClick={onClose} className="text-sm font-bold text-[#0B57D0] hover:underline">Close</button>
                 </div>
             </div>
@@ -613,7 +642,7 @@ const AIChat = () => {
     `;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -624,11 +653,7 @@ const AIChat = () => {
             });
 
             if (!response.ok) {
-                if (response.status === 429) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    throw new Error("Rate limit exceeded. Please try again in a moment.");
-                }
-                throw new Error('API request failed');
+                throw new Error(`API Error: ${response.status}`);
             }
 
             const data = await response.json();
@@ -645,19 +670,26 @@ const AIChat = () => {
 
     return (
         <>
-            {/* Trigger Button - STRICTLY SIZED AND POSITIONED */}
+            {/* Trigger Button - Bottom Left on Mobile, Bottom Left on Desktop */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 right-6 lg:bottom-10 lg:left-10 z-50 p-3 lg:p-4 bg-white text-[#0B57D0] rounded-full shadow-2xl hover:scale-110 transition-all duration-300 border border-[#E0E2EC] group click-scale flex items-center gap-2 w-fit max-w-[200px]"
+                className="fixed bottom-6 left-6 z-50 p-3 lg:p-4 bg-white text-[#0B57D0] rounded-full shadow-2xl hover:scale-110 transition-all duration-300 border border-[#E0E2EC] group click-scale flex items-center gap-2 w-fit max-w-[200px] hover:pr-4"
                 title="Ask AI"
             >
                 {isOpen ? <X size={24} /> : <Sparkles size={24} className="animate-pulse" />}
-                {!isOpen && <span className="hidden lg:block max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-500 whitespace-nowrap font-medium text-sm">Ask AI</span>}
+                {!isOpen && <span className="max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-500 whitespace-nowrap font-medium text-sm">Ask AI</span>}
             </button>
 
-            {/* Chat Window - Fixed Width and Constraints */}
+            {/* Tooltip Hint for Ask AI - Visible on Mobile initially or fade out */}
+            {!isOpen && (
+                <div className="fixed bottom-20 left-6 z-40 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full animate-bounce opacity-0 lg:opacity-100 transition-opacity pointer-events-none">
+                    Chat with my Resume
+                </div>
+            )}
+
+            {/* Chat Window */}
             {isOpen && (
-                <div className="fixed bottom-24 right-6 lg:bottom-28 lg:left-6 w-full max-w-[calc(100vw-3rem)] md:max-w-[400px] bg-white rounded-2xl shadow-2xl border border-[#E0E2EC] z-50 flex flex-col overflow-hidden chat-window-enter origin-bottom-right lg:origin-bottom-left max-h-[600px]">
+                <div className="fixed bottom-24 left-6 w-[calc(100vw-3rem)] md:max-w-[400px] bg-white rounded-2xl shadow-2xl border border-[#E0E2EC] z-50 flex flex-col overflow-hidden chat-window-enter origin-bottom-left max-h-[600px]">
                     {/* Header */}
                     <div className="p-4 bg-[#0B57D0] text-white flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -672,8 +704,8 @@ const AIChat = () => {
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                    ? 'bg-[#0B57D0] text-white rounded-br-none'
-                                    : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
+                                        ? 'bg-[#0B57D0] text-white rounded-br-none'
+                                        : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.text}
                                 </div>
@@ -901,8 +933,12 @@ const TechArsenal = () => {
                 </h2>
                 <p className="text-xl text-[#444746] max-w-2xl">
                     My toolbox for converting requirements into silicon.
-                    <span className="text-[#0B57D0] text-sm block mt-2 font-medium flex items-center gap-1">
-                        <Sparkles size={14} /> Click any tech tag for an AI-powered breakdown.
+                    <span className="text-[#0B57D0] text-sm block mt-2 font-medium flex items-center gap-1 hidden md:flex">
+                        <Sparkles size={14} /> Hover any tech tag for an AI breakdown.
+                    </span>
+                    {/* Mobile Specific Hint */}
+                    <span className="text-[#0B57D0] text-sm block mt-2 font-medium flex items-center gap-1 md:hidden">
+                        <Sparkles size={14} /> Tap any tech tag for an AI breakdown.
                     </span>
                 </p>
             </div>
@@ -1409,7 +1445,7 @@ const Contact = ({ showTop }) => {
         Keep it under 100 words. No subject line, just the body.`;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
