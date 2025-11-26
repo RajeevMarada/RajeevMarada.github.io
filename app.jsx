@@ -11,6 +11,12 @@ import {
     Copy, Check, HelpCircle
 } from 'lucide-react';
 
+const favicon = document.createElement("link");
+favicon.rel = "icon";
+favicon.type = "image/svg+xml";
+favicon.href =
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
+document.head.appendChild(favicon);
 /* ========================================
   ⚠️ IMPORTANT: PASTE YOUR API KEY HERE ⚠️
   ========================================
