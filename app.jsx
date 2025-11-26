@@ -87,11 +87,30 @@ const FontStyles = () => (
       font-family: 'JetBrains+Mono', monospace;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #E0E2EC; border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: #C4C7C5; }
+    /* --- PROMINENT DESKTOP SCROLLBAR --- */
+    /* Only apply to non-mobile devices for better UX */
+    @media (min-width: 768px) {
+        ::-webkit-scrollbar { 
+            width: 14px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: #F2F6FC; 
+            border-left: 1px solid #E0E2EC;
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: #444746; 
+            border-radius: 7px; 
+            border: 3px solid #F2F6FC; /* Creates padding effect */
+            transition: background 0.3s;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #0B57D0; 
+        }
+    }
+    /* Keep mobile scrollbar hidden/thin */
+    @media (max-width: 767px) {
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+    }
 
     /* Staggered Reveal Animations */
     .reveal-up {
@@ -534,7 +553,8 @@ const TechExplainerModal = ({ term, onClose }) => {
             const prompt = `Explain the VLSI technical term "${term}" to a non-technical person in 2 simple sentences. Then, add one sentence explaining why this skill is critical for a Silicon Architect like Rajeev. Keep it professional but accessible.`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                // Updated to use Gemini 2.5 Flash per user request
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -580,7 +600,7 @@ const TechExplainerModal = ({ term, onClose }) => {
                 )}
 
                 <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Powered by Gemini 1.5 Flash</span>
+                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Powered by Gemini 2.5 Flash</span>
                     <button onClick={onClose} className="text-sm font-bold text-[#0B57D0] hover:underline">Close</button>
                 </div>
             </div>
@@ -642,7 +662,8 @@ const AIChat = () => {
     `;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            // Updated to use Gemini 2.5 Flash per user request
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -670,14 +691,14 @@ const AIChat = () => {
 
     return (
         <>
-            {/* Trigger Button - Bottom Left on Mobile, Bottom Left on Desktop */}
+            {/* Trigger Button - STRICTLY SIZED AND POSITIONED */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="fixed bottom-6 left-6 z-50 p-3 lg:p-4 bg-white text-[#0B57D0] rounded-full shadow-2xl hover:scale-110 transition-all duration-300 border border-[#E0E2EC] group click-scale flex items-center gap-2 w-fit max-w-[200px] hover:pr-4"
                 title="Ask AI"
             >
                 {isOpen ? <X size={24} /> : <Sparkles size={24} className="animate-pulse" />}
-                {!isOpen && <span className="max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-500 whitespace-nowrap font-medium text-sm">Ask AI</span>}
+                {!isOpen && <span className="hidden lg:block max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-500 whitespace-nowrap font-medium text-sm">Ask AI</span>}
             </button>
 
             {/* Tooltip Hint for Ask AI - Visible on Mobile initially or fade out */}
@@ -687,7 +708,7 @@ const AIChat = () => {
                 </div>
             )}
 
-            {/* Chat Window */}
+            {/* Chat Window - Fixed Width and Constraints */}
             {isOpen && (
                 <div className="fixed bottom-24 left-6 w-[calc(100vw-3rem)] md:max-w-[400px] bg-white rounded-2xl shadow-2xl border border-[#E0E2EC] z-50 flex flex-col overflow-hidden chat-window-enter origin-bottom-left max-h-[600px]">
                     {/* Header */}
@@ -704,8 +725,8 @@ const AIChat = () => {
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                        ? 'bg-[#0B57D0] text-white rounded-br-none'
-                                        : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
+                                    ? 'bg-[#0B57D0] text-white rounded-br-none'
+                                    : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.text}
                                 </div>
@@ -1431,7 +1452,7 @@ const Contact = ({ showTop }) => {
     const [emailIntent, setEmailIntent] = useState("");
     const [generatedEmail, setGeneratedEmail] = useState("");
     const [isDrafting, setIsDrafting] = useState(false);
-    const apiKey = "AIzaSyBs0l1D7ojmZBikkNYFOQnDIhT1JZ8sZYA"; // API Key handled by environment
+    // REMOVED LOCAL API_KEY - Now using global
 
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -1445,7 +1466,7 @@ const Contact = ({ showTop }) => {
         Keep it under 100 words. No subject line, just the body.`;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -1453,7 +1474,8 @@ const Contact = ({ showTop }) => {
             const data = await response.json();
             setGeneratedEmail(data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not generate draft.");
         } catch (e) {
-            setGeneratedEmail("Error generating draft.");
+            console.error(e);
+            setGeneratedEmail("Error generating draft. Please check API key.");
         } finally {
             setIsDrafting(false);
         }
