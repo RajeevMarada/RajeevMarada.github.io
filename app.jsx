@@ -798,7 +798,7 @@ const Hero = () => {
                         <a href="#work" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-2xl font-medium text-lg hover:bg-[#333] hover:shadow-xl transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
                             View Benchmarks <ArrowRight size={18} />
                         </a>
-                        <a href="assets/resume.pdf" download target="_blank" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
+                        <a href="/assets/resume.pdf" target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
                             Resume <FileText size={18} />
                         </a>
                     </div>
