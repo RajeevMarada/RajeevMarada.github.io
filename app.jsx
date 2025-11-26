@@ -11,6 +11,12 @@ import {
     Copy, Check
 } from 'lucide-react';
 
+/* ========================================
+  ⚠️ IMPORTANT: PASTE YOUR API KEY HERE ⚠️
+  ========================================
+*/
+const API_KEY = ""; // Paste your Google Gemini API Key inside the quotes
+
 /* --- THEME & ANIMATIONS --- */
 const FontStyles = () => (
     <style>{`
@@ -498,7 +504,6 @@ const Navbar = ({ activeSection }) => {
 const TechExplainerModal = ({ term, onClose }) => {
     const [explanation, setExplanation] = useState("");
     const [loading, setLoading] = useState(true);
-    const apiKey = "AIzaSyBs0l1D7ojmZBikkNYFOQnDIhT1JZ8sZYA"; // API Key handled by environment
 
     useEffect(() => {
         const fetchExplanation = async () => {
@@ -506,7 +511,7 @@ const TechExplainerModal = ({ term, onClose }) => {
             const prompt = `Explain the VLSI technical term "${term}" to a non-technical person in 2 simple sentences. Then, add one sentence explaining why this skill is critical for a Silicon Architect like Rajeev. Keep it professional but accessible.`;
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -564,8 +569,6 @@ const AIChat = () => {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
 
-    const apiKey = ""; // API Key handled by environment
-
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -610,7 +613,7 @@ const AIChat = () => {
     `;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -669,8 +672,8 @@ const AIChat = () => {
                         {messages.map((msg, idx) => (
                             <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                        ? 'bg-[#0B57D0] text-white rounded-br-none'
-                                        : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
+                                    ? 'bg-[#0B57D0] text-white rounded-br-none'
+                                    : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
                                     }`}>
                                     {msg.text}
                                 </div>
@@ -1392,7 +1395,7 @@ const Contact = ({ showTop }) => {
     const [emailIntent, setEmailIntent] = useState("");
     const [generatedEmail, setGeneratedEmail] = useState("");
     const [isDrafting, setIsDrafting] = useState(false);
-    const apiKey = ""; // API Key handled by environment
+    const apiKey = "AIzaSyBs0l1D7ojmZBikkNYFOQnDIhT1JZ8sZYA"; // API Key handled by environment
 
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -1406,7 +1409,7 @@ const Contact = ({ showTop }) => {
         Keep it under 100 words. No subject line, just the body.`;
 
         try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
@@ -1436,6 +1439,16 @@ const Contact = ({ showTop }) => {
                 <p className="text-xl text-[#444746] max-w-xl mx-auto mb-10">
                     Open to collaborations on VLSI research, hardware innovation, and next-gen computing challenges.
                 </p>
+
+                {/* Helper Line */}
+                <div className="flex flex-col items-center justify-center gap-2 mb-6">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#0B57D0] text-[10px] font-bold uppercase tracking-wider">
+                        <Sparkles size={10} /> Smart Assist
+                    </span>
+                    <p className="text-sm text-[#444746] max-w-md">
+                        Looking to connect? Type your intent below, and AI will draft a professional message for you.
+                    </p>
+                </div>
 
                 {/* --- GEMINI POWERED EMAIL DRAFTER --- */}
                 <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-1 mb-12 shadow-sm hover:shadow-md transition-shadow">
