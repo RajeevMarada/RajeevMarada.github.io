@@ -88,7 +88,6 @@ const FontStyles = () => (
     }
 
     /* --- PROMINENT DESKTOP SCROLLBAR --- */
-    /* Only apply to non-mobile devices for better UX */
     @media (min-width: 768px) {
         ::-webkit-scrollbar { 
             width: 14px; 
@@ -100,14 +99,13 @@ const FontStyles = () => (
         ::-webkit-scrollbar-thumb { 
             background: #444746; 
             border-radius: 7px; 
-            border: 3px solid #F2F6FC; /* Creates padding effect */
+            border: 3px solid #F2F6FC; 
             transition: background 0.3s;
         }
         ::-webkit-scrollbar-thumb:hover { 
             background: #0B57D0; 
         }
     }
-    /* Keep mobile scrollbar hidden/thin */
     @media (max-width: 767px) {
         ::-webkit-scrollbar { width: 0px; background: transparent; }
     }
@@ -274,11 +272,17 @@ const FontStyles = () => (
         opacity: 1;
     }
 
-    /* Mobile Dock Overrides */
+    /* Mobile Dock Overrides - FIX FOR CUTTING OFF */
     @media (max-width: 640px) {
-        .dock-item { padding: 0; justify-content: center; width: 44px; }
-        .dock-item:hover { max-width: 44px; background: transparent; }
-        .dock-active { width: 44px; max-width: 44px; padding: 0; justify-content: center; }
+        .dock-container {
+            gap: 2px; /* Smaller gap */
+            padding: 4px;
+            width: auto;
+            max-width: 98vw; /* Maximize width usage */
+        }
+        .dock-item { padding: 0; justify-content: center; width: 36px; height: 36px; }
+        .dock-item:hover { max-width: 36px; background: transparent; }
+        .dock-active { width: 36px; max-width: 36px; padding: 0; justify-content: center; }
         .dock-text { display: none !important; }
     }
 
@@ -511,7 +515,8 @@ const Navbar = ({ activeSection }) => {
                     RM
                 </a>
 
-                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
+                {/* Divider - Hidden on mobile to save space */}
+                <div className="w-[1px] h-5 bg-gray-300 mx-2 hidden sm:block"></div>
 
                 {/* Dynamic Dock */}
                 {navItems.map((item) => {
@@ -531,7 +536,8 @@ const Navbar = ({ activeSection }) => {
                     )
                 })}
 
-                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
+                {/* Divider - Hidden on mobile to save space */}
+                <div className="w-[1px] h-5 bg-gray-300 mx-2 hidden sm:block"></div>
 
                 <a href="mailto:rajeevmarada02@gmail.com" className="w-10 h-10 rounded-full bg-[#E0E2EC] text-[#1F1F1F] flex items-center justify-center hover:bg-[#0B57D0] hover:text-white transition-colors shrink-0">
                     <Mail size={18} />
@@ -691,7 +697,7 @@ const AIChat = () => {
 
     return (
         <>
-            {/* Trigger Button - STRICTLY SIZED AND POSITIONED */}
+            {/* Trigger Button - STRICTLY SIZED AND POSITIONED - Bottom Left on Mobile, Bottom Left on Desktop to match */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="fixed bottom-6 left-6 z-50 p-3 lg:p-4 bg-white text-[#0B57D0] rounded-full shadow-2xl hover:scale-110 transition-all duration-300 border border-[#E0E2EC] group click-scale flex items-center gap-2 w-fit max-w-[200px] hover:pr-4"
@@ -1452,7 +1458,7 @@ const Contact = ({ showTop }) => {
     const [emailIntent, setEmailIntent] = useState("");
     const [generatedEmail, setGeneratedEmail] = useState("");
     const [isDrafting, setIsDrafting] = useState(false);
-    // REMOVED LOCAL API_KEY - Now using global
+    const apiKey = ""; // API Key handled by environment
 
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -1474,8 +1480,7 @@ const Contact = ({ showTop }) => {
             const data = await response.json();
             setGeneratedEmail(data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not generate draft.");
         } catch (e) {
-            console.error(e);
-            setGeneratedEmail("Error generating draft. Please check API key.");
+            setGeneratedEmail("Error generating draft.");
         } finally {
             setIsDrafting(false);
         }
