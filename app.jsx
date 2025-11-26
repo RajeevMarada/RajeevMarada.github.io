@@ -515,8 +515,7 @@ const Navbar = ({ activeSection }) => {
                     RM
                 </a>
 
-                {/* Divider - Hidden on mobile to save space */}
-                <div className="w-[1px] h-5 bg-gray-300 mx-2 hidden sm:block"></div>
+                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
 
                 {/* Dynamic Dock */}
                 {navItems.map((item) => {
@@ -536,8 +535,7 @@ const Navbar = ({ activeSection }) => {
                     )
                 })}
 
-                {/* Divider - Hidden on mobile to save space */}
-                <div className="w-[1px] h-5 bg-gray-300 mx-2 hidden sm:block"></div>
+                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
 
                 <a href="mailto:rajeevmarada02@gmail.com" className="w-10 h-10 rounded-full bg-[#E0E2EC] text-[#1F1F1F] flex items-center justify-center hover:bg-[#0B57D0] hover:text-white transition-colors shrink-0">
                     <Mail size={18} />
@@ -800,7 +798,7 @@ const Hero = () => {
                         <a href="#work" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-2xl font-medium text-lg hover:bg-[#333] hover:shadow-xl transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
                             View Benchmarks <ArrowRight size={18} />
                         </a>
-                        <a href="/assets/resume.pdf" target="_blank" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
+                        <a href="assets/resume.pdf" download target="_blank" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
                             Resume <FileText size={18} />
                         </a>
                     </div>
