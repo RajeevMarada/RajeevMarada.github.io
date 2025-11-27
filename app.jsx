@@ -8,15 +8,9 @@ import {
     Calendar, MapPin, MousePointer2, Smartphone, HardDrive,
     ChevronDown, ArrowUp, Code2, Cpu as Chip,
     Briefcase, GraduationCap, MessageSquare, Send, Loader2,
-    Copy, Check, HelpCircle, ExternalLink, ChevronUp
+    Copy, Check, HelpCircle, ExternalLink, ChevronUp,
+    Sun, Moon
 } from 'lucide-react';
-
-const favicon = document.createElement("link");
-favicon.rel = "icon";
-favicon.type = "image/svg+xml";
-favicon.href =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
-document.head.appendChild(favicon);
 
 /* --- THEME & ANIMATIONS --- */
 const FontStyles = () => (
@@ -27,57 +21,104 @@ const FontStyles = () => (
       scroll-behavior: smooth;
     }
 
+    /* --- CSS VARIABLES --- */
+    :root {
+        /* Default (Light) */
+        --bg-main: #FAFAFA;
+        --bg-card: #FFFFFF;
+        --bg-card-hover: #F2F6FC;
+        --text-main: #1F1F1F;
+        --text-secondary: #444746;
+        --border-color: #E0E2EC;
+        --accent: #0B57D0;
+        --accent-rgb: 11, 87, 208;
+        --shadow-color: rgba(0, 0, 0, 0.08);
+        --scrollbar-track: #F2F6FC;
+        --scrollbar-thumb: #444746;
+    }
+
+    body.dark {
+        /* Dark Mode Overrides */
+        --bg-main: #050505;
+        --bg-card: #121212;
+        --bg-card-hover: #18181b;
+        --text-main: #E5E5E5;
+        --text-secondary: #A1A1AA;
+        --border-color: #27272a;
+        --accent: #3b82f6;
+        --accent-rgb: 59, 130, 246;
+        --shadow-color: rgba(0, 0, 0, 0.5);
+        --scrollbar-track: #0a0a0a;
+        --scrollbar-thumb: #3f3f46;
+    }
+
+    /* --- PERFORMANCE OPTIMIZED TRANSITIONS --- */
+    /* Only transition colors on specific elements to prevent layout thrashing (jitter) */
+    body, .bg-card, .hover-card, .dock-container, .dock-item, .interactive-tag, button, a {
+      transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+      transition-duration: 0.3s;
+      transition-timing-function: ease-out;
+    }
+
     body {
       font-family: 'Roboto', sans-serif;
-      background-color: #FAFAFA;
-      color: #1F1F1F;
       overflow-x: hidden;
       cursor: none; 
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      background-color: var(--bg-main);
+      color: var(--text-main);
     }
     
-    /* Custom Cursor */
+    /* Utility Classes using Vars */
+    .bg-main { background-color: var(--bg-main); }
+    .bg-card { background-color: var(--bg-card); }
+    .text-main { color: var(--text-main); }
+    .text-sec { color: var(--text-secondary); }
+    .border-std { border-color: var(--border-color); }
+    
+    /* --- CUSTOM CURSOR --- */
     #cursor-follower {
       position: fixed;
       top: 0;
       left: 0;
       width: 20px;
       height: 20px;
-      background-color: rgba(11, 87, 208, 0.05); 
-      border: 2px solid rgba(11, 87, 208, 0.5); 
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
       transform: translate3d(-50%, -50%, 0);
-      will-change: transform, width, height;
-      transition: width 0.2s cubic-bezier(0.25, 1, 0.5, 1), 
-                  height 0.2s cubic-bezier(0.25, 1, 0.5, 1), 
-                  background-color 0.2s;
-      mix-blend-mode: multiply; 
+      will-change: transform; 
+      transition: width 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
+                  height 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
+                  background-color 0.4s, border-color 0.4s;
       opacity: 0; 
     }
-    
-    @media (prefers-color-scheme: dark) {
-        #cursor-follower {
-            border-color: rgba(255, 255, 255, 0.5);
-            mix-blend-mode: exclusion;
-        }
+
+    body.light #cursor-follower {
+        background-color: rgba(11, 87, 208, 0.05); 
+        border: 2px solid rgba(11, 87, 208, 0.5); 
+    }
+
+    body.dark #cursor-follower {
+        background-color: rgba(96, 165, 250, 0.1);
+        border: 2px solid rgba(96, 165, 250, 0.5); 
+        box-shadow: 0 0 15px rgba(96, 165, 250, 0.2);
     }
     
     body:hover #cursor-follower { opacity: 1; }
     body:hover #cursor-follower.hidden-cursor { opacity: 0; }
 
-    /* Interactive State */
+    /* Interactive Cursor State */
     a:hover ~ #cursor-follower, 
     button:hover ~ #cursor-follower, 
     .click-scale:hover ~ #cursor-follower, 
-    .interactive-tag:hover ~ #cursor-follower {
+    .interactive-tag:hover ~ #cursor-follower,
+    .cursor-active ~ #cursor-follower {
       width: 50px;
       height: 50px;
-      background-color: rgba(11, 87, 208, 0.1);
       border-color: transparent;
+      background-color: rgba(var(--accent-rgb), 0.15);
     }
 
     h1, h2, h3, h4, h5, .brand-font {
@@ -88,30 +129,18 @@ const FontStyles = () => (
       font-family: 'JetBrains+Mono', monospace;
     }
 
-    /* --- PROMINENT DESKTOP SCROLLBAR --- */
+    /* --- SCROLLBAR --- */
     @media (min-width: 768px) {
-        ::-webkit-scrollbar { 
-            width: 14px; 
-        }
-        ::-webkit-scrollbar-track { 
-            background: #F2F6FC; 
-            border-left: 1px solid #E0E2EC;
-        }
-        ::-webkit-scrollbar-thumb { 
-            background: #444746; 
-            border-radius: 7px; 
-            border: 3px solid #F2F6FC; 
-            transition: background 0.3s;
-        }
-        ::-webkit-scrollbar-thumb:hover { 
-            background: #0B57D0; 
-        }
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); border-left: 1px solid var(--border-color); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 7px; border: 3px solid var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     }
     @media (max-width: 767px) {
         ::-webkit-scrollbar { width: 0px; background: transparent; }
     }
 
-    /* Staggered Reveal Animations */
+    /* --- ANIMATIONS --- */
     .reveal-up {
       opacity: 0;
       transform: translateY(30px);
@@ -128,246 +157,147 @@ const FontStyles = () => (
     .stagger-3 { transition-delay: 300ms; }
     .stagger-4 { transition-delay: 400ms; }
 
-    /* Floating Animations */
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
-    }
-    .animate-float {
-      animation: float 6s ease-in-out infinite;
-      will-change: transform;
-    }
+    @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+    .animate-float { animation: float 6s ease-in-out infinite; will-change: transform; }
 
-    @keyframes float-delayed {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-    }
-    .animate-float-delayed {
-      animation: float-delayed 7s ease-in-out infinite;
-      will-change: transform;
-      animation-delay: 2s;
-    }
+    @keyframes float-delayed { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+    .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite; will-change: transform; animation-delay: 2s; }
     
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 0 0px rgba(11, 87, 208, 0.2); }
-      50% { box-shadow: 0 0 0 10px rgba(11, 87, 208, 0); }
+    @keyframes pulse-glow { 
+        0%, 100% { box-shadow: 0 0 0 0px rgba(var(--accent-rgb), 0.2); } 
+        50% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); } 
     }
-    .animate-pulse-soft {
-      animation: pulse-glow 3s infinite;
-    }
+    .animate-pulse-soft { animation: pulse-glow 3s infinite; }
 
-    /* IMPROVED HIGHLIGHTER (Light Mode) */
+    /* IMPROVED HIGHLIGHTER */
     .imp-text {
       position: relative;
       font-weight: 700; 
-      color: #1F1F1F;
       cursor: default;
       display: inline-block;
       z-index: 1;
+      color: var(--text-main);
       transition: color 0.2s ease;
     }
-    
     .imp-text::after {
       content: '';
       position: absolute;
-      width: 0%; 
-      height: 3px;
-      bottom: 1px;
-      left: 0;
-      background-color: #0B57D0; 
+      width: 0%; height: 3px; bottom: 1px; left: 0;
+      background-color: var(--accent);
       opacity: 0.6;
       transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: -1;
     }
-    
-    .imp-text:hover::after {
-      width: 100%; 
-    }
+    .imp-text:hover::after { width: 100%; }
 
-    /* IMPROVED HIGHLIGHTER (Dark Mode for Patent Card) */
     .imp-text-dark {
-      position: relative;
-      font-weight: 700; 
-      color: #FFFFFF;
-      cursor: default;
-      display: inline-block;
-      z-index: 1;
-      transition: color 0.2s ease;
+      position: relative; font-weight: 700; color: #FFFFFF; cursor: default; display: inline-block; z-index: 1; transition: color 0.2s ease;
     }
-    
     .imp-text-dark::after {
-      content: '';
-      position: absolute;
-      width: 0%; 
-      height: 3px;
-      bottom: 1px;
-      left: 0;
-      background-color: #60a5fa; /* Blue-400 */
-      opacity: 0.6;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: -1;
+      content: ''; position: absolute; width: 0%; height: 3px; bottom: 1px; left: 0; background-color: #60a5fa; opacity: 0.6; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: -1;
     }
-    
-    .imp-text-dark:hover::after {
-      width: 100%; 
-    }
+    .imp-text-dark:hover::after { width: 100%; }
 
-    /* Cards */
-    .tech-card, .story-card {
-        background: white;
-        border-radius: 24px;
-        padding: 2rem;
-        border: 1px solid #E0E2EC;
-        height: 100%;
-        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        position: relative;
-        overflow: hidden;
-    }
-    .tech-card:hover, .story-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 30px -10px rgba(0,0,0,0.08);
-        border-color: #0B57D0;
-    }
-    .tech-card.flavor-blue { border-top: 4px solid #0B57D0; }
-    .tech-card.flavor-orange { border-top: 4px solid #FBBC04; }
-    .tech-card.flavor-green { border-top: 4px solid #34A853; }
-
-
-    /* DOCK - RE-ENGINEERED FOR PERFORMANCE */
+    /* DOCK */
     .dock-container {
         pointer-events: auto;
         display: flex;
         align-items: center;
         gap: 8px;
-        background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(224, 226, 236, 0.8);
         border-radius: 9999px;
         padding: 6px;
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-        transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         will-change: transform;
     }
-    .dock-container:hover {
-        box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15);
-        transform: translateY(-2px);
+    
+    body.light .dock-container {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #CBD5E1; 
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
     }
+    body.dark .dock-container {
+        background: rgba(20, 20, 20, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .dock-container:hover { transform: translateY(-2px); }
 
     .dock-item {
       height: 44px;
       border-radius: 9999px;
       display: flex;
       align-items: center;
-      color: #444746;
       background: transparent;
       padding: 0 12px; 
       position: relative;
       cursor: pointer;
-      /* Max-width transition is smoother than auto width */
       max-width: 44px; 
-      transition: max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1),
-                  background-color 0.3s ease, 
-                  color 0.3s ease;
+      transition: max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, color 0.4s ease;
       overflow: hidden;
       white-space: nowrap;
+      color: var(--text-secondary);
     }
     
-    .dock-item:hover {
-      max-width: 160px; 
-      background-color: #F2F6FC;
-      color: #1F1F1F;
-    }
+    .dock-item:hover { max-width: 160px; background-color: var(--bg-card-hover); color: var(--text-main); }
+    .dock-active { background-color: var(--text-main) !important; color: var(--bg-main) !important; max-width: 160px; }
     
-    .dock-active {
-      background-color: #1F1F1F !important;
-      color: white !important;
-      max-width: 160px; 
-    }
-
-    .dock-active .dock-icon { color: white !important; }
-    
-    .dock-text {
-        opacity: 0;
-        margin-left: 10px;
-        font-weight: 500;
-        font-size: 0.875rem;
-        transition: opacity 0.2s ease 0.1s; /* Delay text fade in */
-    }
-    
-    /* Show text only when expanded */
-    .dock-item:hover .dock-text,
-    .dock-active .dock-text {
-        opacity: 1;
-    }
-
-    /* Mobile Dock Overrides - FIX FOR CUTTING OFF */
-    @media (max-width: 640px) {
-        .dock-container {
-            gap: 2px; /* Smaller gap */
-            padding: 4px;
-            width: auto;
-            max-width: 98vw; /* Maximize width usage */
-        }
-        .dock-item { padding: 0; justify-content: center; width: 36px; height: 36px; }
-        .dock-item:hover { max-width: 36px; background: transparent; }
-        .dock-active { width: 36px; max-width: 36px; padding: 0; justify-content: center; }
-        .dock-text { display: none !important; }
-    }
-
+    .dock-text { opacity: 0; margin-left: 10px; font-weight: 600; font-size: 0.875rem; transition: opacity 0.2s ease 0.1s; }
+    .dock-item:hover .dock-text, .dock-active .dock-text { opacity: 1; }
 
     /* Interactive Cards */
-    .hover-card {
-      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    .hover-card { 
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease;
     }
-    .hover-card:hover {
-      transform: translateY(-6px) scale(1.01);
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
-      z-index: 10;
-    }
+    .hover-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 40px -10px var(--shadow-color); z-index: 10; }
     
-    .click-scale:active {
-      transform: scale(0.96);
-      transition: transform 0.1s;
-    }
+    .click-scale:active { transform: scale(0.96); transition: transform 0.1s; }
 
-    /* Circuit Background */
-    .circuit-bg {
-        background-image: radial-gradient(#E0E2EC 1px, transparent 1px);
-        background-size: 32px 32px;
-        mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
-    }
+    /* Circuit Backgrounds */
+    .circuit-bg { transition: background-image 0.4s ease; }
+    body.light .circuit-bg { background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom, black 20%, transparent 90%); }
+    body.dark .circuit-bg { background-image: radial-gradient(#3f3f46 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom, black 20%, transparent 90%); }
     
-    /* Hero Heading Hover - DYNAMIC */
-    .hero-heading {
-        background-size: 200% auto;
-        background-image: linear-gradient(to right, #1F1F1F 0%, #0B57D0 50%, #1F1F1F 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        /* Removed simple transition, now handled via inline style */
-    }
+    /* Hero Heading Gradient */
+    .hero-heading { background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; transition: background-image 0.4s ease; }
+    
+    body.light .hero-heading { background-image: linear-gradient(to right, #1F1F1F 0%, #0B57D0 50%, #1F1F1F 100%); }
+    body.dark .hero-heading { background-image: linear-gradient(to right, #FFFFFF 0%, #0B57D0 50%, #FFFFFF 100%); }
 
+    /* Mobile Dock Overrides */
+    @media (max-width: 640px) {
+        .dock-container { gap: 2px; padding: 6px; width: 92vw; max-width: 400px; justify-content: space-evenly; }
+        .dock-item { padding: 0; justify-content: center; width: 40px; height: 40px; }
+        .dock-item:hover { max-width: 40px; background: transparent; }
+        .dock-active { width: 40px; max-width: 40px; padding: 0; justify-content: center; }
+        .dock-text { display: none !important; }
+    }
   `}</style>
 );
 
 /* --- HOOKS --- */
-const useScrollObserver = (loading) => {
+const useScrollObserver = (loading, theme) => {
     useEffect(() => {
         if (loading) return;
-        const timer = setTimeout(() => {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+        const timeout = setTimeout(() => {
             document.querySelectorAll('.reveal-up').forEach(el => observer.observe(el));
-            return () => observer.disconnect();
-        }, 100);
-        return () => clearTimeout(timer);
-    }, [loading]);
+        }, 50);
+
+        return () => {
+            clearTimeout(timeout);
+            observer.disconnect();
+        };
+    }, [loading, theme]);
 };
 
 const useActiveSection = () => {
@@ -375,24 +305,28 @@ const useActiveSection = () => {
     const [showTop, setShowTop] = useState(false);
 
     useEffect(() => {
+        let ticking = false;
         const handleScroll = () => {
-            const scrollY = window.scrollY;
-            const windowHeight = window.innerHeight;
-
-            const sections = ['story', 'arsenal', 'journey', 'work', 'patents', 'contact'];
-            let current = 'hero';
-
-            for (const section of sections) {
-                const element = document.getElementById(section);
-                if (element && scrollY >= (element.offsetTop - windowHeight * 0.4)) {
-                    current = section;
-                }
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const scrollY = window.scrollY;
+                    const windowHeight = window.innerHeight;
+                    const sections = ['story', 'arsenal', 'journey', 'work', 'patents', 'contact'];
+                    let current = 'hero';
+                    for (const section of sections) {
+                        const element = document.getElementById(section);
+                        if (element && scrollY >= (element.offsetTop - windowHeight * 0.4)) {
+                            current = section;
+                        }
+                    }
+                    setActiveSection(current);
+                    const heroHeight = document.getElementById('hero')?.offsetHeight || 500;
+                    setShowTop(scrollY > heroHeight);
+                    ticking = false;
+                });
+                ticking = true;
             }
-            setActiveSection(current);
-            const heroHeight = document.getElementById('hero')?.offsetHeight || 500;
-            setShowTop(scrollY > heroHeight);
         };
-
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
@@ -409,7 +343,6 @@ const CustomCursor = () => {
         if (isTouch) return;
 
         let requestRef;
-
         const moveCursor = (e) => {
             if (requestRef) cancelAnimationFrame(requestRef);
             requestRef = requestAnimationFrame(() => {
@@ -418,7 +351,6 @@ const CustomCursor = () => {
                 }
             });
         };
-
         const hideCursor = () => cursorRef.current?.classList.add('hidden-cursor');
         const showCursor = () => cursorRef.current?.classList.remove('hidden-cursor');
 
@@ -434,14 +366,11 @@ const CustomCursor = () => {
         };
     }, []);
 
-    if (typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0))) {
-        return null;
-    }
-
+    if (typeof window !== 'undefined' && (('ontouchstart' in window) || (navigator.maxTouchPoints > 0))) return null;
     return <div id="cursor-follower" ref={cursorRef} className="hidden lg:block"></div>;
 };
 
-const LoadingScreen = ({ onComplete, isExiting }) => {
+const LoadingScreen = ({ onComplete, isExiting, theme }) => {
     const [progress, setProgress] = useState(0);
     const requestRef = useRef();
     const startTimeRef = useRef();
@@ -451,7 +380,6 @@ const LoadingScreen = ({ onComplete, isExiting }) => {
         const deltaTime = time - startTimeRef.current;
         const newProgress = Math.min((deltaTime / 1200) * 100, 100);
         setProgress(newProgress);
-
         if (newProgress < 100) {
             requestRef.current = requestAnimationFrame(animate);
         } else {
@@ -464,26 +392,24 @@ const LoadingScreen = ({ onComplete, isExiting }) => {
         return () => cancelAnimationFrame(requestRef.current);
     }, [onComplete]);
 
+    const isDark = theme === 'dark';
+
     return (
-        <div className={`fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-700 ease-out ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+        <div className={`fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 transition-opacity duration-700 ease-out ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'} ${isDark ? 'bg-[#050505]' : 'bg-white'}`}>
             <div className="w-full max-w-xs relative">
                 <div className="flex justify-between items-end mb-2">
-                    <span className="text-xs font-bold text-[#1F1F1F] tracking-widest font-mono">SYSTEM BOOT</span>
-                    <span className="text-xs font-bold text-[#0B57D0] font-mono">{Math.floor(progress)}%</span>
+                    <span className={`text-xs font-bold tracking-widest font-mono ${isDark ? 'text-white' : 'text-[#1F1F1F]'}`}>SYSTEM BOOT</span>
+                    <span className={`text-xs font-bold font-mono ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{Math.floor(progress)}%</span>
                 </div>
-                <div className="h-1 w-full bg-[#F2F6FC] overflow-hidden rounded-full">
-                    <div className="h-full bg-[#1F1F1F] rounded-full" style={{ width: `${progress}%` }}></div>
-                </div>
-                <div className="mt-2 text-[10px] text-[#444746] font-mono uppercase flex justify-between">
-                    <span>{progress < 30 ? 'Loading Modules...' : progress < 70 ? 'Verifying Architecture...' : 'Ready.'}</span>
-                    {progress >= 100 && <span className="text-green-600 font-bold">OK</span>}
+                <div className={`h-1 w-full overflow-hidden rounded-full ${isDark ? 'bg-gray-800' : 'bg-[#F2F6FC]'}`}>
+                    <div className={`h-full rounded-full ${isDark ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)]' : 'bg-[#1F1F1F]'}`} style={{ width: `${progress}%` }}></div>
                 </div>
             </div>
         </div>
     );
 };
 
-const Navbar = ({ activeSection }) => {
+const Navbar = ({ activeSection, theme, toggleTheme }) => {
     const navItems = [
         { id: 'story', icon: BookOpen, label: 'Story' },
         { id: 'arsenal', icon: Cpu, label: 'Arsenal' },
@@ -498,24 +424,24 @@ const Navbar = ({ activeSection }) => {
     useEffect(() => {
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
-            if (currentScrollY < 50) {
-                setIsVisible(true);
-            } else if (currentScrollY > lastScrollY.current) {
-                setIsVisible(false);
-            } else {
-                setIsVisible(true);
-            }
+            if (currentScrollY < 50) setIsVisible(true);
+            else if (currentScrollY > lastScrollY.current) setIsVisible(false);
+            else setIsVisible(true);
             lastScrollY.current = currentScrollY;
         };
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    const isDark = theme === 'dark';
+
     return (
         <nav className={`fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}>
             <div className="dock-container">
-                <a href="#hero" className="w-10 h-10 rounded-full bg-[#1F1F1F] text-white flex items-center justify-center font-bold font-mono text-sm hover:bg-[#0B57D0] transition-colors shrink-0">RM</a>
-                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
+                <a href="#hero" className={`w-10 h-10 rounded-full flex items-center justify-center font-bold font-mono text-sm shrink-0 shadow-lg ${isDark ? 'bg-white text-black hover:bg-blue-500 hover:text-white' : 'bg-[#1F1F1F] text-white hover:bg-[#0B57D0]'}`}>RM</a>
+
+                <div className={`w-[1px] h-5 mx-1 sm:mx-2 border-l border-std`}></div>
+
                 {navItems.map((item) => {
                     const isActive = activeSection === item.id;
                     return (
@@ -525,23 +451,31 @@ const Navbar = ({ activeSection }) => {
                         </a>
                     )
                 })}
-                <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
-                <a href="mailto:rajeevmarada02@gmail.com" className="w-10 h-10 rounded-full bg-[#E0E2EC] text-[#1F1F1F] flex items-center justify-center hover:bg-[#0B57D0] hover:text-white transition-colors shrink-0"><Mail size={18} /></a>
+
+                <div className={`w-[1px] h-5 mx-1 sm:mx-2 border-l border-std`}></div>
+
+                <button onClick={toggleTheme} className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isDark ? 'bg-[#27272a] text-white hover:bg-yellow-500 hover:text-black' : 'bg-[#E0E2EC] text-[#1F1F1F] hover:bg-[#1F1F1F] hover:text-white'}`} title="Toggle Theme">
+                    {isDark ? <Sun size={18} /> : <Moon size={18} />}
+                </button>
+
+                <a href="mailto:rajeevmarada02@gmail.com" className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ml-1 ${isDark ? 'bg-[#27272a] text-white hover:bg-blue-600' : 'bg-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
+                    <Mail size={18} />
+                </a>
             </div>
         </nav>
     );
 };
 
-const Hero = () => {
+const Hero = ({ theme }) => {
     const headingRef = useRef(null);
+    const isDark = theme === 'dark';
 
     const handleMouseMove = (e) => {
         if (!headingRef.current) return;
         const rect = headingRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left; // x position within the element.
+        const x = e.clientX - rect.left;
         const width = rect.width;
         const percent = Math.max(0, Math.min(100, (x / width) * 100));
-
         headingRef.current.style.backgroundPosition = `${percent}% center`;
     };
 
@@ -552,106 +486,107 @@ const Hero = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full relative z-10">
 
                 <div className="flex flex-col items-start text-left space-y-6 lg:space-y-8 reveal-up active">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E0E2EC] shadow-sm text-[#1F1F1F] text-xs font-bold tracking-wider uppercase animate-float cursor-default hover:scale-105 transition-transform">
+                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border shadow-sm text-xs font-bold tracking-wider uppercase animate-float cursor-default ${isDark ? 'bg-[#18181b] border-[#27272a] text-gray-300 hover:border-blue-500/50' : 'bg-white border-[#E0E2EC] text-[#1F1F1F]'}`}>
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                         Engineer • Tinkerer • Innovator
                     </div>
 
-                    <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#1F1F1F] leading-[0.95] brand-font cursor-default">
+                    <h1 className={`text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1] sm:leading-[0.95] brand-font cursor-default text-main`}>
                         Systems <br />
                         <span
                             ref={headingRef}
                             onMouseMove={handleMouseMove}
                             className="hero-heading"
-                            style={{ backgroundPosition: '0% center' }} // Initial position
+                            style={{ backgroundPosition: '0% center' }}
                         >
                             Reimagined.
                         </span>
                     </h1>
 
-                    <p className="text-lg sm:text-xl text-[#444746] max-w-lg leading-relaxed font-light">
+                    <p className={`text-base sm:text-xl max-w-lg leading-relaxed font-light text-sec`}>
                         From <span className="imp-text">repairing consoles</span> to architecting <span className="imp-text">RISC-V SoCs</span>.
                         I bridge the gap between abstract logic and physical reality, combining <span className="imp-text">VLSI expertise</span> with a passion for <span className="imp-text">automation</span> and <span className="imp-text">social innovation</span>.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
-                        <a href="#work" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-2xl font-medium text-lg hover:bg-[#333] hover:shadow-xl transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
+                        <a href="#work" className={`px-8 py-4 rounded-2xl font-medium text-lg transition-transform duration-300 flex items-center justify-center gap-2 click-scale hover:-translate-y-1 ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-[#1F1F1F] text-white hover:bg-[#333] shadow-xl'}`}>
                             View Projects <ArrowRight size={18} />
                         </a>
-                        <a href="https://rajeevmarada.github.io/assets/resume.pdf" target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
+                        <a href="https://rajeevmarada.github.io/assets/resume.pdf" target="_blank" rel="noopener noreferrer" className={`px-8 py-4 bg-transparent border rounded-2xl font-medium text-lg transition-transform duration-300 flex items-center justify-center gap-2 click-scale hover:-translate-y-1 border-std text-main hover:bg-card-hover`}>
                             Resume <FileText size={18} />
                         </a>
                     </div>
                 </div>
 
                 <div className="relative reveal-up active" style={{ transitionDelay: '200ms' }}>
-                    <div className="absolute inset-0 bg-[#F2F6FC] rounded-[40px] -z-10 scale-105 opacity-50 animate-pulse-soft" />
+                    <div className={`absolute inset-0 rounded-[40px] -z-10 scale-105 animate-pulse-soft ${isDark ? 'bg-blue-900/20 blur-3xl' : 'bg-[#F2F6FC] opacity-50'}`} />
 
                     <div className="grid grid-cols-2 gap-4 p-4">
                         {/* KPI 1: Patent */}
-                        <div className="bg-[#1F1F1F] text-white p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden group cursor-default stagger-1">
-                            <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity animate-float">
+                        <div className={`p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden group cursor-default stagger-1 ${isDark ? 'bg-[#121212] text-white border border-[#27272a]' : 'bg-[#1F1F1F] text-white border border-[#1F1F1F]'}`}>
+                            <div className={`absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity animate-float ${isDark ? 'text-blue-400' : ''}`}>
                                 <Award size={64} />
                             </div>
                             <div>
-                                <div className="text-[#C4EED0] text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-[#C4EED0] rounded-full"></span> Granted IP
+                                <div className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2 ${isDark ? 'text-blue-300' : 'text-[#C4EED0]'}`}>
+                                    <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-blue-400' : 'bg-[#C4EED0]'}`}></span> Granted IP
                                 </div>
-                                <div className="text-2xl sm:text-3xl font-bold brand-font text-[#C4EED0]">IN 564400</div>
+                                <div className={`text-2xl sm:text-3xl font-bold brand-font ${isDark ? 'text-blue-100' : 'text-[#C4EED0]'}`}>IN 564400</div>
                             </div>
                             <div className="text-sm text-gray-400 mt-4 leading-tight">
                                 Autonomous Vehicle Safety System with Bio-Feedback.
                             </div>
                         </div>
 
-                        {/* KPI 2: Papers - IMPROVED VISUAL */}
-                        <div className="bg-white border border-gray-100 p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-2 bg-gradient-to-br from-white to-blue-50">
-                            <div className="w-12 h-12 bg-[#0B57D0] rounded-full flex items-center justify-center text-white mb-4 shadow-lg shadow-blue-200 animate-float-delayed">
+                        {/* KPI 2: Papers */}
+                        <div className={`border p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-2 relative overflow-hidden bg-card border-std`}>
+                            {isDark && <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-600/10 rounded-full blur-xl"></div>}
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 shadow-lg animate-float-delayed ${isDark ? 'bg-blue-900/30 text-blue-400 border border-blue-800/50' : 'bg-[#0B57D0] text-white shadow-blue-200'}`}>
                                 <FileText size={24} />
                             </div>
                             <div>
-                                <div className="text-3xl sm:text-4xl font-bold text-[#1F1F1F] brand-font mb-1">2 Papers</div>
-                                <div className="text-sm text-[#444746]">
+                                <div className={`text-3xl sm:text-4xl font-bold brand-font mb-1 text-main`}>2 Papers</div>
+                                <div className={`text-sm text-sec`}>
                                     Published Research<br />
-                                    <span className="text-xs text-[#0B57D0] font-bold">IEEE • GIJET</span>
+                                    <span className={`text-xs font-bold ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>IEEE • GIJET</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* KPI 3: IISc - IMPROVED VISUAL */}
-                        <div className="bg-[#0D3818] text-white p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-3 relative overflow-hidden">
-                            <div className="absolute -right-4 -bottom-4 opacity-10 rotate-12">
+                        {/* KPI 3: IISc */}
+                        <div className={`p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-3 relative overflow-hidden ${isDark ? 'bg-[#0a1a0f] text-white border border-green-900/30' : 'bg-[#0D3818] text-white border border-[#0D3818]'}`}>
+                            <div className={`absolute -right-4 -bottom-4 opacity-10 rotate-12 ${isDark ? 'text-green-500' : ''}`}>
                                 <BookOpen size={100} />
                             </div>
                             <div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-xs font-bold text-[#34A853] uppercase bg-white/10 px-2 py-1 rounded backdrop-blur-sm">IISc Bangalore</div>
+                                    <div className={`text-xs font-bold uppercase px-2 py-1 rounded backdrop-blur-sm ${isDark ? 'text-green-400 bg-green-900/30 border border-green-800' : 'text-[#34A853] bg-white/10'}`}>IISc Bangalore</div>
                                 </div>
                                 <div className="text-lg font-bold text-white leading-tight mt-2">Advanced VLSI Design</div>
                             </div>
                             <div className="mt-4">
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span className="text-gray-300">Performance</span>
-                                    <span className="font-bold text-[#34A853]">80%</span>
+                                    <span className={`${isDark ? 'text-gray-400' : 'text-gray-300'}`}>Performance</span>
+                                    <span className={`font-bold ${isDark ? 'text-green-400' : 'text-[#34A853]'}`}>80%</span>
                                 </div>
-                                <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#34A853] w-[80%] animate-[load_1.5s_ease-out_forwards]" />
+                                <div className={`w-full h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-white/20'}`}>
+                                    <div className={`h-full w-[80%] animate-[load_1.5s_ease-out_forwards] ${isDark ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-[#34A853]'}`} />
                                 </div>
                             </div>
                         </div>
 
                         {/* KPI 4: Diverse Background */}
-                        <div className="bg-[#C4EED0] p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden cursor-default stagger-4">
-                            <CircuitBoard className="absolute -bottom-4 -right-4 text-[#0D3818] opacity-10 w-32 h-32 animate-float" />
+                        <div className={`p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden cursor-default stagger-4 ${isDark ? 'bg-[#18181b] border border-[#27272a]' : 'bg-[#C4EED0] border border-[#C4EED0]'}`}>
+                            <CircuitBoard className={`absolute -bottom-4 -right-4 w-32 h-32 animate-float ${isDark ? 'text-gray-700 opacity-20' : 'text-[#0D3818] opacity-10'}`} />
                             <div>
-                                <div className="text-[#0D3818] text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-[#0D3818] rounded-full"></span> Background
+                                <div className={`text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2 ${isDark ? 'text-yellow-500' : 'text-[#0D3818]'}`}>
+                                    <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-yellow-500' : 'bg-[#0D3818]'}`}></span> Background
                                 </div>
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0D3818] brand-font">Diverse</div>
+                                <div className={`text-3xl sm:text-4xl font-bold brand-font ${isDark ? 'text-white' : 'text-[#0D3818]'}`}>Diverse</div>
                             </div>
-                            <div className="text-[#0D3818] font-medium mt-2">
+                            <div className={`font-medium mt-2 ${isDark ? 'text-gray-300' : 'text-[#0D3818]'}`}>
                                 Expertise <br />
-                                <span className="text-xs opacity-70 font-semibold">VLSI • IoT • Automation</span>
+                                <span className={`text-xs font-semibold ${isDark ? 'text-gray-500' : 'opacity-70'}`}>VLSI • IoT • Automation</span>
                             </div>
                         </div>
                     </div>
@@ -661,50 +596,51 @@ const Hero = () => {
     );
 };
 
-const OriginStory = () => {
+const OriginStory = ({ theme }) => {
+    const isDark = theme === 'dark';
     const chapters = [
         {
             icon: MousePointer2,
             title: "The Tinkerer",
             text: "It started when my PlayStation 2 died. Instead of replacing it, I tore it apart. That was the moment I realized: everything is built by someone, and everything can be fixed.",
-            accent: "text-[#1F1F1F]",
-            bg: "bg-[#fffbf0]",
+            accent: isDark ? "text-white" : "text-[#1F1F1F]",
+            bg: isDark ? "bg-[#27272a]" : "bg-[#fffbf0]",
             keyTerms: ["PlayStation 2", "tore it apart"]
         },
         {
             icon: Smartphone,
             title: "The Optimizer",
             text: "Curiosity grew into optimization. I rooted my Samsung Galaxy Tab 2 to install custom ROMs, squeezing every drop of performance out of limited hardware.",
-            accent: "text-[#0B57D0]",
-            bg: "bg-[#eef5ff]",
+            accent: isDark ? "text-blue-400" : "text-[#0B57D0]",
+            bg: isDark ? "bg-blue-950/30" : "bg-[#eef5ff]",
             keyTerms: ["Samsung Galaxy Tab 2", "Custom ROMs"]
         },
         {
             icon: HardDrive,
             title: "The Builder",
             text: "Finally, I built my first PC from scratch. Researching thermals, voltages, and component compatibility laid the foundation for my career in hardware architecture.",
-            accent: "text-[#0D3818]",
-            bg: "bg-[#f0fdf4]",
+            accent: isDark ? "text-green-400" : "text-[#0D3818]",
+            bg: isDark ? "bg-green-950/30" : "bg-[#f0fdf4]",
             keyTerms: ["built my first PC", "hardware architecture"]
         }
     ];
 
     return (
-        <section className="py-24 bg-white" id="story">
+        <section className={`py-24 bg-main`} id="story">
             <div className="max-w-[1400px] mx-auto px-6">
                 <div className="text-center mb-16 reveal-up">
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-4 brand-font">The Origin Story</h2>
-                    <p className="text-[#444746] text-lg">From repairing consoles to architecting silicon.</p>
+                    <h2 className={`text-4xl md:text-5xl font-bold mb-4 brand-font text-main`}>The Origin Story</h2>
+                    <p className={`text-lg text-sec`}>From repairing consoles to architecting silicon.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {chapters.map((chap, i) => (
-                        <div key={i} className={`story-card reveal-up stagger-${i + 1} group cursor-default`}>
-                            <div className={`w-14 h-14 ${chap.bg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                        <div key={i} className={`p-8 rounded-[32px] border reveal-up stagger-${i + 1} group cursor-default hover:shadow-xl hover:-translate-y-2 hover-card bg-card border-std`}>
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${chap.bg} ${isDark ? 'border border-white/5' : 'border border-gray-100'}`}>
                                 <chap.icon size={28} className={chap.accent} />
                             </div>
-                            <h3 className="text-2xl font-bold text-[#1F1F1F] mb-4">{chap.title}</h3>
-                            <p className="text-[#444746] leading-relaxed text-sm flex-1">
+                            <h3 className={`text-2xl font-bold mb-4 text-main`}>{chap.title}</h3>
+                            <p className={`leading-relaxed text-sm flex-1 text-sec`}>
                                 {chap.text.split(new RegExp(`(${chap.keyTerms.join('|')})`)).map((part, idx) =>
                                     chap.keyTerms.includes(part)
                                         ? <span key={idx} className="imp-text">{part}</span>
@@ -719,9 +655,10 @@ const OriginStory = () => {
     );
 };
 
-const TechArsenal = () => {
+const TechArsenal = ({ theme }) => {
+    const isDark = theme === 'dark';
     const TechTag = ({ children, className = "" }) => (
-        <div className={`px-4 py-2 bg-[#F2F6FC] border border-[#E0E2EC] rounded-full text-sm font-medium text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white transition-all cursor-default ${className}`}>
+        <div className={`px-4 py-2 rounded-full text-sm font-medium cursor-default ${className} ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-gray-300 text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
             {children}
         </div>
     );
@@ -729,24 +666,24 @@ const TechArsenal = () => {
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="arsenal">
             <div className="mb-16 reveal-up">
-                <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-6 brand-font">
+                <h2 className={`text-4xl md:text-5xl font-bold mb-6 brand-font text-main`}>
                     Tech Arsenal.
                 </h2>
-                <p className="text-xl text-[#444746] max-w-2xl">
+                <p className={`text-xl max-w-2xl text-sec`}>
                     My toolbox for converting requirements into silicon.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
-                <div className="md:col-span-2 bg-white border border-[#E0E2EC] rounded-[24px] p-10 relative overflow-hidden reveal-up hover-card flex flex-col justify-center min-h-[300px]">
+                <div className={`md:col-span-2 rounded-[24px] p-10 relative overflow-hidden reveal-up hover-card flex flex-col justify-center min-h-[300px] bg-card border border-std`}>
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="w-14 h-14 bg-[#F2F6FC] rounded-2xl flex items-center justify-center text-[#0B57D0]">
+                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#18181b] text-blue-400 border border-[#27272a]' : 'bg-[#F2F6FC] text-[#0B57D0]'}`}>
                                 <Cpu size={28} />
                             </div>
-                            <h3 className="text-3xl font-bold text-[#1F1F1F] brand-font">Digital Design & Verification</h3>
+                            <h3 className={`text-3xl font-bold brand-font text-main`}>Digital Design & Verification</h3>
                         </div>
-                        <p className="text-[#444746] text-lg leading-relaxed mb-8 max-w-xl">
+                        <p className={`text-lg leading-relaxed mb-8 max-w-xl text-sec`}>
                             Expertise in constructing robust <span className="imp-text">UVM testbenches</span>, achieving <span className="imp-text">100% coverage</span>, and synthesizing RTL for high-performance SoCs.
                         </p>
                         <div className="flex flex-wrap gap-3">
@@ -755,64 +692,64 @@ const TechArsenal = () => {
                             ))}
                         </div>
                     </div>
-                    <div className="absolute right-0 bottom-0 opacity-5 transition-opacity duration-500">
-                        <CircuitBoard size={300} className="text-[#1F1F1F]" />
+                    <div className={`absolute right-0 bottom-0 transition-opacity duration-500 ${isDark ? 'opacity-10 text-white' : 'opacity-5 text-[#1F1F1F]'}`}>
+                        <CircuitBoard size={300} />
                     </div>
                 </div>
 
-                <div className="tech-card flavor-blue reveal-up stagger-1 flex flex-col">
+                <div className={`tech-card flex flex-col p-8 rounded-[24px] border reveal-up stagger-1 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-blue-500' : 'border-t-4 border-t-[#0B57D0]'}`}>
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#0B57D0]">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/30 text-blue-400 border border-blue-800/30' : 'bg-blue-50 text-[#0B57D0]'}`}>
                             <Terminal size={20} />
                         </div>
-                        <h3 className="text-xl font-bold text-[#1F1F1F]">Languages</h3>
+                        <h3 className={`text-xl font-bold text-main`}>Languages</h3>
                     </div>
                     <div className="flex flex-wrap gap-2 content-start flex-1">
                         {['SystemVerilog', 'Verilog RTL', 'Python', 'C / C++', 'MATLAB'].map((lang) => (
-                            <div key={lang} className="px-4 py-2 rounded-xl bg-blue-50/50 text-[#0B57D0] font-medium text-sm border border-blue-100 hover:bg-blue-100 transition-all cursor-default">
+                            <div key={lang} className={`px-4 py-2 rounded-xl font-medium text-sm border cursor-default ${isDark ? 'bg-[#18181b] text-blue-300 border-[#27272a] hover:bg-blue-900/20 hover:border-blue-800/50' : 'bg-blue-50/50 text-[#0B57D0] border-blue-100 hover:bg-blue-100'}`}>
                                 {lang}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="tech-card flavor-orange reveal-up stagger-2 flex flex-col">
+                <div className={`tech-card flex flex-col p-8 rounded-[24px] border reveal-up stagger-2 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-orange-500' : 'border-t-4 border-t-[#E37400]'}`}>
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-[#E37400]">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-orange-900/30 text-orange-400 border border-orange-800/30' : 'bg-orange-50 text-[#E37400]'}`}>
                             <Box size={20} />
                         </div>
-                        <h3 className="text-xl font-bold text-[#1F1F1F]">Toolchain</h3>
+                        <h3 className={`text-xl font-bold text-main`}>Toolchain</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-3 flex-1">
                         {['Vivado', 'ModelSim', 'Questa Sim', 'Cadence', 'LaTeX', 'HOMER Pro'].map((tool) => (
-                            <div key={tool} className="w-full h-full p-3 rounded-xl bg-orange-50/30 border border-orange-100 text-sm font-medium text-[#444746] text-center hover:bg-orange-100 transition-all cursor-default flex items-center justify-center">
+                            <div key={tool} className={`w-full h-full p-3 rounded-xl text-sm font-medium text-center cursor-default flex items-center justify-center border ${isDark ? 'bg-[#18181b] border-[#27272a] text-gray-400 hover:bg-orange-900/20 hover:text-orange-300 hover:border-orange-800/50' : 'bg-orange-50/30 border-orange-100 text-[#444746] hover:bg-orange-100'}`}>
                                 {tool}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                <div className="md:col-span-2 tech-card flavor-green reveal-up stagger-3 flex flex-col md:flex-row items-center gap-8">
+                <div className={`md:col-span-2 flex flex-col md:flex-row items-center gap-8 p-8 rounded-[24px] border reveal-up stagger-3 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-green-500' : 'border-t-4 border-t-[#34A853]'}`}>
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-[#34A853]">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/30 text-green-400 border border-green-800/30' : 'bg-green-50 text-[#34A853]'}`}>
                                 <Layers size={20} />
                             </div>
-                            <h3 className="text-2xl font-bold text-[#1F1F1F]">System Architecture</h3>
+                            <h3 className={`text-2xl font-bold text-main`}>System Architecture</h3>
                         </div>
-                        <p className="text-[#444746] mb-6">
+                        <p className={`mb-6 text-sec`}>
                             Designing heterogeneous SoCs with custom accelerators.
                         </p>
                         <div className="flex flex-wrap gap-4">
                             {['RISC-V Core', 'Low Power', 'AMBA AXI/APB', 'Neuromorphic'].map((item) => (
-                                <div key={item} className="flex items-center gap-2 bg-green-50/50 border border-green-100 px-4 py-2 rounded-lg text-[#1F7A43] font-bold text-sm cursor-default hover:bg-green-100 transition-all">
+                                <div key={item} className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm cursor-default border ${isDark ? 'bg-[#18181b] border-[#27272a] text-green-400 hover:bg-green-900/20 hover:border-green-800/50' : 'bg-green-50/50 border-green-100 text-[#1F7A43] hover:bg-green-100'}`}>
                                     <CheckCircle2 size={14} /> {item}
                                 </div>
                             ))}
                         </div>
                     </div>
-                    <div className="w-full md:w-1/3 aspect-video bg-[#F2F6FC] rounded-xl border border-[#E0E2EC] flex items-center justify-center relative overflow-hidden">
-                        <div className="font-mono text-xs text-[#444746] p-4 opacity-70">
+                    <div className={`w-full md:w-1/3 aspect-video rounded-xl border flex items-center justify-center relative overflow-hidden ${isDark ? 'bg-[#050505] border-[#27272a]' : 'bg-[#F2F6FC] border-gray-300'}`}>
+                        <div className={`font-mono text-xs p-4 opacity-70 ${isDark ? 'text-gray-500' : 'text-[#444746]'}`}>
                             module soc_top (<br />
                             &nbsp;&nbsp;input clk,<br />
                             &nbsp;&nbsp;input rst_n<br />
@@ -826,13 +763,11 @@ const TechArsenal = () => {
     );
 };
 
-/* --- JOURNEY (Bento Circuit Grid) --- */
-const Journey = () => {
+/* --- JOURNEY --- */
+const Journey = ({ theme }) => {
+    const isDark = theme === 'dark';
     const [expandedId, setExpandedId] = useState(null);
-
-    const toggleExpand = (id) => {
-        setExpandedId(expandedId === id ? null : id);
-    };
+    const toggleExpand = (id) => setExpandedId(expandedId === id ? null : id);
 
     const experiences = [
         {
@@ -841,12 +776,11 @@ const Journey = () => {
             company: "Cognizant Technology Solutions",
             duration: "Aug 2024 - Present",
             desc: "Automated key business workflows using APPIAN low-code platform. Collaborated on cross-functional projects to optimize enterprise processes.",
-            color: "border-l-[#0B57D0]",
-            bg: "bg-blue-50/30",
-            details: [
-                "Automated key business workflows within the Intelligent Process Management team by developing and deploying solutions on the APPIAN low-code platform.",
-                "Collaborated on cross-functional projects to analyze and optimize enterprise-level processes, contributing to enhanced business efficiency."
-            ]
+            borderColor: isDark ? "border-l-blue-500" : "border-l-[#0B57D0]",
+            dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
+            bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
+            buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
+            details: ["Automated key business workflows.", "Collaborated on cross-functional projects."]
         },
         {
             id: "exp2",
@@ -854,38 +788,35 @@ const Journey = () => {
             company: "Insemi Technology Services",
             duration: "Jul 2023 - Oct 2023",
             desc: "Developed UVM testbench for Dual-Port RAM with 100% functional coverage. Analyzed protocol compliance using SystemVerilog assertions.",
-            color: "border-l-[#34A853]",
-            bg: "bg-green-50/30",
-            details: [
-                "Developed a comprehensive UVM testbench to validate a Dual-Port RAM design, creating constrained-random test cases that achieved 100% functional coverage.",
-                "Analyzed protocol compliance by writing SystemVerilog assertions and functional coverage, successfully identifying and debugging design flaws."
-            ]
+            borderColor: isDark ? "border-l-green-500" : "border-l-[#34A853]",
+            dotColorClass: isDark ? "bg-green-500" : "bg-[#34A853]",
+            bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
+            buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#34A853] hover:bg-green-50",
+            details: ["Developed comprehensive UVM testbench.", "Analyzed protocol compliance."]
         },
         {
             id: "exp3",
             role: "Intern",
             company: "Maven Silicon",
             duration: "Dec 2022 - Jan 2023",
-            desc: "Designed AMBA AHB-APB bridge in Verilog. Deepened understanding of FSM architecture and module integration.",
-            color: "border-l-[#FBBC04]",
-            bg: "bg-yellow-50/30",
-            details: [
-                "Deepened understanding of digital and system-level design fundamentals, especially finite state machine (FSM) architecture, and enhanced practical skills in module integration and testbench planning.",
-                "Designed and implemented a compliant AMBA AHB-APB bridge in Verilog to manage communication between high- and low-frequency SoC subsystems."
-            ]
+            desc: "Designed AMBA AHB-APB bridge in Verilog. Deepened understanding of FSM architecture.",
+            borderColor: isDark ? "border-l-yellow-500" : "border-l-[#FBBC04]",
+            dotColorClass: isDark ? "bg-yellow-500" : "bg-[#FBBC04]",
+            bg: isDark ? "bg-yellow-900/10" : "bg-yellow-50/30",
+            buttonColor: isDark ? "text-yellow-400 hover:bg-yellow-900/20" : "text-[#FBBC04] hover:bg-yellow-50",
+            details: ["Deepened understanding of digital design.", "Designed AMBA AHB-APB bridge."]
         },
         {
             id: "exp4",
             role: "Intern",
             company: "CoreEl Technologies",
             duration: "Jun 2022 - Jul 2022",
-            desc: "Built SystemVerilog testbench for full adder DUT. Achieved 100% coverage through rigorous assertion-based verification.",
-            color: "border-l-[#EA4335]",
-            bg: "bg-red-50/30",
-            details: [
-                "Learned SystemVerilog verification workflows, building key testbench components—drivers, monitors, scoreboards, assertions—and applied digital design principles for module development.",
-                "Developed and validated a SystemVerilog testbench for a full adder DUT, achieving 100% functional and code coverage through rigorous assertion-based verification."
-            ]
+            desc: "Built SystemVerilog testbench for full adder DUT. Achieved 100% coverage.",
+            borderColor: isDark ? "border-l-red-500" : "border-l-[#EA4335]",
+            dotColorClass: isDark ? "bg-red-500" : "bg-[#EA4335]",
+            bg: isDark ? "bg-red-900/10" : "bg-red-50/30",
+            buttonColor: isDark ? "text-red-400 hover:bg-red-900/20" : "text-[#EA4335] hover:bg-red-50",
+            details: ["Learned SystemVerilog verification.", "Developed SV testbench."]
         }
     ];
 
@@ -897,12 +828,12 @@ const Journey = () => {
             year: "2024",
             score: "80% Score",
             icon: GraduationCap,
-            color: "border-l-[#0D3818]",
-            iconColor: "text-[#0D3818]",
-            details: [
-                "Completed an intensive 11-month program, achieving an 80% overall score.",
-                "Relevant Coursework: Analog & Digital Integrated Circuit Design, Advanced Digital Design & FPGA-based Design, RISC-V Architecture."
-            ]
+            borderColor: isDark ? "border-l-green-600" : "border-l-[#0D3818]",
+            dotColorClass: isDark ? "bg-green-600" : "bg-[#0D3818]",
+            iconColor: isDark ? "text-green-400" : "text-[#0D3818]",
+            bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
+            buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#0D3818] hover:bg-green-50",
+            details: ["Intensive 11-month program.", "Coursework: Analog/Digital IC Design, RISC-V."]
         },
         {
             id: "edu2",
@@ -911,61 +842,59 @@ const Journey = () => {
             year: "2019 - 2023",
             score: "9.4 CGPA",
             icon: BookOpen,
-            color: "border-l-[#1F1F1F]",
-            iconColor: "text-[#1F1F1F]",
-            details: [
-                "Graduated with a CGPA of 9.4/10.0.",
-                "Relevant Coursework: Digital Design, ARM-based Embedded System Design, VLSI Design Methodology."
-            ]
+            // CHANGED: From Black/White to Blue/Blue-500
+            borderColor: isDark ? "border-l-blue-500" : "border-l-[#0B57D0]",
+            dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
+            iconColor: isDark ? "text-blue-400" : "text-[#0B57D0]",
+            bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
+            buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
+            details: ["Graduated with 9.4/10.0.", "Coursework: Digital Design, Embedded Systems."]
         }
     ];
 
     return (
-        <section className="py-24 bg-white" id="journey">
+        <section className={`py-24 bg-main`} id="journey">
             <div className="max-w-[1200px] mx-auto px-6">
                 <div className="text-center mb-16 reveal-up">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 brand-font text-[#1F1F1F]">The Circuit Path</h2>
-                    <p className="text-[#444746]">Chronicles of execution and learning.</p>
+                    <h2 className={`text-4xl md:text-5xl font-bold mb-4 brand-font text-main`}>The Circuit Path</h2>
+                    <p className={`text-sec`}>Chronicles of execution and learning.</p>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-
-                    {/* Left Column: EXPERIENCE BUS */}
+                    {/* Experience */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 mb-6 reveal-up">
-                            <div className="p-2 bg-blue-50 rounded-lg text-[#0B57D0]"><Briefcase size={24} /></div>
-                            <h3 className="text-2xl font-bold text-[#1F1F1F]">Experience Bus</h3>
+                            <div className={`p-2 rounded-lg ${isDark ? 'bg-blue-900/20 text-blue-400' : 'bg-blue-50 text-[#0B57D0]'}`}><Briefcase size={24} /></div>
+                            <h3 className={`text-2xl font-bold text-main`}>Experience Bus</h3>
                         </div>
-
-                        <div className="relative border-l-2 border-dashed border-gray-200 ml-4 pl-8 space-y-8">
+                        <div className={`relative border-l-2 border-dashed ml-4 pl-8 space-y-8 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
                             {experiences.map((exp, i) => (
-                                <div key={exp.id} className={`group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 hover-card border-l-4 ${exp.color} reveal-up stagger-${i + 1}`}>
-                                    {/* Timeline Circle - Interactive */}
-                                    <div className="absolute -left-[41px] top-6 w-5 h-5 bg-white border-4 border-gray-300 rounded-full transition-all duration-300 group-hover:border-[#0B57D0] group-hover:scale-125 group-hover:shadow-[0_0_0_4px_rgba(11,87,208,0.2)]"></div>
+                                <div key={exp.id}
+                                    className={`group relative rounded-2xl p-6 border shadow-sm hover:shadow-md hover:-translate-y-1 hover-card border-l-[6px] reveal-up stagger-${i + 1} bg-card border-std ${exp.borderColor}`}
+                                    style={{ borderLeftColor: exp.borderColor.includes('#') ? exp.borderColor.replace('border-l-', '') : undefined }}
+                                >
+                                    {/* Timeline Circle - Hover Logic Fix */}
+                                    <div className={`absolute -left-[43px] top-6 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 
+                                        ${expandedId === exp.id ? `scale-125 ${exp.dotColorClass}` : `bg-main border-std group-hover:${exp.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
+                                    </div>
 
                                     <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
                                         <div>
-                                            <h4 className="font-bold text-lg text-[#1F1F1F]">{exp.role}</h4>
-                                            <div className="text-sm font-semibold text-gray-500">{exp.company}</div>
+                                            <h4 className={`font-bold text-lg text-main`}>{exp.role}</h4>
+                                            <div className={`text-sm font-semibold text-sec`}>{exp.company}</div>
                                         </div>
-                                        <span className="text-xs font-bold uppercase tracking-wider bg-gray-100 px-2 py-1 rounded text-gray-600 whitespace-nowrap">{exp.duration}</span>
+                                        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded whitespace-nowrap ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-400' : 'bg-gray-100 text-gray-600'}`}>{exp.duration}</span>
                                     </div>
-                                    <p className="text-sm text-[#444746] leading-relaxed mt-2">{exp.desc}</p>
+                                    <p className={`text-sm leading-relaxed mt-2 text-sec`}>{exp.desc}</p>
 
-                                    <button
-                                        onClick={() => toggleExpand(exp.id)}
-                                        className="mt-4 text-xs font-bold text-[#0B57D0] flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
-                                    >
-                                        {expandedId === exp.id ? "Show Less" : "View Details"}
-                                        {expandedId === exp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                    {/* Updated Button to use dynamic colors */}
+                                    <button onClick={() => toggleExpand(exp.id)} className={`mt-4 text-xs font-bold flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded ${exp.buttonColor}`}>
+                                        {expandedId === exp.id ? "Show Less" : "View Details"} {expandedId === exp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                     </button>
-
-                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === exp.id ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === exp.id ? `grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t ${isDark ? 'border-gray-800' : 'border-gray-100'}` : 'grid-rows-[0fr] opacity-0'}`}>
                                         <div className="overflow-hidden">
                                             <ul className="list-disc pl-4 space-y-2">
-                                                {exp.details.map((detail, idx) => (
-                                                    <li key={idx} className="text-sm text-[#444746] leading-relaxed">{detail}</li>
-                                                ))}
+                                                {exp.details.map((detail, idx) => (<li key={idx} className={`text-sm leading-relaxed text-sec`}>{detail}</li>))}
                                             </ul>
                                         </div>
                                     </div>
@@ -973,55 +902,48 @@ const Journey = () => {
                             ))}
                         </div>
                     </div>
-
-                    {/* Right Column: EDUCATION CORE */}
+                    {/* Education */}
                     <div className="space-y-6">
                         <div className="flex items-center gap-3 mb-6 reveal-up" style={{ transitionDelay: '200ms' }}>
-                            <div className="p-2 bg-green-50 rounded-lg text-[#34A853]"><GraduationCap size={24} /></div>
-                            <h3 className="text-2xl font-bold text-[#1F1F1F]">Education Core</h3>
+                            <div className={`p-2 rounded-lg ${isDark ? 'bg-green-900/20 text-green-400' : 'bg-green-50 text-[#34A853]'}`}><GraduationCap size={24} /></div>
+                            <h3 className={`text-2xl font-bold text-main`}>Education Core</h3>
                         </div>
-
-                        {/* ADDED TIMELINE STRUCTURE TO EDUCATION */}
-                        <div className="relative border-l-2 border-dashed border-gray-200 ml-4 pl-8 space-y-8">
+                        <div className={`relative border-l-2 border-dashed ml-4 pl-8 space-y-8 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
                             {education.map((edu, i) => (
-                                <div key={edu.id} className={`group relative bg-white rounded-[24px] p-8 border border-gray-100 shadow-sm border-l-4 ${edu.color} hover:shadow-lg transition-all hover:-translate-y-1 hover-card reveal-up stagger-1`}>
-
-                                    {/* Timeline Circle - Interactive */}
-                                    <div className="absolute -left-[41px] top-8 w-5 h-5 bg-white border-4 border-gray-300 rounded-full transition-all duration-300 group-hover:border-[#34A853] group-hover:scale-125 group-hover:shadow-[0_0_0_4px_rgba(52,168,83,0.2)]"></div>
+                                <div key={edu.id}
+                                    className={`group relative rounded-[24px] p-8 border shadow-sm border-l-[6px] hover:shadow-lg hover:-translate-y-1 hover-card reveal-up stagger-1 bg-card border-std ${edu.borderColor}`}
+                                    style={{ borderLeftColor: edu.borderColor.includes('#') ? edu.borderColor.replace('border-l-', '') : undefined }}
+                                >
+                                    {/* Timeline Circle - Hover Logic Fix */}
+                                    <div className={`absolute -left-[43px] top-8 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10
+                                        ${expandedId === edu.id ? `scale-125 ${edu.dotColorClass}` : `bg-main border-std group-hover:${edu.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
+                                    </div>
 
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center ${edu.iconColor} group-hover:scale-110 transition-transform`}>
-                                                <edu.icon size={24} />
-                                            </div>
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform ${edu.iconColor} ${isDark ? 'bg-[#18181b] border border-[#27272a]' : 'bg-gray-50'}`}><edu.icon size={24} /></div>
                                             <div>
-                                                <h4 className="text-xl font-bold text-[#1F1F1F]">{edu.degree}</h4>
-                                                <div className="text-[#444746] font-medium">{edu.school}</div>
+                                                <h4 className={`text-xl font-bold text-main`}>{edu.degree}</h4>
+                                                <div className={`text-sec font-medium`}>{edu.school}</div>
                                             </div>
                                         </div>
-                                        <span className="text-xl font-bold text-[#1F1F1F] opacity-20 group-hover:opacity-100 transition-opacity font-mono">{edu.year}</span>
+                                        <span className={`text-xl font-bold opacity-20 group-hover:opacity-100 transition-opacity font-mono text-sec`}>{edu.year}</span>
                                     </div>
                                     <div className="mt-6 flex items-center gap-2">
-                                        <div className="h-1.5 flex-1 bg-gray-100 rounded-full overflow-hidden">
-                                            <div className="h-full bg-[#34A853] w-[90%]"></div>
+                                        <div className={`h-1.5 flex-1 rounded-full overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
+                                            <div className={`h-full w-[90%] ${isDark ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-[#34A853]'}`}></div>
                                         </div>
-                                        <span className="text-sm font-bold text-[#34A853]">{edu.score}</span>
+                                        <span className={`text-sm font-bold ${isDark ? 'text-green-400' : 'text-[#34A853]'}`}>{edu.score}</span>
                                     </div>
 
-                                    <button
-                                        onClick={() => toggleExpand(edu.id)}
-                                        className="mt-6 text-xs font-bold text-[#34A853] flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded hover:bg-green-50 transition-colors"
-                                    >
-                                        {expandedId === edu.id ? "Show Less" : "View Curriculum"}
-                                        {expandedId === edu.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                    {/* Updated Button to use dynamic colors */}
+                                    <button onClick={() => toggleExpand(edu.id)} className={`mt-6 text-xs font-bold flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded ${edu.buttonColor}`}>
+                                        {expandedId === edu.id ? "Show Less" : "View Curriculum"} {expandedId === edu.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                     </button>
-
-                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === edu.id ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === edu.id ? `grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t ${isDark ? 'border-gray-800' : 'border-gray-100'}` : 'grid-rows-[0fr] opacity-0'}`}>
                                         <div className="overflow-hidden">
                                             <ul className="list-disc pl-4 space-y-2">
-                                                {edu.details.map((detail, idx) => (
-                                                    <li key={idx} className="text-sm text-[#444746] leading-relaxed">{detail}</li>
-                                                ))}
+                                                {edu.details.map((detail, idx) => (<li key={idx} className={`text-sm leading-relaxed text-sec`}>{detail}</li>))}
                                             </ul>
                                         </div>
                                     </div>
@@ -1029,15 +951,14 @@ const Journey = () => {
                             ))}
                         </div>
                     </div>
-
                 </div>
             </div>
         </section>
     );
 };
 
-/* --- PROJECTS --- */
-const Projects = () => {
+const Projects = ({ theme }) => {
+    const isDark = theme === 'dark';
     const [activeProject, setActiveProject] = useState(null);
     const toggleProject = (index) => setActiveProject(activeProject === index ? null : index);
 
@@ -1047,7 +968,7 @@ const Projects = () => {
             category: "Heterogeneous SoC Design",
             img: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1035&auto=format&fit=crop",
             desc: "Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via AXI Stream.",
-            deepContext: "Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via the AXI Stream protocol. The system achieved 92% accuracy in real-time ECG classification using Q1.15 fixed-point arithmetic optimization. Validated the complete design through simulation and deployment on FPGA hardware, demonstrating robust real-time performance.",
+            deepContext: "Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via the AXI Stream protocol. The system achieved 92% accuracy in real-time ECG classification using Q1.15 fixed-point arithmetic optimization. Validated the complete design through simulation and deployment on FPGA hardware.",
             keyOutcomes: ["Q1.15 Fixed-Point", "92% Accuracy", "Real-time"],
             contextHighlights: ["heterogeneous SoC", "RISC-V processor", "AXI Stream protocol", "92% accuracy", "Q1.15 fixed-point arithmetic", "FPGA hardware"],
             tech: ["RISC-V", "AXI Stream", "FPGA"]
@@ -1097,24 +1018,24 @@ const Projects = () => {
 
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="work">
-            <h2 className="text-4xl md:text-5xl font-extrabold text-[#1F1F1F] mb-16 brand-font reveal-up tracking-tight">ARCHIVES</h2>
+            <h2 className={`text-4xl md:text-5xl font-extrabold mb-16 brand-font reveal-up tracking-tight text-main`}>ARCHIVES</h2>
 
             <div className="space-y-16">
                 {projects.map((project, idx) => (
                     <div key={idx} className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-                        <div className="w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer" onClick={() => toggleProject(idx)}>
-                            <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                            <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
-                            <div className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <ArrowUpRight size={24} className="text-[#1F1F1F]" />
+                        <div className={`w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer ${isDark ? 'border border-[#27272a]' : ''}`} onClick={() => toggleProject(idx)}>
+                            <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
+                            <div className={`absolute inset-0 ${isDark ? 'bg-black/40 group-hover:bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
+                            <div className={`absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'bg-black/90 border border-gray-700' : 'bg-white/90'}`}>
+                                <ArrowUpRight size={24} className={isDark ? "text-white" : "text-[#1F1F1F]"} />
                             </div>
                         </div>
 
                         <div className="w-full md:w-1/2">
-                            <div className="text-[#0B57D0] font-bold text-sm tracking-widest uppercase mb-3">{project.category}</div>
-                            <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F1F1F] mb-6 brand-font leading-tight">{project.title}</h3>
+                            <div className={`font-bold text-sm tracking-widest uppercase mb-3 ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{project.category}</div>
+                            <h3 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-6 brand-font leading-tight text-main`}>{project.title}</h3>
 
-                            <p className="text-lg text-[#444746] leading-relaxed mb-6">
+                            <p className={`text-lg leading-relaxed mb-6 text-sec`}>
                                 {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
                                     project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
                                         ? <span key={i} className="imp-text">{part}</span>
@@ -1124,35 +1045,35 @@ const Projects = () => {
 
                             <div className="flex flex-wrap gap-2 mb-8">
                                 {project.tech.map(t => (
-                                    <span key={t} className="interactive-tag px-3 py-1 bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] text-sm font-medium rounded-lg hover:bg-[#0B57D0] hover:text-white transition-all cursor-default">
+                                    <span key={t} className={`interactive-tag px-3 py-1 text-sm font-medium rounded-lg cursor-default ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
                                         {t}
                                     </span>
                                 ))}
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <button onClick={() => toggleProject(idx)} className="group flex items-center gap-2 text-[#1F1F1F] font-bold text-lg border-b-2 border-[#E0E2EC] hover:border-[#0B57D0] transition-all pb-1 click-scale">
+                                <button onClick={() => toggleProject(idx)} className={`group flex items-center gap-2 font-bold text-lg border-b-2 transition-all duration-500 pb-1 click-scale ${isDark ? 'text-white border-gray-700 hover:border-blue-500' : 'text-[#1F1F1F] border-[#E0E2EC] hover:border-[#0B57D0]'}`}>
                                     {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
                                     <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
                                 </button>
                                 {project.link && (
-                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-[#0B57D0] font-bold text-lg border-b-2 border-transparent hover:border-[#0B57D0] transition-all pb-1 click-scale">
+                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className={`group flex items-center gap-2 font-bold text-lg border-b-2 border-transparent transition-all duration-500 pb-1 click-scale ${isDark ? 'text-blue-400 hover:border-blue-400' : 'text-[#0B57D0] hover:border-[#0B57D0]'}`}>
                                         Read Paper <ExternalLink size={18} />
                                     </a>
                                 )}
                             </div>
 
                             <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
-                                <div className="p-8 bg-[#F8FAFC] rounded-[24px] border border-gray-100 shadow-inner border-l-4 border-l-[#0B57D0]">
-                                    <h4 className="text-xs font-bold text-[#444746] uppercase tracking-wider mb-3">Key Outcomes</h4>
+                                <div className={`p-8 rounded-[24px] border shadow-inner border-l-4 ${isDark ? 'bg-[#121212] border-[#27272a] border-l-blue-500' : 'bg-[#F8FAFC] border-gray-100 border-l-[#0B57D0]'}`}>
+                                    <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
                                     <div className="flex flex-wrap gap-3 mb-4">
                                         {project.keyOutcomes.map(tag => (
-                                            <span key={tag} className="interactive-tag px-3 py-1.5 bg-blue-50 text-[#0B57D0] text-sm font-bold rounded-lg border border-blue-100 hover:bg-[#0B57D0] hover:text-white transition-all cursor-default">
+                                            <span key={tag} className={`interactive-tag px-3 py-1.5 text-sm font-bold rounded-lg border cursor-default ${isDark ? 'bg-blue-900/20 text-blue-400 border-blue-800/30 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-[#0B57D0] border-blue-100 hover:bg-[#0B57D0] hover:text-white'}`}>
                                                 {tag}
                                             </span>
                                         ))}
                                     </div>
-                                    <p className="text-[#444746] text-base leading-relaxed">
+                                    <p className={`text-base leading-relaxed text-sec`}>
                                         {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
                                             project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
                                                 ? <span key={i} className="imp-text">{part}</span>
@@ -1169,178 +1090,94 @@ const Projects = () => {
     );
 };
 
-/* --- WHITEPAPERS & IP (Slate/Navy Theme) --- */
-const TheVault = () => {
+const TheVault = ({ theme }) => {
+    const isDark = theme === 'dark';
     const [isPatentOpen, setIsPatentOpen] = useState(false);
 
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="patents">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-16 brand-font text-center reveal-up">Intellectual Property & Research</h2>
+            <h2 className={`text-4xl md:text-5xl font-bold mb-16 brand-font text-center reveal-up text-main`}>Intellectual Property & Research</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
 
-                {/* Patent Card - Navy Blue Enterprise Look 
-                    FIX: Removed row-span-2 dynamic class which caused layout breaking.
-                */}
-                <div className={`bg-[#1e293b] text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group hover:transform transition-all duration-500 reveal-up border border-[#334155] hover-card`}>
+                {/* Patent Card - Always Dark/Navy but adapts slightly */}
+                <div className={`p-10 rounded-[40px] shadow-2xl relative overflow-hidden group hover:transform reveal-up border hover-card ${isDark ? 'bg-[#0f172a] text-white border-blue-900/30' : 'bg-[#1e293b] text-white border-[#334155]'}`}>
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#3b82f6]/10 to-transparent pointer-events-none"></div>
                     <div className="relative z-10 flex flex-col h-full">
                         <div className="flex justify-between items-start mb-8">
-                            <div className="p-4 bg-[#334155] rounded-2xl border border-[#475569]">
-                                <Award size={40} className="text-[#60a5fa] animate-pulse-soft" />
+                            <div className={`p-4 rounded-2xl border ${isDark ? 'bg-[#1e293b] border-blue-800/30' : 'bg-[#334155] border-[#475569]'}`}>
+                                <Award size={40} className={`animate-pulse-soft ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`} />
                             </div>
-                            <div className="px-4 py-1.5 bg-[#60a5fa] text-[#0f172a] text-xs font-bold uppercase rounded-full tracking-wider flex items-center gap-2">
+                            <div className={`px-4 py-1.5 text-xs font-bold uppercase rounded-full tracking-wider flex items-center gap-2 ${isDark ? 'bg-blue-600 text-white shadow-[0_0_10px_rgba(37,99,235,0.5)]' : 'bg-[#60a5fa] text-[#0f172a]'}`}>
                                 <CheckCircle2 size={12} /> Granted Patent
                             </div>
                         </div>
                         <h3 className="text-3xl font-bold mb-4 brand-font leading-tight text-white">Autonomous Vehicle Safety System</h3>
-                        <div className="font-mono text-3xl sm:text-4xl text-[#60a5fa] mb-6 font-bold tracking-tight">IN 564400</div>
-                        <p className="text-slate-300 text-lg leading-relaxed mb-8 border-l-4 border-[#60a5fa] pl-6">
+                        <div className={`font-mono text-3xl sm:text-4xl mb-6 font-bold tracking-tight ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`}>IN 564400</div>
+                        <p className={`text-lg leading-relaxed mb-8 border-l-4 pl-6 ${isDark ? 'text-gray-300 border-blue-500' : 'text-slate-300 border-[#60a5fa]'}`}>
                             Dual-processor architecture monitoring vital signs to trigger autonomous takeover.
                         </p>
 
-                        {/* Interactive Footer Area */}
                         <div className="flex justify-between items-end mt-auto">
-                            <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">March 2025</div>
-                            <button
-                                onClick={() => setIsPatentOpen(!isPatentOpen)}
-                                className="flex items-center gap-2 px-6 py-3 bg-[#60a5fa] hover:bg-[#3b82f6] text-[#0f172a] font-bold rounded-xl transition-all click-scale"
-                            >
-                                {isPatentOpen ? 'Close Blueprint' : 'Inspect System'}
-                                <ChevronDown size={18} className={`transition-transform duration-300 ${isPatentOpen ? 'rotate-180' : ''}`} />
+                            <div className={`text-sm font-bold uppercase tracking-widest ${isDark ? 'text-gray-500' : 'text-slate-400'}`}>March 2025</div>
+                            <button onClick={() => setIsPatentOpen(!isPatentOpen)} className={`flex items-center gap-2 px-6 py-3 font-bold rounded-xl transition-all click-scale duration-300 ${isDark ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20' : 'bg-[#60a5fa] hover:bg-[#3b82f6] text-[#0f172a]'}`}>
+                                {isPatentOpen ? 'Close Blueprint' : 'Inspect System'} <ChevronDown size={18} className={`transition-transform duration-300 ${isPatentOpen ? 'rotate-180' : ''}`} />
                             </button>
                         </div>
 
-                        {/* Expanded Content Area 
-                             FIX: Added max-h and overflow-y-auto to keep content within card size.
-                         */}
-                        <div className={`grid transition-all duration-700 ease-in-out ${isPatentOpen ? 'grid-rows-[1fr] opacity-100 mt-8 pt-8 border-t border-[#334155]' : 'grid-rows-[0fr] opacity-0'}`}>
+                        <div className={`grid transition-all duration-700 ease-in-out ${isPatentOpen ? `grid-rows-[1fr] opacity-100 mt-8 pt-8 border-t ${isDark ? 'border-blue-900/30' : 'border-[#334155]'}` : 'grid-rows-[0fr] opacity-0'}`}>
                             <div className="overflow-hidden space-y-8 max-h-[500px] overflow-y-auto pr-2">
-                                {/* Section 1: The Elevator Pitch */}
                                 <div>
-                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-2">The Concept</h4>
-                                    <p className="text-slate-300 leading-relaxed text-sm">
-                                        An autonomous fail-safe system designed to intervene during sudden <span className="imp-text-dark">driver incapacitation</span>. Unlike standard ADAS that looks for drowsiness, this system monitors <span className="imp-text-dark">physiological data</span> to detect acute medical emergencies (e.g., cardiac arrest, seizures) and autonomously navigates the vehicle to safety.
-                                    </p>
+                                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`}>The Concept</h4>
+                                    <p className={`leading-relaxed text-sm ${isDark ? 'text-gray-300' : 'text-slate-300'}`}>An autonomous fail-safe system designed to intervene during sudden <span className="imp-text-dark">driver incapacitation</span>. Unlike standard ADAS that looks for drowsiness, this system monitors <span className="imp-text-dark">physiological data</span> to detect acute medical emergencies (e.g., cardiac arrest, seizures) and autonomously navigates the vehicle to safety.</p>
                                 </div>
-
-                                {/* Section 2: Novelty */}
                                 <div>
-                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-2">The Novelty</h4>
-                                    <p className="text-slate-300 leading-relaxed text-sm">
-                                        Existing systems focus on driver behavior (eye movement, head tilt). This patent introduces a <span className="imp-text-dark">Resolution Module</span> based on vital parameters. It uniquely distinguishes between <span className="imp-text-dark">'Moderate' and 'Critical' states</span>, enabling context-aware decisions: it doesn't just stop the car; it intelligently decides whether to pull over safely or <span className="imp-text-dark">re-route directly to the nearest hospital</span> based on the severity of the medical event.
-                                    </p>
+                                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`}>The Novelty</h4>
+                                    <p className={`leading-relaxed text-sm ${isDark ? 'text-gray-300' : 'text-slate-300'}`}>Existing systems focus on driver behavior (eye movement, head tilt). This patent introduces a <span className="imp-text-dark">Resolution Module</span> based on vital parameters. It uniquely distinguishes between <span className="imp-text-dark">'Moderate' and 'Critical' states</span>, enabling context-aware decisions: it doesn't just stop the car; it intelligently decides whether to pull over safely or <span className="imp-text-dark">re-route directly to the nearest hospital</span> based on the severity of the medical event.</p>
                                 </div>
-
-                                {/* Section 3: Mechanism */}
                                 <div>
-                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-4">System Architecture</h4>
+                                    <h4 className={`font-bold uppercase tracking-widest text-sm mb-4 ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`}>System Architecture</h4>
                                     <ul className="space-y-4">
-                                        <li className="flex gap-4">
-                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">01</div>
-                                            <div>
-                                                <span className="font-bold text-white block mb-1">Sense</span>
-                                                <span className="text-slate-400 text-sm">Continuous bio-feedback monitoring (Pulse, IR, Ultrasonic sensors) feeds data to a dual-processor control unit (Arduino + Raspberry Pi).</span>
-                                            </div>
-                                        </li>
-                                        <li className="flex gap-4">
-                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">02</div>
-                                            <div>
-                                                <span className="font-bold text-white block mb-1">Analyze</span>
-                                                <span className="text-slate-400 text-sm">The system compares real-time vitals against a repository of pre-set medical rules.</span>
-                                            </div>
-                                        </li>
-                                        <li className="flex gap-4">
-                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">03</div>
-                                            <div>
-                                                <span className="font-bold text-white block mb-1">Takeover & Resolve</span>
-                                                <span className="text-slate-400 text-sm">
-                                                    If a threshold is breached, the Takeover Module overrides manual control.
-                                                    <br /><span className="text-[#60a5fa] text-xs uppercase font-bold mt-1 inline-block">Moderate:</span> Auto-drive to roadside.
-                                                    <br /><span className="text-[#ef4444] text-xs uppercase font-bold mt-1 inline-block">Critical:</span> Auto-drive to hospital.
-                                                </span>
-                                            </div>
-                                        </li>
+                                        {[
+                                            { step: '01', title: 'Sense', desc: 'Continuous bio-feedback monitoring (Pulse, IR, Ultrasonic sensors) feeds data to a dual-processor control unit (Arduino + Raspberry Pi).' },
+                                            { step: '02', title: 'Analyze', desc: 'The system compares real-time vitals against a repository of pre-set medical rules.' },
+                                            { step: '03', title: 'Takeover & Resolve', desc: 'If a threshold is breached, the Takeover Module overrides manual control.' }
+                                        ].map((item, i) => (
+                                            <li key={i} className="flex gap-4">
+                                                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-bold text-xs ${isDark ? 'bg-[#1e293b] text-blue-400' : 'bg-[#334155] text-[#60a5fa]'}`}>{item.step}</div>
+                                                <div>
+                                                    <span className="font-bold text-white block mb-1">{item.title}</span>
+                                                    <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-slate-400'}`}>{item.desc}</span>
+                                                </div>
+                                            </li>
+                                        ))}
                                     </ul>
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                {/* Papers Stack - MODIFIED LINKS */}
+                {/* Papers Stack */}
                 <div className="space-y-6 reveal-up" style={{ transitionDelay: '100ms' }}>
-                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#0B57D0] transition-colors shadow-sm group hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
-                        <div className="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-bl-[100px] -z-0 transition-transform group-hover:scale-150"></div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="px-3 py-1 bg-blue-100 text-[#0B57D0] text-[10px] font-bold uppercase rounded-full tracking-wider">IEEE Published</span>
-                            </div>
-                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3">Error Correction in SoC</h4>
-                            <p className="text-sm text-[#444746] mb-4">
-                                Implemented <span className="imp-text">reversible logic</span> based error detection and correction for AHB-APB bridge. Optimized for <span className="imp-text">low power</span> consumption.
-                            </p>
-                            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                                <div className="text-lg font-mono text-[#0B57D0] font-bold">RAEEUCCI 2023</div>
-                                <a href="https://ieeexplore.ieee.org/document/10134491" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B57D0] flex items-center gap-1 hover:underline bg-blue-50 px-3 py-1.5 rounded-full">
-                                    Read Paper <ArrowUpRight size={12} />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#34A853] transition-colors shadow-sm group hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
-                        <div className="absolute right-0 top-0 w-24 h-24 bg-green-50 rounded-bl-[100px] -z-0 transition-transform group-hover:scale-150"></div>
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-4">
-                                <span className="px-3 py-1 bg-green-100 text-[#1F7A43] text-[10px] font-bold uppercase rounded-full tracking-wider">International Journal</span>
-                            </div>
-                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3">IoT Healthcare Systems</h4>
-                            <p className="text-sm text-[#444746] mb-4">
-                                Comprehensive survey on <span className="imp-text">affordable IoT architecture</span> for remote patient monitoring and healthcare access.
-                            </p>
-                            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
-                                <div className="text-lg font-mono text-[#1F7A43] font-bold">GIJET 2022</div>
-                                <a href="https://thegrenze.com/index.php?display=page&view=journalabstract&absid=1238&id=8" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#1F7A43] flex items-center gap-1 hover:underline bg-green-50 px-3 py-1.5 rounded-full">
-                                    Read Paper <ArrowUpRight size={12} />
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    );
-};
-
-/* --- IDLE CYCLES (Clean Hover + Flair) --- */
-const IdleCycles = () => {
-    return (
-        <section className="py-24 bg-[#FAFAFA]" id="lifestyle">
-            <div className="max-w-[1400px] mx-auto px-6">
-                <div className="flex items-center gap-4 mb-12 reveal-up">
-                    <Coffee className="text-[#1F1F1F] w-8 h-8 animate-float" />
-                    <h2 className="text-3xl font-bold text-[#1F1F1F] brand-font">Idle Cycles</h2>
-                </div>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
                     {[
-                        { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: 'text-[#EA4335]', bg: 'group-hover:bg-[#FEF2F2]' },
-                        { title: 'Music', sub: 'Curating playlists', icon: Music, color: 'text-[#FBBC04]', bg: 'group-hover:bg-[#FFFBEB]' },
-                        { title: 'eSports', sub: 'Competitive analysis', icon: Monitor, color: 'text-[#0B57D0]', bg: 'group-hover:bg-[#EFF6FF]' },
-                        { title: 'Cricket', sub: 'On-field strategy', icon: Activity, color: 'text-[#34A853]', bg: 'group-hover:bg-[#F0FDF4]' }
-                    ].map((item, i) => (
-                        <div key={i} className={`aspect-[4/3] bg-white rounded-[32px] flex flex-col items-center justify-center p-6 hover:shadow-xl transition-all duration-500 border border-gray-100 cursor-default group hover:-translate-y-2 relative overflow-hidden ${item.bg}`}>
-                            {/* Flashing Background Icon */}
-                            <item.icon className={`absolute -bottom-8 -right-8 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rotate-12 ${item.color}`} />
-
-                            <div className="relative z-10 flex flex-col items-center">
-                                <div className={`p-4 rounded-full bg-gray-50 group-hover:bg-white transition-colors duration-300 mb-4 shadow-sm`}>
-                                    <item.icon size={32} className={`${item.color} transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110`} />
+                        { type: 'IEEE Published', title: 'Error Correction in SoC', desc: 'Implemented reversible logic based error detection and correction for AHB-APB bridge. Optimized for low power consumption.', id: 'RAEEUCCI 2023', link: 'https://ieeexplore.ieee.org/document/10134491', color: 'blue', accent: isDark ? 'text-blue-400' : 'text-[#0B57D0]' },
+                        { type: 'International Journal', title: 'IoT Healthcare Systems', desc: 'Comprehensive survey on affordable IoT architecture for remote patient monitoring and healthcare access.', id: 'GIJET 2022', link: 'https://thegrenze.com/index.php?display=page&view=journalabstract&absid=1238&id=8', color: 'green', accent: isDark ? 'text-green-400' : 'text-[#1F7A43]' }
+                    ].map((paper, i) => (
+                        <div key={i} className={`p-8 rounded-[32px] border transition-all shadow-sm group hover:shadow-xl hover:-translate-y-2 duration-500 relative overflow-hidden hover-card ${isDark ? `bg-[#121212] border-[#27272a] hover:border-${paper.color}-600` : `bg-white border-gray-300 hover:border-${paper.color === 'blue' ? '[#0B57D0]' : '[#34A853]'}`}`}>
+                            <div className={`absolute right-0 top-0 w-24 h-24 rounded-bl-[100px] -z-0 transition-transform group-hover:scale-150 ${isDark ? `bg-${paper.color}-900/20` : `bg-${paper.color}-50`}`}></div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-2 mb-4">
+                                    <span className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full tracking-wider ${isDark ? `bg-${paper.color}-900/30 text-${paper.color}-400 border border-${paper.color}-800/30` : `bg-${paper.color}-100 ${paper.accent}`}`}>{paper.type}</span>
                                 </div>
-                                <span className="font-bold text-[#1F1F1F] text-lg">{item.title}</span>
-                                <span className="text-sm text-[#444746] mt-1 text-center">{item.sub}</span>
+                                <h4 className={`text-2xl font-bold mb-3 text-main`}>{paper.title}</h4>
+                                <p className={`text-sm mb-4 text-sec`}>{paper.desc}</p>
+                                <div className={`flex items-center justify-between mt-6 pt-4 border-t ${isDark ? 'border-gray-800' : 'border-gray-100'}`}>
+                                    <div className={`text-lg font-mono font-bold ${paper.accent}`}>{paper.id}</div>
+                                    <a href={paper.link} target="_blank" rel="noopener noreferrer" className={`text-xs font-bold flex items-center gap-1 hover:underline px-3 py-1.5 rounded-full transition-all duration-300 ${isDark ? `text-${paper.color}-400 bg-${paper.color}-900/20 hover:bg-${paper.color}-600 hover:text-white` : `${paper.accent} bg-${paper.color}-50`}`}>
+                                        Read Paper <ArrowUpRight size={12} />
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     ))}
@@ -1350,50 +1187,78 @@ const IdleCycles = () => {
     );
 };
 
-/* --- CONTACT --- */
-const Contact = ({ showTop }) => {
+const IdleCycles = ({ theme }) => {
+    const isDark = theme === 'dark';
+    return (
+        <section className={`py-24 bg-main`} id="lifestyle">
+            <div className="max-w-[1400px] mx-auto px-6">
+                <div className="flex items-center gap-4 mb-12 reveal-up">
+                    <Coffee className={`w-8 h-8 animate-float text-main`} />
+                    <h2 className={`text-3xl font-bold brand-font text-main`}>Idle Cycles</h2>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
+                    {[
+                        { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: isDark ? 'text-red-400' : 'text-[#EA4335]', bg: isDark ? 'group-hover:bg-red-900/20' : 'group-hover:bg-[#FEF2F2]' },
+                        { title: 'Music', sub: 'Curating playlists', icon: Music, color: isDark ? 'text-yellow-400' : 'text-[#FBBC04]', bg: isDark ? 'group-hover:bg-yellow-900/20' : 'group-hover:bg-[#FFFBEB]' },
+                        { title: 'eSports', sub: 'Competitive analysis', icon: Monitor, color: isDark ? 'text-blue-400' : 'text-[#0B57D0]', bg: isDark ? 'group-hover:bg-blue-900/20' : 'group-hover:bg-[#EFF6FF]' },
+                        { title: 'Cricket', sub: 'On-field strategy', icon: Activity, color: isDark ? 'text-green-400' : 'text-[#34A853]', bg: isDark ? 'group-hover:bg-green-900/20' : 'group-hover:bg-[#F0FDF4]' }
+                    ].map((item, i) => (
+                        <div key={i} className={`aspect-[4/3] rounded-[32px] flex flex-col items-center justify-center p-6 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border cursor-default group relative overflow-hidden ${item.bg} bg-card border-std`}>
+                            <item.icon className={`absolute -bottom-8 -right-8 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rotate-12 ${item.color}`} />
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className={`p-4 rounded-full transition-colors duration-300 mb-4 shadow-sm ${isDark ? 'bg-[#18181b] group-hover:bg-black border border-[#27272a]' : 'bg-gray-50 group-hover:bg-white'}`}>
+                                    <item.icon size={32} className={`${item.color} transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110`} />
+                                </div>
+                                <span className={`font-bold text-lg text-main`}>{item.title}</span>
+                                <span className={`text-sm mt-1 text-center text-sec`}>{item.sub}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
+const Contact = ({ showTop, theme }) => {
+    const isDark = theme === 'dark';
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return (
-        <footer className="bg-white py-20 border-t border-gray-100 relative" id="contact">
+        <footer className={`py-20 border-t relative bg-main border-std`} id="contact">
             <div className="max-w-[800px] mx-auto px-6 text-center reveal-up">
-                <div className="w-16 h-16 bg-[#F2F6FC] rounded-2xl flex items-center justify-center mx-auto mb-8 text-[#0B57D0] animate-float shadow-sm">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-8 animate-float shadow-sm ${isDark ? 'bg-blue-900/20 text-blue-400 border border-blue-800/30' : 'bg-[#F2F6FC] text-[#0B57D0]'}`}>
                     <Send size={32} />
                 </div>
 
-                <h2 className="text-3xl md:text-4xl font-bold text-[#1F1F1F] mb-6 brand-font leading-tight">
+                <h2 className={`text-3xl md:text-4xl font-bold mb-6 brand-font leading-tight text-main`}>
                     Open for interesting conversations.
                 </h2>
-                <p className="text-lg text-[#444746] max-w-lg mx-auto mb-12 leading-relaxed">
+                <p className={`text-lg max-w-lg mx-auto mb-12 leading-relaxed text-sec`}>
                     Whether it's about the future of RISC-V, a game of cricket, or just saying hello—my inbox is always open.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                    <a href="mailto:rajeevmarada02@gmail.com" className="px-8 py-3 bg-[#1F1F1F] text-white rounded-xl font-medium text-base hover:bg-[#333] transition-all shadow-lg shadow-gray-200 w-full sm:w-auto hover:-translate-y-1">
+                    <a href="mailto:rajeevmarada02@gmail.com" className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 shadow-lg w-full sm:w-auto hover:-translate-y-1 ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-[#1F1F1F] text-white hover:bg-[#333] shadow-gray-200'}`}>
                         Say Hello
                     </a>
                     <div className="flex gap-3">
-                        <a href="https://linkedin.com/in/rajeevmarada" className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 text-[#444746] hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5] transition-all hover:-translate-y-1">
+                        <a href="https://linkedin.com/in/rajeevmarada" className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1 ${isDark ? 'border-gray-700 text-gray-400 hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5]' : 'border-gray-200 text-[#444746] hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5]'}`}>
                             <Linkedin size={20} />
                         </a>
-                        <a href="https://github.com/RajeevMarada" className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 text-[#444746] hover:bg-[#1F1F1F] hover:text-white hover:border-[#1F1F1F] transition-all hover:-translate-y-1">
+                        <a href="https://github.com/RajeevMarada" className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1 ${isDark ? 'border-gray-700 text-gray-400 hover:bg-white hover:text-black hover:border-white' : 'border-gray-200 text-[#444746] hover:bg-[#1F1F1F] hover:text-white hover:border-[#1F1F1F]'}`}>
                             <Github size={20} />
                         </a>
                     </div>
                 </div>
 
-                <div className="text-xs text-gray-400 flex flex-col md:flex-row items-center justify-center gap-6 uppercase tracking-widest font-bold">
+                <div className={`text-xs flex flex-col md:flex-row items-center justify-center gap-6 uppercase tracking-widest font-bold text-sec`}>
                     <span>© 2025 Rajeev Marada</span>
                 </div>
             </div>
 
-            {/* Persistent Back to Top Button */}
-            <button
-                onClick={scrollToTop}
-                className={`fixed bottom-10 right-10 p-4 bg-[#1F1F1F] text-white rounded-full shadow-2xl hover:bg-[#0B57D0] hover:scale-110 transition-all duration-300 z-40 ${showTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
-                title="Back to Top"
-                aria-label="Back to Top"
-            >
+            <button onClick={scrollToTop} className={`fixed bottom-10 right-10 p-4 rounded-full shadow-2xl hover:scale-110 transition-all duration-300 z-40 ${showTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'} ${isDark ? 'bg-white text-black hover:bg-blue-500 hover:text-white' : 'bg-[#1F1F1F] text-white hover:bg-[#0B57D0]'}`} title="Back to Top">
                 <ArrowUp size={20} />
             </button>
         </footer>
@@ -1403,17 +1268,41 @@ const Contact = ({ showTop }) => {
 const App = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [theme, setTheme] = useState('light'); // Default to light
 
-    useScrollObserver(isLoading);
+    // Theme Persistance
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // Force Default to light if no saved preference
+            setTheme('light');
+        }
+    }, []);
+
+    useEffect(() => {
+        document.body.className = theme;
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    };
+
+    // Passed theme to observer to fix missing content bug
+    useScrollObserver(isLoading, theme);
+
     const { activeSection, showTop } = useActiveSection();
 
     return (
-        <div className="min-h-screen bg-white selection:bg-[#D2E3FC] selection:text-[#174EA6]">
+        <div className={`min-h-screen ${theme === 'dark' ? 'selection:bg-blue-500/30 selection:text-blue-200' : 'selection:bg-[#D2E3FC] selection:text-[#174EA6]'}`}>
             <FontStyles />
 
-            {/* Loading Screen - Renders ON TOP, then fades out */}
+            {/* Loading Screen */}
             {isLoading && (
                 <LoadingScreen
+                    theme={theme}
                     isExiting={isLoaded}
                     onComplete={() => {
                         setIsLoaded(true);
@@ -1422,20 +1311,20 @@ const App = () => {
                 />
             )}
 
-            {/* Main Content - Renders underneath immediately */}
+            {/* Main Content */}
             <div className={`transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                 <CustomCursor />
-                <Navbar activeSection={activeSection} />
+                <Navbar activeSection={activeSection} theme={theme} toggleTheme={toggleTheme} />
                 <main className="relative z-10">
-                    <Hero />
-                    <OriginStory />
-                    <TechArsenal />
-                    <Journey />
-                    <Projects />
-                    <TheVault />
-                    <IdleCycles />
+                    <Hero theme={theme} />
+                    <OriginStory theme={theme} />
+                    <TechArsenal theme={theme} />
+                    <Journey theme={theme} />
+                    <Projects theme={theme} />
+                    <TheVault theme={theme} />
+                    <IdleCycles theme={theme} />
                 </main>
-                <Contact showTop={showTop} />
+                <Contact showTop={showTop} theme={theme} />
             </div>
         </div>
     );
