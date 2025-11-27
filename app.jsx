@@ -1087,7 +1087,8 @@ const Projects = ({ theme }) => {
                                     )}
                                 </div>
 
-                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
+                                {/* Increased max-height from 500px to 1500px to prevent text cut-off on mobile */}
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[1500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
                                     <div className={`p-8 rounded-[24px] border shadow-inner ${isRightAligned ? 'border-r-4 border-l-0' : 'border-l-4'} ${isDark ? `bg-[#121212] border-[#27272a] ${isRightAligned ? 'border-r-blue-500' : 'border-l-blue-500'}` : `bg-[#F8FAFC] border-gray-100 ${isRightAligned ? 'border-r-[#0B57D0]' : 'border-l-[#0B57D0]'}`}`}>
                                         <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
                                         <div className="flex flex-wrap gap-3 mb-4">
@@ -1222,7 +1223,8 @@ const IdleCycles = ({ theme }) => {
                     <h2 className={`text-3xl font-bold brand-font text-main`}>Idle Cycles</h2>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
+                {/* Updated Grid for Mobile Alignment: Starts at 1 col, then 2 col, then 4 col */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
                     {[
                         { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: isDark ? 'text-red-400' : 'text-[#EA4335]', bg: isDark ? 'group-hover:bg-red-900/20' : 'group-hover:bg-[#FEF2F2]' },
                         { title: 'Music', sub: 'Curating playlists', icon: Music, color: isDark ? 'text-yellow-400' : 'text-[#FBBC04]', bg: isDark ? 'group-hover:bg-yellow-900/20' : 'group-hover:bg-[#FFFBEB]' },
