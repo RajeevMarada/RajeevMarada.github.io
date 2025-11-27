@@ -21,7 +21,7 @@ document.head.appendChild(favicon);
   ⚠️ IMPORTANT: PASTE YOUR API KEY HERE ⚠️
   ========================================
 */
-const API_KEY = "AIzaSyBs0l1D7ojmZBikkNYFOQnDIhT1JZ8sZYA"; // Paste your Google Gemini API Key inside the quotes
+const API_KEY = "AIzaSyDlOO6lyFUM9RmkfME4qus3dWiwSzkd4UA"; // Paste your Google Gemini API Key inside the quotes
 
 /* --- THEME & ANIMATIONS --- */
 const FontStyles = () => (
