@@ -7,7 +7,7 @@ import {
     BookOpen, Camera, Music, Monitor, Coffee,
     Calendar, MapPin, MousePointer2, Smartphone, HardDrive,
     ChevronDown, ArrowUp, Code2, Cpu as Chip,
-    Briefcase, GraduationCap, MessageSquare, Send, Sparkles, Loader2,
+    Briefcase, GraduationCap, MessageSquare, Send, Loader2,
     Copy, Check, HelpCircle
 } from 'lucide-react';
 
@@ -17,11 +17,6 @@ favicon.type = "image/svg+xml";
 favicon.href =
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
 document.head.appendChild(favicon);
-/* ========================================
-  ⚠️ IMPORTANT: PASTE YOUR API KEY HERE ⚠️
-  ========================================
-*/
-const API_KEY = "AIzaSyDlOO6lyFUM9RmkfME4qus3dWiwSzkd4UA"; // Paste your Google Gemini API Key inside the quotes
 
 /* --- THEME & ANIMATIONS --- */
 const FontStyles = () => (
@@ -551,232 +546,6 @@ const Navbar = ({ activeSection }) => {
     );
 };
 
-/* --- GEMINI INTEGRATED MODALS --- */
-
-const TechExplainerModal = ({ term, onClose }) => {
-    const [explanation, setExplanation] = useState("");
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchExplanation = async () => {
-            setLoading(true);
-            const prompt = `Explain the VLSI technical term "${term}" to a non-technical person in 2 simple sentences. Then, add one sentence explaining why this skill is critical for a Silicon Architect like Rajeev. Keep it professional but accessible.`;
-
-            try {
-                // Updated to use Gemini 2.5 Flash per user request
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not retrieve explanation.";
-                setExplanation(text);
-            } catch (e) {
-                console.error(e);
-                setExplanation("System offline. Please check API key configuration.");
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (term) fetchExplanation();
-    }, [term]);
-
-    return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-[#E0E2EC] relative overflow-hidden" onClick={e => e.stopPropagation()}>
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#0B57D0] via-[#34A853] to-[#FBBC04]"></div>
-                <button onClick={onClose} className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-full transition-colors"><X size={18} /></button>
-
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-blue-50 rounded-lg text-[#0B57D0]"><Sparkles size={20} /></div>
-                    <h3 className="text-xl font-bold text-[#1F1F1F] brand-font">{term}</h3>
-                </div>
-
-                {loading ? (
-                    <div className="flex items-center gap-3 text-gray-500 py-4">
-                        <Loader2 size={20} className="animate-spin" />
-                        <span className="text-sm">Consulting silicon archives...</span>
-                    </div>
-                ) : (
-                    <div className="text-[#444746] leading-relaxed text-sm">
-                        {explanation}
-                    </div>
-                )}
-
-                <div className="mt-6 pt-4 border-t border-gray-100 flex justify-between items-center">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold">Powered by Gemini 2.5 Flash</span>
-                    <button onClick={onClose} className="text-sm font-bold text-[#0B57D0] hover:underline">Close</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/* --- GEMINI AI CHAT COMPONENT --- */
-const AIChat = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { role: 'assistant', text: "Hi! I'm Rajeev's AI assistant. Ask me about his projects, skills, or experience!" }
-    ]);
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef(null);
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
-    const handleSend = async () => {
-        if (!input.trim()) return;
-
-        const userMessage = { role: 'user', text: input };
-        setMessages(prev => [...prev, userMessage]);
-        setInput('');
-        setIsLoading(true);
-
-        const systemPrompt = `
-      You are a helpful AI assistant for Rajeev Marada's portfolio website.
-      Answer questions about Rajeev based on this information:
-      - Name: Rajeev Marada, VLSI Engineer & SoC Architect.
-      - Summary: Dedicated VLSI engineer with advanced certification from IISc Bangalore. Specializing in SoC Architecture, RISC-V, and UVM Verification.
-      - Experience: 
-        - Programmer Analyst at Cognizant (Aug 2024 - Present): Automated workflows on APPIAN.
-        - Jr. Design Verification Eng. at Insemi (Jul 2023 - Oct 2023): UVM testbench for Dual-Port RAM, 100% coverage.
-        - Intern at Maven Silicon (Dec 2022 - Jan 2023): Designed AMBA AHB-APB bridge in Verilog.
-        - Intern at CoreEl Technologies (Jun 2022 - Jul 2022): SystemVerilog testbench for full adder.
-      - Education:
-        - PG Advanced Certification in VLSI Chip Design, IISc Bangalore (2024), 80% Score.
-        - B.Tech ECE, SRM Institute (2019-2023), 9.4 CGPA.
-      - Key Projects:
-        - RISC-V ECG Accelerator: Heterogeneous SoC, 92% accuracy, FPGA deployed.
-        - Neural Net RTL Engine: Verilog RTL 3-layer NN, 85% accuracy on Semeion.
-        - APB UVM Testbench: 100% functional coverage.
-        - SEC-DED-DAEC Module: Error correction, 5.67% power reduction, IEEE Published.
-        - Hybrid Hack 2021: "Charge On Go" vehicle power system, Unity simulation.
-      - Patent: "Autonomous Vehicle Safety System" (IN 564400), Granted March 2025.
-      - Skills: SystemVerilog, UVM, RTL Design, FPGA, Xilinx Vivado, Python, C/C++, MATLAB.
-      - Interests: Photography, Music, eSports, Cricket.
-      
-      Keep answers concise (under 3 sentences if possible) and professional but friendly. 
-      If asked about something not in this list, politely say you don't have that info but suggest contacting Rajeev directly.
-    `;
-
-        try {
-            // Updated to use Gemini 2.5 Flash per user request
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: systemPrompt + "\n\nUser Question: " + input }] }
-                    ]
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const aiText = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble connecting right now. Please try again.";
-
-            setMessages(prev => [...prev, { role: 'assistant', text: aiText }]);
-        } catch (error) {
-            console.error("AI Chat Error:", error);
-            setMessages(prev => [...prev, { role: 'assistant', text: "Sorry, I encountered an error. Please try again later." }]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <>
-            {/* Trigger Button - STRICTLY SIZED AND POSITIONED - Bottom Left on Mobile, Bottom Left on Desktop to match */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="fixed bottom-6 left-6 z-50 p-3 lg:p-4 bg-white text-[#0B57D0] rounded-full shadow-2xl hover:scale-110 transition-all duration-300 border border-[#E0E2EC] group click-scale flex items-center gap-2 w-fit max-w-[200px] hover:pr-4"
-                title="Ask AI"
-            >
-                {isOpen ? <X size={24} /> : <Sparkles size={24} className="animate-pulse" />}
-                {!isOpen && <span className="hidden lg:block max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-500 whitespace-nowrap font-medium text-sm">Ask AI</span>}
-            </button>
-
-            {/* Tooltip Hint for Ask AI - Visible on Mobile initially or fade out */}
-            {!isOpen && (
-                <div className="fixed bottom-20 left-6 z-40 bg-black/80 text-white text-[10px] px-3 py-1 rounded-full animate-bounce opacity-0 lg:opacity-100 transition-opacity pointer-events-none">
-                    Chat with my Resume
-                </div>
-            )}
-
-            {/* Chat Window - Fixed Width and Constraints */}
-            {isOpen && (
-                <div className="fixed bottom-24 left-6 w-[calc(100vw-3rem)] md:max-w-[400px] bg-white rounded-2xl shadow-2xl border border-[#E0E2EC] z-50 flex flex-col overflow-hidden chat-window-enter origin-bottom-left max-h-[600px]">
-                    {/* Header */}
-                    <div className="p-4 bg-[#0B57D0] text-white flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Sparkles size={18} />
-                            <span className="font-bold brand-font">Rajeev AI</span>
-                        </div>
-                        <button onClick={() => setIsOpen(false)} className="hover:bg-white/20 p-1 rounded"><X size={16} /></button>
-                    </div>
-
-                    {/* Messages */}
-                    <div className="flex-1 p-4 overflow-y-auto bg-[#FAFAFA] space-y-3 min-h-[300px] max-h-[400px]">
-                        {messages.map((msg, idx) => (
-                            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.role === 'user'
-                                    ? 'bg-[#0B57D0] text-white rounded-br-none'
-                                    : 'bg-white border border-gray-200 text-[#1F1F1F] rounded-bl-none shadow-sm'
-                                    }`}>
-                                    {msg.text}
-                                </div>
-                            </div>
-                        ))}
-                        {isLoading && (
-                            <div className="flex justify-start">
-                                <div className="bg-white border border-gray-200 p-3 rounded-2xl rounded-bl-none shadow-sm flex items-center gap-2">
-                                    <Loader2 size={16} className="animate-spin text-[#0B57D0]" />
-                                    <span className="text-xs text-gray-500">Thinking...</span>
-                                </div>
-                            </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* Input */}
-                    <div className="p-3 bg-white border-t border-[#E0E2EC] flex gap-2">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder="Ask about my skills..."
-                            className="flex-1 bg-[#F2F6FC] border-none rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-[#0B57D0] outline-none transition-all"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={isLoading || !input.trim()}
-                            className="p-2 bg-[#0B57D0] text-white rounded-full hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <Send size={18} />
-                        </button>
-                    </div>
-                </div>
-            )}
-        </>
-    );
-};
-
 const Hero = () => {
     return (
         <section id="hero" className="pt-32 pb-20 px-6 max-w-[1400px] mx-auto min-h-[90vh] flex items-center relative overflow-hidden">
@@ -942,17 +711,12 @@ const OriginStory = () => {
 
 /* --- TECH ARSENAL (Coherent Flavors) --- */
 const TechArsenal = () => {
-    const [selectedTerm, setSelectedTerm] = useState(null);
+    // Note: AI Explanation features removed for static deployment safety
 
-    // Reusable tooltip component for tech tags
-    const TechTooltip = ({ children, text = "AI Explain", className = "" }) => (
-        <div className={`relative group inline-block ${className}`}>
+    // Simple styled tag without interaction
+    const TechTag = ({ children, className = "" }) => (
+        <div className={`px-4 py-2 bg-[#F2F6FC] border border-[#E0E2EC] rounded-full text-sm font-medium text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white transition-all cursor-default ${className}`}>
             {children}
-            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-[#1F1F1F] text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-20 flex items-center gap-1 shadow-lg">
-                <Sparkles size={10} className="text-[#FBBC04]" />
-                <span>{text}</span>
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-[1px] border-4 border-transparent border-t-[#1F1F1F]"></div>
-            </div>
         </div>
     );
 
@@ -964,17 +728,8 @@ const TechArsenal = () => {
                 </h2>
                 <p className="text-xl text-[#444746] max-w-2xl">
                     My toolbox for converting requirements into silicon.
-                    <span className="text-[#0B57D0] text-sm block mt-2 font-medium flex items-center gap-1 hidden md:flex">
-                        <Sparkles size={14} /> Hover any tech tag for an AI breakdown.
-                    </span>
-                    {/* Mobile Specific Hint */}
-                    <span className="text-[#0B57D0] text-sm block mt-2 font-medium flex items-center gap-1 md:hidden">
-                        <Sparkles size={14} /> Tap any tech tag for an AI breakdown.
-                    </span>
                 </p>
             </div>
-
-            {selectedTerm && <TechExplainerModal term={selectedTerm} onClose={() => setSelectedTerm(null)} />}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
 
@@ -993,14 +748,7 @@ const TechArsenal = () => {
 
                         <div className="flex flex-wrap gap-3">
                             {['SystemVerilog', 'UVM', 'RTL Design', 'FPGA Prototyping', 'Xilinx Vivado'].map((skill) => (
-                                <TechTooltip key={skill}>
-                                    <button
-                                        onClick={() => setSelectedTerm(skill)}
-                                        className="px-4 py-2 bg-[#F2F6FC] border border-[#E0E2EC] rounded-full text-sm font-medium text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white transition-all cursor-pointer active:scale-95"
-                                    >
-                                        {skill}
-                                    </button>
-                                </TechTooltip>
+                                <TechTag key={skill}>{skill}</TechTag>
                             ))}
                         </div>
                     </div>
@@ -1019,14 +767,12 @@ const TechArsenal = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 content-start flex-1">
                         {['SystemVerilog', 'Verilog RTL', 'Python', 'C / C++', 'MATLAB'].map((lang) => (
-                            <TechTooltip key={lang}>
-                                <button
-                                    onClick={() => setSelectedTerm(lang)}
-                                    className="px-4 py-2 rounded-xl bg-blue-50/50 text-[#0B57D0] font-medium text-sm border border-blue-100 hover:bg-blue-100 transition-all cursor-pointer active:scale-95"
-                                >
-                                    {lang}
-                                </button>
-                            </TechTooltip>
+                            <div
+                                key={lang}
+                                className="px-4 py-2 rounded-xl bg-blue-50/50 text-[#0B57D0] font-medium text-sm border border-blue-100 hover:bg-blue-100 transition-all cursor-default"
+                            >
+                                {lang}
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -1041,14 +787,12 @@ const TechArsenal = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 flex-1">
                         {['Vivado', 'ModelSim', 'Questa Sim', 'Cadence', 'LaTeX', 'HOMER Pro'].map((tool) => (
-                            <TechTooltip key={tool} className="w-full h-full">
-                                <button
-                                    onClick={() => setSelectedTerm(tool)}
-                                    className="w-full h-full p-3 rounded-xl bg-orange-50/30 border border-orange-100 text-sm font-medium text-[#444746] text-center hover:bg-orange-100 transition-all cursor-pointer active:scale-95 flex items-center justify-center"
-                                >
-                                    {tool}
-                                </button>
-                            </TechTooltip>
+                            <div
+                                key={tool}
+                                className="w-full h-full p-3 rounded-xl bg-orange-50/30 border border-orange-100 text-sm font-medium text-[#444746] text-center hover:bg-orange-100 transition-all cursor-default flex items-center justify-center"
+                            >
+                                {tool}
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -1067,14 +811,12 @@ const TechArsenal = () => {
                         </p>
                         <div className="flex flex-wrap gap-4">
                             {['RISC-V Core', 'Low Power', 'AMBA AXI/APB', 'Neuromorphic'].map((item) => (
-                                <TechTooltip key={item}>
-                                    <button
-                                        onClick={() => setSelectedTerm(item)}
-                                        className="flex items-center gap-2 bg-green-50/50 border border-green-100 px-4 py-2 rounded-lg text-[#1F7A43] font-bold text-sm cursor-pointer hover:bg-green-100 transition-all active:scale-95"
-                                    >
-                                        <CheckCircle2 size={14} /> {item}
-                                    </button>
-                                </TechTooltip>
+                                <div
+                                    key={item}
+                                    className="flex items-center gap-2 bg-green-50/50 border border-green-100 px-4 py-2 rounded-lg text-[#1F7A43] font-bold text-sm cursor-default hover:bg-green-100 transition-all"
+                                >
+                                    <CheckCircle2 size={14} /> {item}
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -1239,6 +981,7 @@ const Projects = () => {
             desc: "Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via AXI Stream.",
             deepContext: "Engineered a heterogeneous SoC integrating a RISC-V processor and a custom neural network via the AXI Stream protocol. The system achieved 92% accuracy in real-time ECG classification using Q1.15 fixed-point arithmetic optimization. Validated the complete design through simulation and deployment on FPGA hardware, demonstrating robust real-time performance.",
             keyOutcomes: ["Q1.15 Fixed-Point", "92% Accuracy", "Real-time"],
+            contextHighlights: ["heterogeneous SoC", "RISC-V processor", "AXI Stream protocol", "92% accuracy", "Q1.15 fixed-point arithmetic", "FPGA hardware"],
             tech: ["RISC-V", "AXI Stream", "FPGA"]
         },
         {
@@ -1248,6 +991,7 @@ const Projects = () => {
             desc: "Designed a Verilog RTL 3-layer neural network inference engine with ROM-based weights and FIFO input.",
             deepContext: "Designed and implemented a Verilog RTL 3-layer neural network inference engine with custom ROM-based weights and FIFO input. Achieved over 85% accuracy on the Semeion dataset through efficient fixed-point hardware conversion. Performed full simulation, synthesis, and implementation in Xilinx Vivado.",
             keyOutcomes: ["85% Accuracy", "Timing Closure", "Semeion Dataset"],
+            contextHighlights: ["Verilog RTL", "3-layer neural network", "ROM-based weights", "85% accuracy", "Semeion dataset", "Xilinx Vivado"],
             tech: ["Verilog RTL", "Vivado", "Neural Networks"]
         },
         {
@@ -1257,6 +1001,7 @@ const Projects = () => {
             desc: "Architected a modular UVM testbench with reusable master/slave agents to rigorously validate APB protocol.",
             deepContext: "Architected a modular UVM testbench, developing reusable master/slave agents and environment components to rigorously validate APB protocol compliance. Achieved 100% functional and code coverage and confirmed design robustness through complete assertion coverage.",
             keyOutcomes: ["100% Coverage", "Reusable Agents", "Protocol Check"],
+            contextHighlights: ["modular UVM testbench", "reusable master/slave agents", "APB protocol compliance", "100% functional and code coverage", "assertion coverage"],
             tech: ["UVM", "SystemVerilog", "Coverage"]
         },
         {
@@ -1266,6 +1011,7 @@ const Projects = () => {
             desc: "Led development of a novel SEC-DED-DAEC error-correcting module, optimizing reversible logic.",
             deepContext: "Led development of a novel SEC-DED-DAEC error-correcting module and integrated it into an AHB-APB bridge to ensure data integrity for system-on-chip pathways. Optimized the reversible logic implementation to achieve a 5.67% reduction in power consumption.",
             keyOutcomes: ["5.67% Power Reduction", "4.52% Delay Imp.", "IEEE"],
+            contextHighlights: ["novel SEC-DED-DAEC", "error-correcting module", "AHB-APB bridge", "data integrity", "5.67% reduction in power consumption"],
             tech: ["Error Correction", "Low-Power"]
         },
         {
@@ -1275,6 +1021,7 @@ const Projects = () => {
             desc: "Co-developed 'Charge On Go,' a novel vehicle-mounted hybrid power system. Simulated electrical performance.",
             deepContext: "Co-developed a novel vehicle-mounted hybrid power system to generate electricity during transit. Simulated the system's electrical performance using Python and HOMER Pro, projecting an annual energy generation of 465.15 kWh per unit. Built an interactive 3D simulation in Unity.",
             keyOutcomes: ["465.15 kWh/yr", "3D Simulation", "Investor Demo"],
+            contextHighlights: ["vehicle-mounted hybrid power system", "Python", "HOMER Pro", "465.15 kWh per unit", "3D simulation in Unity"],
             tech: ["Python", "HOMER Pro", "Unity"]
         }
     ];
@@ -1343,7 +1090,11 @@ const Projects = () => {
                                         ))}
                                     </div>
                                     <p className="text-[#444746] text-base leading-relaxed">
-                                        {project.deepContext}
+                                        {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
+                                            project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
+                                                ? <span key={i} className="imp-text">{part}</span>
+                                                : part
+                                        )}
                                     </p>
                                 </div>
                             </div>
@@ -1459,41 +1210,7 @@ const IdleCycles = () => {
 
 /* --- CONTACT --- */
 const Contact = ({ showTop }) => {
-    const [emailIntent, setEmailIntent] = useState("");
-    const [generatedEmail, setGeneratedEmail] = useState("");
-    const [isDrafting, setIsDrafting] = useState(false);
-    const apiKey = ""; // API Key handled by environment
-
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    const handleDraftEmail = async () => {
-        if (!emailIntent.trim()) return;
-        setIsDrafting(true);
-
-        const prompt = `Write a professional, short, and effective email from a recruiter/collaborator to Rajeev Marada (VLSI Engineer). 
-        The sender's intent is: "${emailIntent}".
-        Mention Rajeev's skills in SystemVerilog, UVM, or RISC-V if relevant to the intent.
-        Keep it under 100 words. No subject line, just the body.`;
-
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: prompt }] }] })
-            });
-            const data = await response.json();
-            setGeneratedEmail(data.candidates?.[0]?.content?.parts?.[0]?.text || "Could not generate draft.");
-        } catch (e) {
-            setGeneratedEmail("Error generating draft.");
-        } finally {
-            setIsDrafting(false);
-        }
-    };
-
-    const copyToClipboard = () => {
-        navigator.clipboard.writeText(generatedEmail);
-        alert("Draft copied to clipboard!");
-    };
 
     return (
         <footer className="bg-white py-20 border-t border-gray-100 relative" id="contact">
@@ -1503,56 +1220,9 @@ const Contact = ({ showTop }) => {
                 </div>
 
                 <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-6 brand-font">Let's build next-gen silicon.</h2>
-                <p className="text-xl text-[#444746] max-w-xl mx-auto mb-10">
+                <p className="text-xl text-[#444746] max-w-xl mx-auto mb-16">
                     Open to collaborations on VLSI research, hardware innovation, and next-gen computing challenges.
                 </p>
-
-                {/* Helper Line */}
-                <div className="flex flex-col items-center justify-center gap-2 mb-6">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[#0B57D0] text-[10px] font-bold uppercase tracking-wider">
-                        <Sparkles size={10} /> Smart Assist
-                    </span>
-                    <p className="text-sm text-[#444746] max-w-md">
-                        Looking to connect? Type your intent below, and AI will draft a professional message for you.
-                    </p>
-                </div>
-
-                {/* --- GEMINI POWERED EMAIL DRAFTER --- */}
-                <div className="max-w-md mx-auto bg-white border border-gray-200 rounded-2xl p-1 mb-12 shadow-sm hover:shadow-md transition-shadow">
-                    {!generatedEmail ? (
-                        <div className="flex gap-2 p-2">
-                            <input
-                                type="text"
-                                value={emailIntent}
-                                onChange={(e) => setEmailIntent(e.target.value)}
-                                placeholder="e.g., 'We have a Senior DV role at Intel'"
-                                className="flex-1 bg-transparent border-none outline-none text-sm px-2"
-                            />
-                            <button
-                                onClick={handleDraftEmail}
-                                disabled={isDrafting || !emailIntent}
-                                className="bg-[#1F1F1F] text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 hover:bg-[#0B57D0] transition-colors disabled:opacity-50"
-                            >
-                                {isDrafting ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                                Draft Email
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="text-left p-4 bg-[#F8FAFC] rounded-xl">
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs font-bold text-[#0B57D0] uppercase tracking-wider flex items-center gap-1"><Sparkles size={10} /> AI Draft</span>
-                                <button onClick={() => setGeneratedEmail("")} className="text-gray-400 hover:text-gray-600"><X size={14} /></button>
-                            </div>
-                            <p className="text-sm text-gray-600 mb-4 whitespace-pre-wrap italic leading-relaxed">"{generatedEmail}"</p>
-                            <button
-                                onClick={copyToClipboard}
-                                className="w-full py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-[#1F1F1F] hover:bg-gray-50 flex items-center justify-center gap-2"
-                            >
-                                <Copy size={12} /> Copy to Clipboard
-                            </button>
-                        </div>
-                    )}
-                </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
                     <a href="mailto:rajeevmarada02@gmail.com" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-full font-bold text-lg hover:bg-[#0B57D0] transition-colors shadow-lg shadow-blue-900/10 w-full sm:w-auto click-scale">
@@ -1626,7 +1296,6 @@ const App = () => {
                     <TheVault />
                     <IdleCycles />
                 </main>
-                <AIChat />
                 <Contact showTop={showTop} />
             </div>
         </div>
