@@ -53,7 +53,6 @@ const FontStyles = () => (
     }
 
     /* --- PERFORMANCE OPTIMIZED TRANSITIONS --- */
-    /* Only transition colors on specific elements to prevent layout thrashing (jitter) */
     body, .bg-card, .hover-card, .dock-container, .dock-item, .interactive-tag, button, a {
       transition-property: background-color, border-color, color, fill, stroke, box-shadow;
       transition-duration: 0.3s;
@@ -605,7 +604,8 @@ const OriginStory = ({ theme }) => {
             text: "It started when my PlayStation 2 died. Instead of replacing it, I tore it apart. That was the moment I realized: everything is built by someone, and everything can be fixed.",
             accent: isDark ? "text-white" : "text-[#1F1F1F]",
             bg: isDark ? "bg-[#27272a]" : "bg-[#fffbf0]",
-            keyTerms: ["PlayStation 2", "tore it apart"]
+            keyTerms: ["PlayStation 2", "tore it apart"],
+            borderColor: isDark ? "#ffffff" : "#1F1F1F"
         },
         {
             icon: Smartphone,
@@ -613,7 +613,8 @@ const OriginStory = ({ theme }) => {
             text: "Curiosity grew into optimization. I rooted my Samsung Galaxy Tab 2 to install custom ROMs, squeezing every drop of performance out of limited hardware.",
             accent: isDark ? "text-blue-400" : "text-[#0B57D0]",
             bg: isDark ? "bg-blue-950/30" : "bg-[#eef5ff]",
-            keyTerms: ["Samsung Galaxy Tab 2", "Custom ROMs"]
+            keyTerms: ["Samsung Galaxy Tab 2", "Custom ROMs"],
+            borderColor: isDark ? "#60a5fa" : "#0B57D0"
         },
         {
             icon: HardDrive,
@@ -621,7 +622,8 @@ const OriginStory = ({ theme }) => {
             text: "Finally, I built my first PC from scratch. Researching thermals, voltages, and component compatibility laid the foundation for my career in hardware architecture.",
             accent: isDark ? "text-green-400" : "text-[#0D3818]",
             bg: isDark ? "bg-green-950/30" : "bg-[#f0fdf4]",
-            keyTerms: ["built my first PC", "hardware architecture"]
+            keyTerms: ["built my first PC", "hardware architecture"],
+            borderColor: isDark ? "#4ade80" : "#0D3818"
         }
     ];
 
@@ -635,7 +637,11 @@ const OriginStory = ({ theme }) => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {chapters.map((chap, i) => (
-                        <div key={i} className={`p-8 rounded-[32px] border reveal-up stagger-${i + 1} group cursor-default hover:shadow-xl hover:-translate-y-2 hover-card bg-card border-std`}>
+                        <div
+                            key={i}
+                            className={`p-8 rounded-[32px] border border-t-4 reveal-up stagger-${i + 1} group cursor-default hover:shadow-xl hover:-translate-y-2 hover-card bg-card border-std`}
+                            style={{ borderTopColor: chap.borderColor }}
+                        >
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${chap.bg} ${isDark ? 'border border-white/5' : 'border border-gray-100'}`}>
                                 <chap.icon size={28} className={chap.accent} />
                             </div>
@@ -675,7 +681,10 @@ const TechArsenal = ({ theme }) => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
-                <div className={`md:col-span-2 rounded-[24px] p-10 relative overflow-hidden reveal-up hover-card flex flex-col justify-center min-h-[300px] bg-card border border-std`}>
+                <div
+                    className={`md:col-span-2 rounded-[24px] p-10 relative overflow-hidden reveal-up hover-card flex flex-col justify-center min-h-[300px] bg-card border-t-4 border border-std`}
+                    style={{ borderTopColor: isDark ? '#3b82f6' : '#0B57D0' }}
+                >
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-6">
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#18181b] text-blue-400 border border-[#27272a]' : 'bg-[#F2F6FC] text-[#0B57D0]'}`}>
@@ -697,7 +706,10 @@ const TechArsenal = ({ theme }) => {
                     </div>
                 </div>
 
-                <div className={`tech-card flex flex-col p-8 rounded-[24px] border reveal-up stagger-1 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-blue-500' : 'border-t-4 border-t-[#0B57D0]'}`}>
+                <div
+                    className={`tech-card flex flex-col p-8 rounded-[24px] border border-t-4 reveal-up stagger-1 hover-card bg-card border-std`}
+                    style={{ borderTopColor: isDark ? '#3b82f6' : '#0B57D0' }}
+                >
                     <div className="flex items-center gap-3 mb-6">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-blue-900/30 text-blue-400 border border-blue-800/30' : 'bg-blue-50 text-[#0B57D0]'}`}>
                             <Terminal size={20} />
@@ -713,7 +725,10 @@ const TechArsenal = ({ theme }) => {
                     </div>
                 </div>
 
-                <div className={`tech-card flex flex-col p-8 rounded-[24px] border reveal-up stagger-2 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-orange-500' : 'border-t-4 border-t-[#E37400]'}`}>
+                <div
+                    className={`tech-card flex flex-col p-8 rounded-[24px] border border-t-4 reveal-up stagger-2 hover-card bg-card border-std`}
+                    style={{ borderTopColor: isDark ? '#f97316' : '#E37400' }}
+                >
                     <div className="flex items-center gap-3 mb-6">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-orange-900/30 text-orange-400 border border-orange-800/30' : 'bg-orange-50 text-[#E37400]'}`}>
                             <Box size={20} />
@@ -729,7 +744,10 @@ const TechArsenal = ({ theme }) => {
                     </div>
                 </div>
 
-                <div className={`md:col-span-2 flex flex-col md:flex-row items-center gap-8 p-8 rounded-[24px] border reveal-up stagger-3 hover:shadow-xl hover:-translate-y-2 bg-card border-std ${isDark ? 'border-t-4 border-t-green-500' : 'border-t-4 border-t-[#34A853]'}`}>
+                <div
+                    className={`md:col-span-2 flex flex-col md:flex-row items-center gap-8 p-8 rounded-[24px] border border-t-4 reveal-up stagger-3 hover-card bg-card border-std`}
+                    style={{ borderTopColor: isDark ? '#22c55e' : '#34A853' }}
+                >
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-4">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-green-900/30 text-green-400 border border-green-800/30' : 'bg-green-50 text-[#34A853]'}`}>
@@ -776,7 +794,7 @@ const Journey = ({ theme }) => {
             company: "Cognizant Technology Solutions",
             duration: "Aug 2024 - Present",
             desc: "Automated key business workflows using APPIAN low-code platform. Collaborated on cross-functional projects to optimize enterprise processes.",
-            borderColor: isDark ? "border-l-blue-500" : "border-l-[#0B57D0]",
+            borderColorHex: isDark ? "#3b82f6" : "#0B57D0",
             dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
             bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
             buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
@@ -788,7 +806,7 @@ const Journey = ({ theme }) => {
             company: "Insemi Technology Services",
             duration: "Jul 2023 - Oct 2023",
             desc: "Developed UVM testbench for Dual-Port RAM with 100% functional coverage. Analyzed protocol compliance using SystemVerilog assertions.",
-            borderColor: isDark ? "border-l-green-500" : "border-l-[#34A853]",
+            borderColorHex: isDark ? "#22c55e" : "#34A853",
             dotColorClass: isDark ? "bg-green-500" : "bg-[#34A853]",
             bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
             buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#34A853] hover:bg-green-50",
@@ -800,7 +818,7 @@ const Journey = ({ theme }) => {
             company: "Maven Silicon",
             duration: "Dec 2022 - Jan 2023",
             desc: "Designed AMBA AHB-APB bridge in Verilog. Deepened understanding of FSM architecture.",
-            borderColor: isDark ? "border-l-yellow-500" : "border-l-[#FBBC04]",
+            borderColorHex: isDark ? "#eab308" : "#FBBC04",
             dotColorClass: isDark ? "bg-yellow-500" : "bg-[#FBBC04]",
             bg: isDark ? "bg-yellow-900/10" : "bg-yellow-50/30",
             buttonColor: isDark ? "text-yellow-400 hover:bg-yellow-900/20" : "text-[#FBBC04] hover:bg-yellow-50",
@@ -812,7 +830,7 @@ const Journey = ({ theme }) => {
             company: "CoreEl Technologies",
             duration: "Jun 2022 - Jul 2022",
             desc: "Built SystemVerilog testbench for full adder DUT. Achieved 100% coverage.",
-            borderColor: isDark ? "border-l-red-500" : "border-l-[#EA4335]",
+            borderColorHex: isDark ? "#ef4444" : "#EA4335",
             dotColorClass: isDark ? "bg-red-500" : "bg-[#EA4335]",
             bg: isDark ? "bg-red-900/10" : "bg-red-50/30",
             buttonColor: isDark ? "text-red-400 hover:bg-red-900/20" : "text-[#EA4335] hover:bg-red-50",
@@ -828,11 +846,14 @@ const Journey = ({ theme }) => {
             year: "2024",
             score: "80% Score",
             icon: GraduationCap,
-            borderColor: isDark ? "border-l-green-600" : "border-l-[#0D3818]",
+            // Changed light mode color from dark #0D3818 to brighter #16a34a
+            borderColorHex: isDark ? "#16a34a" : "#16a34a",
             dotColorClass: isDark ? "bg-green-600" : "bg-[#0D3818]",
             iconColor: isDark ? "text-green-400" : "text-[#0D3818]",
             bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
             buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#0D3818] hover:bg-green-50",
+            barColor: isDark ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-[#34A853]',
+            barScoreColor: isDark ? 'text-green-400' : 'text-[#34A853]',
             details: ["Intensive 11-month program.", "Coursework: Analog/Digital IC Design, RISC-V."]
         },
         {
@@ -842,12 +863,13 @@ const Journey = ({ theme }) => {
             year: "2019 - 2023",
             score: "9.4 CGPA",
             icon: BookOpen,
-            // CHANGED: From Black/White to Blue/Blue-500
-            borderColor: isDark ? "border-l-blue-500" : "border-l-[#0B57D0]",
+            borderColorHex: isDark ? "#3b82f6" : "#0B57D0",
             dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
             iconColor: isDark ? "text-blue-400" : "text-[#0B57D0]",
             bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
             buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
+            barColor: isDark ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-[#0B57D0]',
+            barScoreColor: isDark ? 'text-blue-400' : 'text-[#0B57D0]',
             details: ["Graduated with 9.4/10.0.", "Coursework: Digital Design, Embedded Systems."]
         }
     ];
@@ -870,8 +892,8 @@ const Journey = ({ theme }) => {
                         <div className={`relative border-l-2 border-dashed ml-4 pl-8 space-y-8 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
                             {experiences.map((exp, i) => (
                                 <div key={exp.id}
-                                    className={`group relative rounded-2xl p-6 border shadow-sm hover:shadow-md hover:-translate-y-1 hover-card border-l-[6px] reveal-up stagger-${i + 1} bg-card border-std ${exp.borderColor}`}
-                                    style={{ borderLeftColor: exp.borderColor.includes('#') ? exp.borderColor.replace('border-l-', '') : undefined }}
+                                    className={`group relative rounded-2xl p-6 border shadow-sm hover:shadow-md hover:-translate-y-1 hover-card border-l-[6px] reveal-up stagger-${i + 1} bg-card border-std`}
+                                    style={{ borderLeftColor: exp.borderColorHex }}
                                 >
                                     {/* Timeline Circle - Hover Logic Fix */}
                                     <div className={`absolute -left-[43px] top-6 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 
@@ -911,8 +933,8 @@ const Journey = ({ theme }) => {
                         <div className={`relative border-l-2 border-dashed ml-4 pl-8 space-y-8 ${isDark ? 'border-gray-800' : 'border-gray-200'}`}>
                             {education.map((edu, i) => (
                                 <div key={edu.id}
-                                    className={`group relative rounded-[24px] p-8 border shadow-sm border-l-[6px] hover:shadow-lg hover:-translate-y-1 hover-card reveal-up stagger-1 bg-card border-std ${edu.borderColor}`}
-                                    style={{ borderLeftColor: edu.borderColor.includes('#') ? edu.borderColor.replace('border-l-', '') : undefined }}
+                                    className={`group relative rounded-[24px] p-8 border shadow-sm border-l-[6px] hover:shadow-lg hover:-translate-y-1 hover-card reveal-up stagger-1 bg-card border-std`}
+                                    style={{ borderLeftColor: edu.borderColorHex }}
                                 >
                                     {/* Timeline Circle - Hover Logic Fix */}
                                     <div className={`absolute -left-[43px] top-8 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10
@@ -931,9 +953,9 @@ const Journey = ({ theme }) => {
                                     </div>
                                     <div className="mt-6 flex items-center gap-2">
                                         <div className={`h-1.5 flex-1 rounded-full overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
-                                            <div className={`h-full w-[90%] ${isDark ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-[#34A853]'}`}></div>
+                                            <div className={`h-full w-[90%] ${edu.barColor}`}></div>
                                         </div>
-                                        <span className={`text-sm font-bold ${isDark ? 'text-green-400' : 'text-[#34A853]'}`}>{edu.score}</span>
+                                        <span className={`text-sm font-bold ${edu.barScoreColor}`}>{edu.score}</span>
                                     </div>
 
                                     {/* Updated Button to use dynamic colors */}
@@ -1021,70 +1043,73 @@ const Projects = ({ theme }) => {
             <h2 className={`text-4xl md:text-5xl font-extrabold mb-16 brand-font reveal-up tracking-tight text-main`}>ARCHIVES</h2>
 
             <div className="space-y-16">
-                {projects.map((project, idx) => (
-                    <div key={idx} className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
-                        <div className={`w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer ${isDark ? 'border border-[#27272a]' : ''}`} onClick={() => toggleProject(idx)}>
-                            <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
-                            <div className={`absolute inset-0 ${isDark ? 'bg-black/40 group-hover:bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
-                            <div className={`absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'bg-black/90 border border-gray-700' : 'bg-white/90'}`}>
-                                <ArrowUpRight size={24} className={isDark ? "text-white" : "text-[#1F1F1F]"} />
-                            </div>
-                        </div>
-
-                        <div className="w-full md:w-1/2">
-                            <div className={`font-bold text-sm tracking-widest uppercase mb-3 ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{project.category}</div>
-                            <h3 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-6 brand-font leading-tight text-main`}>{project.title}</h3>
-
-                            <p className={`text-lg leading-relaxed mb-6 text-sec`}>
-                                {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
-                                    project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
-                                        ? <span key={i} className="imp-text">{part}</span>
-                                        : part
-                                )}
-                            </p>
-
-                            <div className="flex flex-wrap gap-2 mb-8">
-                                {project.tech.map(t => (
-                                    <span key={t} className={`interactive-tag px-3 py-1 text-sm font-medium rounded-lg cursor-default ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
-                                        {t}
-                                    </span>
-                                ))}
+                {projects.map((project, idx) => {
+                    const isRightAligned = idx % 2 === 1;
+                    return (
+                        <div key={idx} className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${isRightAligned ? 'md:flex-row-reverse' : ''}`}>
+                            <div className={`w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer ${isDark ? 'border border-[#27272a]' : ''}`} onClick={() => toggleProject(idx)}>
+                                <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
+                                <div className={`absolute inset-0 ${isDark ? 'bg-black/40 group-hover:bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
+                                <div className={`absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'bg-black/90 border border-gray-700' : 'bg-white/90'}`}>
+                                    <ArrowUpRight size={24} className={isDark ? "text-white" : "text-[#1F1F1F]"} />
+                                </div>
                             </div>
 
-                            <div className="flex items-center gap-4">
-                                <button onClick={() => toggleProject(idx)} className={`group flex items-center gap-2 font-bold text-lg border-b-2 transition-all duration-500 pb-1 click-scale ${isDark ? 'text-white border-gray-700 hover:border-blue-500' : 'text-[#1F1F1F] border-[#E0E2EC] hover:border-[#0B57D0]'}`}>
-                                    {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
-                                    <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
-                                </button>
-                                {project.link && (
-                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className={`group flex items-center gap-2 font-bold text-lg border-b-2 border-transparent transition-all duration-500 pb-1 click-scale ${isDark ? 'text-blue-400 hover:border-blue-400' : 'text-[#0B57D0] hover:border-[#0B57D0]'}`}>
-                                        Read Paper <ExternalLink size={18} />
-                                    </a>
-                                )}
-                            </div>
+                            <div className="w-full md:w-1/2">
+                                <div className={`font-bold text-sm tracking-widest uppercase mb-3 ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{project.category}</div>
+                                <h3 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-6 brand-font leading-tight text-main`}>{project.title}</h3>
 
-                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
-                                <div className={`p-8 rounded-[24px] border shadow-inner border-l-4 ${isDark ? 'bg-[#121212] border-[#27272a] border-l-blue-500' : 'bg-[#F8FAFC] border-gray-100 border-l-[#0B57D0]'}`}>
-                                    <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
-                                    <div className="flex flex-wrap gap-3 mb-4">
-                                        {project.keyOutcomes.map(tag => (
-                                            <span key={tag} className={`interactive-tag px-3 py-1.5 text-sm font-bold rounded-lg border cursor-default ${isDark ? 'bg-blue-900/20 text-blue-400 border-blue-800/30 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-[#0B57D0] border-blue-100 hover:bg-[#0B57D0] hover:text-white'}`}>
-                                                {tag}
-                                            </span>
-                                        ))}
+                                <p className={`text-lg leading-relaxed mb-6 text-sec`}>
+                                    {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
+                                        project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
+                                            ? <span key={i} className="imp-text">{part}</span>
+                                            : part
+                                    )}
+                                </p>
+
+                                <div className="flex flex-wrap gap-2 mb-8">
+                                    {project.tech.map(t => (
+                                        <span key={t} className={`interactive-tag px-3 py-1 text-sm font-medium rounded-lg cursor-default ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
+                                            {t}
+                                        </span>
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-4 flex-wrap">
+                                    <button onClick={() => toggleProject(idx)} className={`group flex items-center gap-2 font-bold text-lg border-b-2 transition-all duration-500 py-2 click-scale ${isDark ? 'text-white border-gray-700 hover:border-blue-500' : 'text-[#1F1F1F] border-[#E0E2EC] hover:border-[#0B57D0]'}`}>
+                                        {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
+                                        <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {project.link && (
+                                        <a href={project.link} target="_blank" rel="noopener noreferrer" className={`group flex items-center gap-2 font-bold text-lg border-b-2 border-transparent transition-all duration-500 py-2 click-scale ${isDark ? 'text-blue-400 hover:border-blue-400' : 'text-[#0B57D0] hover:border-[#0B57D0]'}`}>
+                                            Read Paper <ExternalLink size={18} />
+                                        </a>
+                                    )}
+                                </div>
+
+                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
+                                    <div className={`p-8 rounded-[24px] border shadow-inner ${isRightAligned ? 'border-r-4 border-l-0' : 'border-l-4'} ${isDark ? `bg-[#121212] border-[#27272a] ${isRightAligned ? 'border-r-blue-500' : 'border-l-blue-500'}` : `bg-[#F8FAFC] border-gray-100 ${isRightAligned ? 'border-r-[#0B57D0]' : 'border-l-[#0B57D0]'}`}`}>
+                                        <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
+                                        <div className="flex flex-wrap gap-3 mb-4">
+                                            {project.keyOutcomes.map(tag => (
+                                                <span key={tag} className={`interactive-tag px-3 py-1.5 text-sm font-bold rounded-lg border cursor-default ${isDark ? 'bg-blue-900/20 text-blue-400 border-blue-800/30 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-[#0B57D0] border-blue-100 hover:bg-[#0B57D0] hover:text-white'}`}>
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <p className={`text-base leading-relaxed text-sec`}>
+                                            {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
+                                                project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
+                                                    ? <span key={i} className="imp-text">{part}</span>
+                                                    : part
+                                            )}
+                                        </p>
                                     </div>
-                                    <p className={`text-base leading-relaxed text-sec`}>
-                                        {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
-                                            project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
-                                                ? <span key={i} className="imp-text">{part}</span>
-                                                : part
-                                        )}
-                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
         </section>
     );
@@ -1204,7 +1229,7 @@ const IdleCycles = ({ theme }) => {
                         { title: 'eSports', sub: 'Competitive analysis', icon: Monitor, color: isDark ? 'text-blue-400' : 'text-[#0B57D0]', bg: isDark ? 'group-hover:bg-blue-900/20' : 'group-hover:bg-[#EFF6FF]' },
                         { title: 'Cricket', sub: 'On-field strategy', icon: Activity, color: isDark ? 'text-green-400' : 'text-[#34A853]', bg: isDark ? 'group-hover:bg-green-900/20' : 'group-hover:bg-[#F0FDF4]' }
                     ].map((item, i) => (
-                        <div key={i} className={`aspect-[4/3] rounded-[32px] flex flex-col items-center justify-center p-6 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 border cursor-default group relative overflow-hidden ${item.bg} bg-card border-std`}>
+                        <div key={i} className={`aspect-[4/3] rounded-[32px] flex flex-col items-center justify-center p-6 hover-card cursor-default group relative overflow-hidden ${item.bg} bg-card border-std border`}>
                             <item.icon className={`absolute -bottom-8 -right-8 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rotate-12 ${item.color}`} />
                             <div className="relative z-10 flex flex-col items-center">
                                 <div className={`p-4 rounded-full transition-colors duration-300 mb-4 shadow-sm ${isDark ? 'bg-[#18181b] group-hover:bg-black border border-[#27272a]' : 'bg-gray-50 group-hover:bg-white'}`}>
@@ -1268,23 +1293,45 @@ const Contact = ({ showTop, theme }) => {
 const App = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoaded, setIsLoaded] = useState(false);
-    const [theme, setTheme] = useState('light'); // Default to light
 
-    // Theme Persistance
-    useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme);
-        } else {
-            // Force Default to light if no saved preference
-            setTheme('light');
+    // Theme Persistance Logic Changed to SessionStorage
+    const [theme, setTheme] = useState(() => {
+        // Initialize state directly from storage to prevent flashing
+        if (typeof window !== 'undefined') {
+            const savedTheme = sessionStorage.getItem('theme');
+            return savedTheme || 'light';
         }
-    }, []);
+        return 'light';
+    });
 
     useEffect(() => {
         document.body.className = theme;
-        localStorage.setItem('theme', theme);
+        sessionStorage.setItem('theme', theme);
     }, [theme]);
+
+    // Add Favicon Programmatically
+    useEffect(() => {
+        const favicon = document.createElement("link");
+        favicon.rel = "icon";
+        favicon.type = "image/svg+xml";
+        favicon.href =
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
+
+        // Remove existing icon if any
+        const existingIcon = document.querySelector("link[rel*='icon']");
+        if (existingIcon) {
+            document.head.removeChild(existingIcon);
+        }
+
+        document.head.appendChild(favicon);
+
+        return () => {
+            // Cleanup on unmount (optional)
+            if (document.head.contains(favicon)) {
+                document.head.removeChild(favicon);
+            }
+        }
+    }, []);
 
     const toggleTheme = () => {
         setTheme(prev => prev === 'light' ? 'dark' : 'light');
