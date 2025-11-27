@@ -8,7 +8,7 @@ import {
     Calendar, MapPin, MousePointer2, Smartphone, HardDrive,
     ChevronDown, ArrowUp, Code2, Cpu as Chip,
     Briefcase, GraduationCap, MessageSquare, Send, Loader2,
-    Copy, Check, HelpCircle
+    Copy, Check, HelpCircle, ExternalLink, ChevronUp
 } from 'lucide-react';
 
 const favicon = document.createElement("link");
@@ -37,7 +37,7 @@ const FontStyles = () => (
       -moz-osx-font-smoothing: grayscale;
     }
     
-    /* Custom Cursor - Optimized for High Refresh Rate */
+    /* Custom Cursor */
     #cursor-follower {
       position: fixed;
       top: 0;
@@ -50,8 +50,8 @@ const FontStyles = () => (
       border-radius: 50%;
       pointer-events: none;
       z-index: 9999;
-      transform: translate3d(-50%, -50%, 0); /* Force GPU */
-      will-change: transform, width, height; /* Hint browser for optimization */
+      transform: translate3d(-50%, -50%, 0);
+      will-change: transform, width, height;
       transition: width 0.2s cubic-bezier(0.25, 1, 0.5, 1), 
                   height 0.2s cubic-bezier(0.25, 1, 0.5, 1), 
                   background-color 0.2s;
@@ -310,16 +310,13 @@ const FontStyles = () => (
         mask-image: linear-gradient(to bottom, black 20%, transparent 90%);
     }
     
-    /* Hero Heading Hover */
+    /* Hero Heading Hover - DYNAMIC */
     .hero-heading {
         background-size: 200% auto;
         background-image: linear-gradient(to right, #1F1F1F 0%, #0B57D0 50%, #1F1F1F 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        transition: background-position 0.5s ease;
-    }
-    .hero-heading:hover {
-        background-position: right center;
+        /* Removed simple transition, now handled via inline style */
     }
 
   `}</style>
@@ -351,7 +348,6 @@ const useActiveSection = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            // Optimized active section logic
             const scrollY = window.scrollY;
             const windowHeight = window.innerHeight;
 
@@ -360,14 +356,11 @@ const useActiveSection = () => {
 
             for (const section of sections) {
                 const element = document.getElementById(section);
-                // Trigger slightly earlier for better feel
                 if (element && scrollY >= (element.offsetTop - windowHeight * 0.4)) {
                     current = section;
                 }
             }
             setActiveSection(current);
-
-            // Show Top Button Logic
             const heroHeight = document.getElementById('hero')?.offsetHeight || 500;
             setShowTop(scrollY > heroHeight);
         };
@@ -390,7 +383,6 @@ const CustomCursor = () => {
         let requestRef;
 
         const moveCursor = (e) => {
-            // Use requestAnimationFrame for >60Hz smoothness
             if (requestRef) cancelAnimationFrame(requestRef);
             requestRef = requestAnimationFrame(() => {
                 if (cursorRef.current) {
@@ -426,14 +418,10 @@ const LoadingScreen = ({ onComplete, isExiting }) => {
     const requestRef = useRef();
     const startTimeRef = useRef();
 
-    // High Refresh Rate Optimized Animation Loop
     const animate = (time) => {
         if (!startTimeRef.current) startTimeRef.current = time;
         const deltaTime = time - startTimeRef.current;
-
-        // Calculate progress based on time (approx 1.2s duration)
         const newProgress = Math.min((deltaTime / 1200) * 100, 100);
-
         setProgress(newProgress);
 
         if (newProgress < 100) {
@@ -449,23 +437,15 @@ const LoadingScreen = ({ onComplete, isExiting }) => {
     }, [onComplete]);
 
     return (
-        <div
-            className={`fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-700 ease-out ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
-        >
+        <div className={`fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-700 ease-out ${isExiting ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <div className="w-full max-w-xs relative">
                 <div className="flex justify-between items-end mb-2">
                     <span className="text-xs font-bold text-[#1F1F1F] tracking-widest font-mono">SYSTEM BOOT</span>
                     <span className="text-xs font-bold text-[#0B57D0] font-mono">{Math.floor(progress)}%</span>
                 </div>
-
                 <div className="h-1 w-full bg-[#F2F6FC] overflow-hidden rounded-full">
-                    <div
-                        className="h-full bg-[#1F1F1F] rounded-full"
-                        style={{ width: `${progress}%` }}
-                    // No transition here, updated via state frame-by-frame for max smoothness
-                    ></div>
+                    <div className="h-full bg-[#1F1F1F] rounded-full" style={{ width: `${progress}%` }}></div>
                 </div>
-
                 <div className="mt-2 text-[10px] text-[#444746] font-mono uppercase flex justify-between">
                     <span>{progress < 30 ? 'Loading Modules...' : progress < 70 ? 'Verifying Architecture...' : 'Ready.'}</span>
                     {progress >= 100 && <span className="text-green-600 font-bold">OK</span>}
@@ -484,7 +464,6 @@ const Navbar = ({ activeSection }) => {
         { id: 'patents', icon: Award, label: 'Patents' }
     ];
 
-    // Mobile Smart Scroll Logic
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
 
@@ -494,62 +473,52 @@ const Navbar = ({ activeSection }) => {
             if (currentScrollY < 50) {
                 setIsVisible(true);
             } else if (currentScrollY > lastScrollY.current) {
-                setIsVisible(false); // Scrolling Down
+                setIsVisible(false);
             } else {
-                setIsVisible(true); // Scrolling Up
+                setIsVisible(true);
             }
             lastScrollY.current = currentScrollY;
         };
-
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (
-        <nav
-            className={`fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}
-        >
+        <nav className={`fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none px-4 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-[150%]'}`}>
             <div className="dock-container">
-
-                {/* Pro Monogram Logo */}
-                <a href="#hero" className="w-10 h-10 rounded-full bg-[#1F1F1F] text-white flex items-center justify-center font-bold font-mono text-sm hover:bg-[#0B57D0] transition-colors shrink-0">
-                    RM
-                </a>
-
+                <a href="#hero" className="w-10 h-10 rounded-full bg-[#1F1F1F] text-white flex items-center justify-center font-bold font-mono text-sm hover:bg-[#0B57D0] transition-colors shrink-0">RM</a>
                 <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
-
-                {/* Dynamic Dock */}
                 {navItems.map((item) => {
                     const isActive = activeSection === item.id;
                     return (
-                        <a
-                            key={item.id}
-                            href={`#${item.id}`}
-                            className={`dock-item ${isActive ? 'dock-active' : ''}`}
-                            aria-label={item.label}
-                        >
+                        <a key={item.id} href={`#${item.id}`} className={`dock-item ${isActive ? 'dock-active' : ''}`} aria-label={item.label}>
                             <item.icon size={18} className="dock-icon shrink-0" />
-                            <span className="dock-text">
-                                {item.label}
-                            </span>
+                            <span className="dock-text">{item.label}</span>
                         </a>
                     )
                 })}
-
                 <div className="w-[1px] h-5 bg-gray-300 mx-2"></div>
-
-                <a href="mailto:rajeevmarada02@gmail.com" className="w-10 h-10 rounded-full bg-[#E0E2EC] text-[#1F1F1F] flex items-center justify-center hover:bg-[#0B57D0] hover:text-white transition-colors shrink-0">
-                    <Mail size={18} />
-                </a>
+                <a href="mailto:rajeevmarada02@gmail.com" className="w-10 h-10 rounded-full bg-[#E0E2EC] text-[#1F1F1F] flex items-center justify-center hover:bg-[#0B57D0] hover:text-white transition-colors shrink-0"><Mail size={18} /></a>
             </div>
         </nav>
     );
 };
 
 const Hero = () => {
+    const headingRef = useRef(null);
+
+    const handleMouseMove = (e) => {
+        if (!headingRef.current) return;
+        const rect = headingRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left; // x position within the element.
+        const width = rect.width;
+        const percent = Math.max(0, Math.min(100, (x / width) * 100));
+
+        headingRef.current.style.backgroundPosition = `${percent}% center`;
+    };
+
     return (
         <section id="hero" className="pt-32 pb-20 px-6 max-w-[1400px] mx-auto min-h-[90vh] flex items-center relative overflow-hidden">
-            {/* Subtle Background Grid */}
             <div className="absolute inset-0 circuit-bg opacity-30 pointer-events-none"></div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center w-full relative z-10">
@@ -557,21 +526,29 @@ const Hero = () => {
                 <div className="flex flex-col items-start text-left space-y-6 lg:space-y-8 reveal-up active">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E0E2EC] shadow-sm text-[#1F1F1F] text-xs font-bold tracking-wider uppercase animate-float cursor-default hover:scale-105 transition-transform">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                        Available for Roles
+                        Engineer • Tinkerer • Innovator
                     </div>
 
                     <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#1F1F1F] leading-[0.95] brand-font cursor-default">
-                        Hardware <br />
-                        <span className="hero-heading">Defined.</span>
+                        Systems <br />
+                        <span
+                            ref={headingRef}
+                            onMouseMove={handleMouseMove}
+                            className="hero-heading"
+                            style={{ backgroundPosition: '0% center' }} // Initial position
+                        >
+                            Reimagined.
+                        </span>
                     </h1>
 
                     <p className="text-lg sm:text-xl text-[#444746] max-w-lg leading-relaxed font-light">
-                        Dedicated <span className="imp-text">VLSI Engineer</span>. Bridging abstract logic and physical silicon through <span className="imp-text">SoC Architecture</span>, <span className="imp-text">RISC-V</span>, and rigorous <span className="imp-text">UVM Verification</span>.
+                        From <span className="imp-text">repairing consoles</span> to architecting <span className="imp-text">RISC-V SoCs</span>.
+                        I bridge the gap between abstract logic and physical reality, combining <span className="imp-text">VLSI expertise</span> with a passion for <span className="imp-text">automation</span> and <span className="imp-text">social innovation</span>.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 pt-4 w-full sm:w-auto">
                         <a href="#work" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-2xl font-medium text-lg hover:bg-[#333] hover:shadow-xl transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
-                            View Benchmarks <ArrowRight size={18} />
+                            View Projects <ArrowRight size={18} />
                         </a>
                         <a href="https://rajeevmarada.github.io/assets/resume.pdf" target="_blank" rel="noopener noreferrer" className="px-8 py-4 bg-white border border-gray-200 text-[#1F1F1F] rounded-2xl font-medium text-lg hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2 click-scale hover:-translate-y-1">
                             Resume <FileText size={18} />
@@ -583,6 +560,7 @@ const Hero = () => {
                     <div className="absolute inset-0 bg-[#F2F6FC] rounded-[40px] -z-10 scale-105 opacity-50 animate-pulse-soft" />
 
                     <div className="grid grid-cols-2 gap-4 p-4">
+                        {/* KPI 1: Patent */}
                         <div className="bg-[#1F1F1F] text-white p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden group cursor-default stagger-1">
                             <div className="absolute top-0 right-0 p-3 opacity-20 group-hover:opacity-40 transition-opacity animate-float">
                                 <Award size={64} />
@@ -598,49 +576,54 @@ const Hero = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white border border-gray-100 p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-2">
-                            <div className="w-12 h-12 bg-[#E0E2EC] rounded-full flex items-center justify-center text-[#1F1F1F] mb-4 animate-float-delayed">
-                                <Calendar size={24} />
+                        {/* KPI 2: Papers - IMPROVED VISUAL */}
+                        <div className="bg-white border border-gray-100 p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-2 bg-gradient-to-br from-white to-blue-50">
+                            <div className="w-12 h-12 bg-[#0B57D0] rounded-full flex items-center justify-center text-white mb-4 shadow-lg shadow-blue-200 animate-float-delayed">
+                                <FileText size={24} />
                             </div>
                             <div>
-                                <div className="text-3xl sm:text-4xl font-bold text-[#1F1F1F] brand-font mb-1">2+ Yrs</div>
+                                <div className="text-3xl sm:text-4xl font-bold text-[#1F1F1F] brand-font mb-1">2 Papers</div>
                                 <div className="text-sm text-[#444746]">
-                                    Industrial Experience<br />
-                                    <span className="text-xs text-gray-400 font-medium">Cognizant • InSemi • CoreEL</span>
+                                    Published Research<br />
+                                    <span className="text-xs text-[#0B57D0] font-bold">IEEE • GIJET</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white border border-gray-100 p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-3">
+                        {/* KPI 3: IISc - IMPROVED VISUAL */}
+                        <div className="bg-[#0D3818] text-white p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between cursor-default stagger-3 relative overflow-hidden">
+                            <div className="absolute -right-4 -bottom-4 opacity-10 rotate-12">
+                                <BookOpen size={100} />
+                            </div>
                             <div>
                                 <div className="flex justify-between items-start mb-2">
-                                    <div className="text-xs font-bold text-[#0B57D0] uppercase bg-[#F2F6FC] px-2 py-1 rounded">IISc Bangalore</div>
-                                    <BookOpen size={20} className="text-[#444746]" />
+                                    <div className="text-xs font-bold text-[#34A853] uppercase bg-white/10 px-2 py-1 rounded backdrop-blur-sm">IISc Bangalore</div>
                                 </div>
-                                <div className="text-lg font-bold text-[#1F1F1F] leading-tight">Advanced VLSI Design</div>
+                                <div className="text-lg font-bold text-white leading-tight mt-2">Advanced VLSI Design</div>
                             </div>
                             <div className="mt-4">
                                 <div className="flex justify-between text-sm mb-1">
-                                    <span className="text-[#444746]">Score</span>
-                                    <span className="font-bold text-[#1F1F1F]">80%</span>
+                                    <span className="text-gray-300">Performance</span>
+                                    <span className="font-bold text-[#34A853]">80%</span>
                                 </div>
-                                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                                    <div className="h-full bg-[#0B57D0] w-[80%] animate-[load_1.5s_ease-out_forwards]" />
+                                <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
+                                    <div className="h-full bg-[#34A853] w-[80%] animate-[load_1.5s_ease-out_forwards]" />
                                 </div>
                             </div>
                         </div>
 
+                        {/* KPI 4: Diverse Background */}
                         <div className="bg-[#C4EED0] p-6 rounded-[32px] hover-card col-span-2 sm:col-span-1 min-h-[160px] flex flex-col justify-between relative overflow-hidden cursor-default stagger-4">
                             <CircuitBoard className="absolute -bottom-4 -right-4 text-[#0D3818] opacity-10 w-32 h-32 animate-float" />
                             <div>
                                 <div className="text-[#0D3818] text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                                    <span className="w-1 h-1 bg-[#0D3818] rounded-full"></span> Portfolio
+                                    <span className="w-1 h-1 bg-[#0D3818] rounded-full"></span> Background
                                 </div>
-                                <div className="text-3xl sm:text-4xl font-bold text-[#0D3818] brand-font">5 Major</div>
+                                <div className="text-3xl sm:text-4xl font-bold text-[#0D3818] brand-font">Diverse</div>
                             </div>
                             <div className="text-[#0D3818] font-medium mt-2">
-                                Architectures Deployed <br />
-                                <span className="text-xs opacity-70 font-semibold">RTL • UVM • FPGA</span>
+                                Expertise <br />
+                                <span className="text-xs opacity-70 font-semibold">VLSI • IoT • Automation</span>
                             </div>
                         </div>
                     </div>
@@ -650,7 +633,6 @@ const Hero = () => {
     );
 };
 
-/* --- ORIGIN STORY (Digestible Cards) --- */
 const OriginStory = () => {
     const chapters = [
         {
@@ -709,11 +691,7 @@ const OriginStory = () => {
     );
 };
 
-/* --- TECH ARSENAL (Coherent Flavors) --- */
 const TechArsenal = () => {
-    // Note: AI Explanation features removed for static deployment safety
-
-    // Simple styled tag without interaction
     const TechTag = ({ children, className = "" }) => (
         <div className={`px-4 py-2 bg-[#F2F6FC] border border-[#E0E2EC] rounded-full text-sm font-medium text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white transition-all cursor-default ${className}`}>
             {children}
@@ -732,8 +710,6 @@ const TechArsenal = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto">
-
-                {/* Core Domain - The Anchor */}
                 <div className="md:col-span-2 bg-white border border-[#E0E2EC] rounded-[24px] p-10 relative overflow-hidden reveal-up hover-card flex flex-col justify-center min-h-[300px]">
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-6">
@@ -745,7 +721,6 @@ const TechArsenal = () => {
                         <p className="text-[#444746] text-lg leading-relaxed mb-8 max-w-xl">
                             Expertise in constructing robust <span className="imp-text">UVM testbenches</span>, achieving <span className="imp-text">100% coverage</span>, and synthesizing RTL for high-performance SoCs.
                         </p>
-
                         <div className="flex flex-wrap gap-3">
                             {['SystemVerilog', 'UVM', 'RTL Design', 'FPGA Prototyping', 'Xilinx Vivado'].map((skill) => (
                                 <TechTag key={skill}>{skill}</TechTag>
@@ -757,7 +732,6 @@ const TechArsenal = () => {
                     </div>
                 </div>
 
-                {/* Languages - Blue Flavor */}
                 <div className="tech-card flavor-blue reveal-up stagger-1 flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-[#0B57D0]">
@@ -767,17 +741,13 @@ const TechArsenal = () => {
                     </div>
                     <div className="flex flex-wrap gap-2 content-start flex-1">
                         {['SystemVerilog', 'Verilog RTL', 'Python', 'C / C++', 'MATLAB'].map((lang) => (
-                            <div
-                                key={lang}
-                                className="px-4 py-2 rounded-xl bg-blue-50/50 text-[#0B57D0] font-medium text-sm border border-blue-100 hover:bg-blue-100 transition-all cursor-default"
-                            >
+                            <div key={lang} className="px-4 py-2 rounded-xl bg-blue-50/50 text-[#0B57D0] font-medium text-sm border border-blue-100 hover:bg-blue-100 transition-all cursor-default">
                                 {lang}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Toolchain - Orange Flavor */}
                 <div className="tech-card flavor-orange reveal-up stagger-2 flex flex-col">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-[#E37400]">
@@ -787,17 +757,13 @@ const TechArsenal = () => {
                     </div>
                     <div className="grid grid-cols-2 gap-3 flex-1">
                         {['Vivado', 'ModelSim', 'Questa Sim', 'Cadence', 'LaTeX', 'HOMER Pro'].map((tool) => (
-                            <div
-                                key={tool}
-                                className="w-full h-full p-3 rounded-xl bg-orange-50/30 border border-orange-100 text-sm font-medium text-[#444746] text-center hover:bg-orange-100 transition-all cursor-default flex items-center justify-center"
-                            >
+                            <div key={tool} className="w-full h-full p-3 rounded-xl bg-orange-50/30 border border-orange-100 text-sm font-medium text-[#444746] text-center hover:bg-orange-100 transition-all cursor-default flex items-center justify-center">
                                 {tool}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Architecture - Green Flavor - FIXED HOVER */}
                 <div className="md:col-span-2 tech-card flavor-green reveal-up stagger-3 flex flex-col md:flex-row items-center gap-8">
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-4">
@@ -811,10 +777,7 @@ const TechArsenal = () => {
                         </p>
                         <div className="flex flex-wrap gap-4">
                             {['RISC-V Core', 'Low Power', 'AMBA AXI/APB', 'Neuromorphic'].map((item) => (
-                                <div
-                                    key={item}
-                                    className="flex items-center gap-2 bg-green-50/50 border border-green-100 px-4 py-2 rounded-lg text-[#1F7A43] font-bold text-sm cursor-default hover:bg-green-100 transition-all"
-                                >
+                                <div key={item} className="flex items-center gap-2 bg-green-50/50 border border-green-100 px-4 py-2 rounded-lg text-[#1F7A43] font-bold text-sm cursor-default hover:bg-green-100 transition-all">
                                     <CheckCircle2 size={14} /> {item}
                                 </div>
                             ))}
@@ -830,7 +793,6 @@ const TechArsenal = () => {
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
     );
@@ -838,58 +800,95 @@ const TechArsenal = () => {
 
 /* --- JOURNEY (Bento Circuit Grid) --- */
 const Journey = () => {
-    // Bento-style Circuit Grid with clear Chronology
+    const [expandedId, setExpandedId] = useState(null);
+
+    const toggleExpand = (id) => {
+        setExpandedId(expandedId === id ? null : id);
+    };
+
     const experiences = [
         {
+            id: "exp1",
             role: "Programmer Analyst",
             company: "Cognizant Technology Solutions",
             duration: "Aug 2024 - Present",
-            desc: "Automated business workflows using APPIAN low-code.",
+            desc: "Automated key business workflows using APPIAN low-code platform. Collaborated on cross-functional projects to optimize enterprise processes.",
             color: "border-l-[#0B57D0]",
-            bg: "bg-blue-50/30"
+            bg: "bg-blue-50/30",
+            details: [
+                "Automated key business workflows within the Intelligent Process Management team by developing and deploying solutions on the APPIAN low-code platform.",
+                "Collaborated on cross-functional projects to analyze and optimize enterprise-level processes, contributing to enhanced business efficiency."
+            ]
         },
         {
+            id: "exp2",
             role: "Jr. Design Verification Eng.",
             company: "Insemi Technology Services",
             duration: "Jul 2023 - Oct 2023",
-            desc: "UVM testbench for Dual-Port RAM, 100% coverage.",
+            desc: "Developed UVM testbench for Dual-Port RAM with 100% functional coverage. Analyzed protocol compliance using SystemVerilog assertions.",
             color: "border-l-[#34A853]",
-            bg: "bg-green-50/30"
+            bg: "bg-green-50/30",
+            details: [
+                "Developed a comprehensive UVM testbench to validate a Dual-Port RAM design, creating constrained-random test cases that achieved 100% functional coverage.",
+                "Analyzed protocol compliance by writing SystemVerilog assertions and functional coverage, successfully identifying and debugging design flaws."
+            ]
         },
         {
+            id: "exp3",
             role: "Intern",
             company: "Maven Silicon",
             duration: "Dec 2022 - Jan 2023",
-            desc: "Designed AMBA AHB-APB bridge in Verilog.",
+            desc: "Designed AMBA AHB-APB bridge in Verilog. Deepened understanding of FSM architecture and module integration.",
             color: "border-l-[#FBBC04]",
-            bg: "bg-yellow-50/30"
+            bg: "bg-yellow-50/30",
+            details: [
+                "Deepened understanding of digital and system-level design fundamentals, especially finite state machine (FSM) architecture, and enhanced practical skills in module integration and testbench planning.",
+                "Designed and implemented a compliant AMBA AHB-APB bridge in Verilog to manage communication between high- and low-frequency SoC subsystems."
+            ]
         },
         {
+            id: "exp4",
             role: "Intern",
             company: "CoreEl Technologies",
             duration: "Jun 2022 - Jul 2022",
-            desc: "SystemVerilog testbench for full adder DUT.",
+            desc: "Built SystemVerilog testbench for full adder DUT. Achieved 100% coverage through rigorous assertion-based verification.",
             color: "border-l-[#EA4335]",
-            bg: "bg-red-50/30"
+            bg: "bg-red-50/30",
+            details: [
+                "Learned SystemVerilog verification workflows, building key testbench components—drivers, monitors, scoreboards, assertions—and applied digital design principles for module development.",
+                "Developed and validated a SystemVerilog testbench for a full adder DUT, achieving 100% functional and code coverage through rigorous assertion-based verification."
+            ]
         }
     ];
 
     const education = [
         {
+            id: "edu1",
             degree: "PG Advanced Cert. in VLSI",
             school: "IISc Bangalore",
             year: "2024",
             score: "80% Score",
             icon: GraduationCap,
-            color: "text-[#0D3818]"
+            color: "border-l-[#0D3818]",
+            iconColor: "text-[#0D3818]",
+            details: [
+                "Completed an intensive 11-month program, achieving an 80% overall score.",
+                "Relevant Coursework: Analog & Digital Integrated Circuit Design, Advanced Digital Design & FPGA-based Design, RISC-V Architecture."
+            ]
         },
         {
+            id: "edu2",
             degree: "B.Tech, Electronics & Comm.",
             school: "SRM Institute",
             year: "2019 - 2023",
             score: "9.4 CGPA",
             icon: BookOpen,
-            color: "text-[#1F1F1F]"
+            color: "border-l-[#1F1F1F]",
+            iconColor: "text-[#1F1F1F]",
+            details: [
+                "Graduated with a CGPA of 9.4/10.0.",
+                "Relevant Coursework: Digital Design, ARM-based Embedded System Design, VLSI Design Methodology."
+            ]
         }
     ];
 
@@ -912,9 +911,9 @@ const Journey = () => {
 
                         <div className="relative border-l-2 border-dashed border-gray-200 ml-4 pl-8 space-y-8">
                             {experiences.map((exp, i) => (
-                                <div key={i} className={`relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 hover-card border-l-4 ${exp.color} reveal-up stagger-${i + 1}`}>
-                                    {/* Circuit Node */}
-                                    <div className="absolute -left-[41px] top-6 w-5 h-5 bg-white border-4 border-gray-300 rounded-full"></div>
+                                <div key={exp.id} className={`group relative bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 hover-card border-l-4 ${exp.color} reveal-up stagger-${i + 1}`}>
+                                    {/* Timeline Circle - Interactive */}
+                                    <div className="absolute -left-[41px] top-6 w-5 h-5 bg-white border-4 border-gray-300 rounded-full transition-all duration-300 group-hover:border-[#0B57D0] group-hover:scale-125 group-hover:shadow-[0_0_0_4px_rgba(11,87,208,0.2)]"></div>
 
                                     <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
                                         <div>
@@ -924,6 +923,24 @@ const Journey = () => {
                                         <span className="text-xs font-bold uppercase tracking-wider bg-gray-100 px-2 py-1 rounded text-gray-600 whitespace-nowrap">{exp.duration}</span>
                                     </div>
                                     <p className="text-sm text-[#444746] leading-relaxed mt-2">{exp.desc}</p>
+
+                                    <button
+                                        onClick={() => toggleExpand(exp.id)}
+                                        className="mt-4 text-xs font-bold text-[#0B57D0] flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded hover:bg-blue-50 transition-colors"
+                                    >
+                                        {expandedId === exp.id ? "Show Less" : "View Details"}
+                                        {expandedId === exp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                    </button>
+
+                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === exp.id ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                        <div className="overflow-hidden">
+                                            <ul className="list-disc pl-4 space-y-2">
+                                                {exp.details.map((detail, idx) => (
+                                                    <li key={idx} className="text-sm text-[#444746] leading-relaxed">{detail}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -936,12 +953,17 @@ const Journey = () => {
                             <h3 className="text-2xl font-bold text-[#1F1F1F]">Education Core</h3>
                         </div>
 
-                        <div className="grid gap-6">
+                        {/* ADDED TIMELINE STRUCTURE TO EDUCATION */}
+                        <div className="relative border-l-2 border-dashed border-gray-200 ml-4 pl-8 space-y-8">
                             {education.map((edu, i) => (
-                                <div key={i} className="bg-white rounded-[24px] p-8 border border-[#E0E2EC] hover:border-[#34A853] hover:shadow-lg transition-all hover:-translate-y-1 hover-card reveal-up stagger-1 group">
+                                <div key={edu.id} className={`group relative bg-white rounded-[24px] p-8 border border-gray-100 shadow-sm border-l-4 ${edu.color} hover:shadow-lg transition-all hover:-translate-y-1 hover-card reveal-up stagger-1`}>
+
+                                    {/* Timeline Circle - Interactive */}
+                                    <div className="absolute -left-[41px] top-8 w-5 h-5 bg-white border-4 border-gray-300 rounded-full transition-all duration-300 group-hover:border-[#34A853] group-hover:scale-125 group-hover:shadow-[0_0_0_4px_rgba(52,168,83,0.2)]"></div>
+
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                                         <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center ${edu.color} group-hover:scale-110 transition-transform`}>
+                                            <div className={`w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center ${edu.iconColor} group-hover:scale-110 transition-transform`}>
                                                 <edu.icon size={24} />
                                             </div>
                                             <div>
@@ -956,6 +978,24 @@ const Journey = () => {
                                             <div className="h-full bg-[#34A853] w-[90%]"></div>
                                         </div>
                                         <span className="text-sm font-bold text-[#34A853]">{edu.score}</span>
+                                    </div>
+
+                                    <button
+                                        onClick={() => toggleExpand(edu.id)}
+                                        className="mt-6 text-xs font-bold text-[#34A853] flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded hover:bg-green-50 transition-colors"
+                                    >
+                                        {expandedId === edu.id ? "Show Less" : "View Curriculum"}
+                                        {expandedId === edu.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                    </button>
+
+                                    <div className={`grid transition-all duration-500 ease-in-out ${expandedId === edu.id ? 'grid-rows-[1fr] opacity-100 mt-4 pt-4 border-t border-gray-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                        <div className="overflow-hidden">
+                                            <ul className="list-disc pl-4 space-y-2">
+                                                {edu.details.map((detail, idx) => (
+                                                    <li key={idx} className="text-sm text-[#444746] leading-relaxed">{detail}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -1009,10 +1049,11 @@ const Projects = () => {
             category: "Data Integrity",
             img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1067&auto=format&fit=crop",
             desc: "Led development of a novel SEC-DED-DAEC error-correcting module, optimizing reversible logic.",
-            deepContext: "Led development of a novel SEC-DED-DAEC error-correcting module and integrated it into an AHB-APB bridge to ensure data integrity for system-on-chip pathways. Optimized the reversible logic implementation to achieve a 5.67% reduction in power consumption.",
+            deepContext: "Led development of a novel SEC-DED-DAEC error-correcting module and integrated it into an AHB-APB bridge to ensure data integrity for system-on-chip pathways. Optimized the reversible logic implementation to achieve a 5.67% reduction in power consumption. Published in IEEE.",
             keyOutcomes: ["5.67% Power Reduction", "4.52% Delay Imp.", "IEEE"],
             contextHighlights: ["novel SEC-DED-DAEC", "error-correcting module", "AHB-APB bridge", "data integrity", "5.67% reduction in power consumption"],
-            tech: ["Error Correction", "Low-Power"]
+            tech: ["Error Correction", "Low-Power"],
+            link: "https://ieeexplore.ieee.org/document/10134491"
         },
         {
             title: "Hybrid Hack 2021 Finalist",
@@ -1032,16 +1073,9 @@ const Projects = () => {
 
             <div className="space-y-16">
                 {projects.map((project, idx) => (
-                    <div
-                        key={idx}
-                        className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}
-                    >
+                    <div key={idx} className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${idx % 2 === 1 ? 'md:flex-row-reverse' : ''}`}>
                         <div className="w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer" onClick={() => toggleProject(idx)}>
-                            <img
-                                src={project.img}
-                                alt={project.title}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                            />
+                            <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                             <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
                             <div className="absolute bottom-4 right-4 w-12 h-12 bg-white/90 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <ArrowUpRight size={24} className="text-[#1F1F1F]" />
@@ -1050,18 +1084,16 @@ const Projects = () => {
 
                         <div className="w-full md:w-1/2">
                             <div className="text-[#0B57D0] font-bold text-sm tracking-widest uppercase mb-3">{project.category}</div>
-                            {/* FIXED FONT WEIGHT AND TRACKING FOR TITLES */}
                             <h3 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[#1F1F1F] mb-6 brand-font leading-tight">{project.title}</h3>
 
                             <p className="text-lg text-[#444746] leading-relaxed mb-6">
                                 {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
-                                    project.keyOutcomes.some(k => part.includes(k.split(' ')[0])) // Heuristic match
+                                    project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
                                         ? <span key={i} className="imp-text">{part}</span>
                                         : part
                                 )}
                             </p>
 
-                            {/* HOVERABLE TAGS */}
                             <div className="flex flex-wrap gap-2 mb-8">
                                 {project.tech.map(t => (
                                     <span key={t} className="interactive-tag px-3 py-1 bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] text-sm font-medium rounded-lg hover:bg-[#0B57D0] hover:text-white transition-all cursor-default">
@@ -1070,18 +1102,21 @@ const Projects = () => {
                                 ))}
                             </div>
 
-                            <button
-                                onClick={() => toggleProject(idx)}
-                                className="group flex items-center gap-2 text-[#1F1F1F] font-bold text-lg border-b-2 border-[#E0E2EC] hover:border-[#0B57D0] transition-all pb-1 click-scale"
-                            >
-                                {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
-                                <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => toggleProject(idx)} className="group flex items-center gap-2 text-[#1F1F1F] font-bold text-lg border-b-2 border-[#E0E2EC] hover:border-[#0B57D0] transition-all pb-1 click-scale">
+                                    {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
+                                    <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
+                                </button>
+                                {project.link && (
+                                    <a href={project.link} target="_blank" rel="noopener noreferrer" className="group flex items-center gap-2 text-[#0B57D0] font-bold text-lg border-b-2 border-transparent hover:border-[#0B57D0] transition-all pb-1 click-scale">
+                                        Read Paper <ExternalLink size={18} />
+                                    </a>
+                                )}
+                            </div>
 
                             <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
                                 <div className="p-8 bg-[#F8FAFC] rounded-[24px] border border-gray-100 shadow-inner border-l-4 border-l-[#0B57D0]">
                                     <h4 className="text-xs font-bold text-[#444746] uppercase tracking-wider mb-3">Key Outcomes</h4>
-                                    {/* HOVERABLE TAGS IN EXPANDED VIEW */}
                                     <div className="flex flex-wrap gap-3 mb-4">
                                         {project.keyOutcomes.map(tag => (
                                             <span key={tag} className="interactive-tag px-3 py-1.5 bg-blue-50 text-[#0B57D0] text-sm font-bold rounded-lg border border-blue-100 hover:bg-[#0B57D0] hover:text-white transition-all cursor-default">
@@ -1110,14 +1145,13 @@ const Projects = () => {
 const TheVault = () => {
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="patents">
-            <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-16 brand-font text-center reveal-up">Intellectual Property</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-16 brand-font text-center reveal-up">Intellectual Property & Research</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
 
-                {/* Patent Card - Navy Blue Enterprise Look - FIXED HOVER */}
+                {/* Patent Card - Navy Blue Enterprise Look */}
                 <div className="bg-[#1e293b] text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group hover:transform hover:scale-[1.02] transition-all duration-500 reveal-up border border-[#334155] hover-card">
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#3b82f6]/10 to-transparent pointer-events-none"></div>
-
                     <div className="relative z-10">
                         <div className="flex justify-between items-start mb-8">
                             <div className="p-4 bg-[#334155] rounded-2xl border border-[#475569]">
@@ -1127,14 +1161,11 @@ const TheVault = () => {
                                 <CheckCircle2 size={12} /> Granted Patent
                             </div>
                         </div>
-
                         <h3 className="text-3xl font-bold mb-4 brand-font leading-tight text-white">Autonomous Vehicle Safety System</h3>
                         <div className="font-mono text-3xl sm:text-4xl text-[#60a5fa] mb-6 font-bold tracking-tight">IN 564400</div>
-
                         <p className="text-slate-300 text-lg leading-relaxed mb-8 border-l-4 border-[#60a5fa] pl-6">
                             Dual-processor architecture monitoring vital signs to trigger autonomous takeover.
                         </p>
-
                         <div className="flex justify-between items-end">
                             <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">March 2025</div>
                             <div className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors cursor-pointer">
@@ -1144,32 +1175,42 @@ const TheVault = () => {
                     </div>
                 </div>
 
-                {/* Papers Stack */}
+                {/* Papers Stack - MODIFIED LINKS */}
                 <div className="space-y-6 reveal-up" style={{ transitionDelay: '100ms' }}>
-                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#0B57D0] transition-colors shadow-sm group cursor-pointer hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
+                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#0B57D0] transition-colors shadow-sm group hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
                         <div className="absolute right-0 top-0 w-24 h-24 bg-blue-50 rounded-bl-[100px] -z-0 transition-transform group-hover:scale-150"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="px-3 py-1 bg-blue-100 text-[#0B57D0] text-[10px] font-bold uppercase rounded-full tracking-wider">IEEE Published</span>
                             </div>
-                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3 group-hover:text-[#0B57D0] transition-colors">Error Correction in SoC</h4>
-                            <p className="text-sm text-[#444746] mb-4">Reversible logic-based error detection and correction.</p>
-                            <div className="flex items-center gap-2 text-lg font-mono text-[#0B57D0] font-bold">
-                                <FileText size={20} /> RAEEUCCI 2023
+                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3">Error Correction in SoC</h4>
+                            <p className="text-sm text-[#444746] mb-4">
+                                Implemented <span className="imp-text">reversible logic</span> based error detection and correction for AHB-APB bridge. Optimized for <span className="imp-text">low power</span> consumption.
+                            </p>
+                            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                                <div className="text-lg font-mono text-[#0B57D0] font-bold">RAEEUCCI 2023</div>
+                                <a href="https://ieeexplore.ieee.org/document/10134491" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#0B57D0] flex items-center gap-1 hover:underline bg-blue-50 px-3 py-1.5 rounded-full">
+                                    Read Paper <ArrowUpRight size={12} />
+                                </a>
                             </div>
                         </div>
                     </div>
 
-                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#34A853] transition-colors shadow-sm group cursor-pointer hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
+                    <div className="bg-white p-8 rounded-[32px] border border-[#E0E2EC] hover:border-[#34A853] transition-colors shadow-sm group hover:shadow-xl hover:-translate-y-2 duration-300 relative overflow-hidden hover-card">
                         <div className="absolute right-0 top-0 w-24 h-24 bg-green-50 rounded-bl-[100px] -z-0 transition-transform group-hover:scale-150"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-4">
                                 <span className="px-3 py-1 bg-green-100 text-[#1F7A43] text-[10px] font-bold uppercase rounded-full tracking-wider">International Journal</span>
                             </div>
-                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3 group-hover:text-[#1F7A43] transition-colors">IoT Healthcare Systems</h4>
-                            <p className="text-sm text-[#444746] mb-4">Comprehensive survey on affordable IoT architecture.</p>
-                            <div className="flex items-center gap-2 text-lg font-mono text-[#1F7A43] font-bold">
-                                <FileText size={20} /> GIJET 2022
+                            <h4 className="text-2xl font-bold text-[#1F1F1F] mb-3">IoT Healthcare Systems</h4>
+                            <p className="text-sm text-[#444746] mb-4">
+                                Comprehensive survey on <span className="imp-text">affordable IoT architecture</span> for remote patient monitoring and healthcare access.
+                            </p>
+                            <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">
+                                <div className="text-lg font-mono text-[#1F7A43] font-bold">GIJET 2022</div>
+                                <a href="https://thegrenze.com/index.php?display=page&view=journalabstract&absid=1238&id=8" target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-[#1F7A43] flex items-center gap-1 hover:underline bg-green-50 px-3 py-1.5 rounded-full">
+                                    Read Paper <ArrowUpRight size={12} />
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -1179,7 +1220,7 @@ const TheVault = () => {
     );
 };
 
-/* --- IDLE CYCLES (Clean Hover) --- */
+/* --- IDLE CYCLES (Clean Hover + Flair) --- */
 const IdleCycles = () => {
     return (
         <section className="py-24 bg-[#FAFAFA]" id="lifestyle">
@@ -1191,15 +1232,22 @@ const IdleCycles = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
                     {[
-                        { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: 'text-[#EA4335]' },
-                        { title: 'Music', sub: 'Curating playlists', icon: Music, color: 'text-[#FBBC04]' },
-                        { title: 'eSports', sub: 'Competitive analysis', icon: Monitor, color: 'text-[#0B57D0]' },
-                        { title: 'Cricket', sub: 'On-field strategy', icon: Activity, color: 'text-[#34A853]' }
+                        { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: 'text-[#EA4335]', bg: 'group-hover:bg-[#FEF2F2]' },
+                        { title: 'Music', sub: 'Curating playlists', icon: Music, color: 'text-[#FBBC04]', bg: 'group-hover:bg-[#FFFBEB]' },
+                        { title: 'eSports', sub: 'Competitive analysis', icon: Monitor, color: 'text-[#0B57D0]', bg: 'group-hover:bg-[#EFF6FF]' },
+                        { title: 'Cricket', sub: 'On-field strategy', icon: Activity, color: 'text-[#34A853]', bg: 'group-hover:bg-[#F0FDF4]' }
                     ].map((item, i) => (
-                        <div key={i} className="aspect-[4/3] bg-white rounded-[32px] flex flex-col items-center justify-center p-6 hover:shadow-xl transition-all duration-300 border border-gray-100 cursor-default group hover:scale-105 hover-card">
-                            <item.icon size={32} className={`${item.color} mb-4 transition-transform group-hover:scale-110`} />
-                            <span className="font-bold text-[#1F1F1F] text-lg">{item.title}</span>
-                            <span className="text-sm text-[#444746] mt-1">{item.sub}</span>
+                        <div key={i} className={`aspect-[4/3] bg-white rounded-[32px] flex flex-col items-center justify-center p-6 hover:shadow-xl transition-all duration-500 border border-gray-100 cursor-default group hover:-translate-y-2 relative overflow-hidden ${item.bg}`}>
+                            {/* Flashing Background Icon */}
+                            <item.icon className={`absolute -bottom-8 -right-8 w-32 h-32 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rotate-12 ${item.color}`} />
+
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className={`p-4 rounded-full bg-gray-50 group-hover:bg-white transition-colors duration-300 mb-4 shadow-sm`}>
+                                    <item.icon size={32} className={`${item.color} transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110`} />
+                                </div>
+                                <span className="font-bold text-[#1F1F1F] text-lg">{item.title}</span>
+                                <span className="text-sm text-[#444746] mt-1 text-center">{item.sub}</span>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -1214,36 +1262,34 @@ const Contact = ({ showTop }) => {
 
     return (
         <footer className="bg-white py-20 border-t border-gray-100 relative" id="contact">
-            <div className="max-w-[1000px] mx-auto px-6 text-center reveal-up">
-                <div className="w-20 h-20 bg-[#F2F6FC] rounded-3xl flex items-center justify-center mx-auto mb-8 text-[#0B57D0] animate-float shadow-sm">
-                    <Mail size={40} />
+            <div className="max-w-[800px] mx-auto px-6 text-center reveal-up">
+                <div className="w-16 h-16 bg-[#F2F6FC] rounded-2xl flex items-center justify-center mx-auto mb-8 text-[#0B57D0] animate-float shadow-sm">
+                    <Send size={32} />
                 </div>
 
-                <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-6 brand-font">Let's build next-gen silicon.</h2>
-                <p className="text-xl text-[#444746] max-w-xl mx-auto mb-16">
-                    Open to collaborations on VLSI research, hardware innovation, and next-gen computing challenges.
+                <h2 className="text-3xl md:text-4xl font-bold text-[#1F1F1F] mb-6 brand-font leading-tight">
+                    Open for interesting conversations.
+                </h2>
+                <p className="text-lg text-[#444746] max-w-lg mx-auto mb-12 leading-relaxed">
+                    Whether it's about the future of RISC-V, a game of cricket, or just saying hello—my inbox is always open.
                 </p>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                    <a href="mailto:rajeevmarada02@gmail.com" className="px-8 py-4 bg-[#1F1F1F] text-white rounded-full font-bold text-lg hover:bg-[#0B57D0] transition-colors shadow-lg shadow-blue-900/10 w-full sm:w-auto click-scale">
-                        rajeevmarada02@gmail.com
+                    <a href="mailto:rajeevmarada02@gmail.com" className="px-8 py-3 bg-[#1F1F1F] text-white rounded-xl font-medium text-base hover:bg-[#333] transition-all shadow-lg shadow-gray-200 w-full sm:w-auto hover:-translate-y-1">
+                        Say Hello
                     </a>
-                    <div className="flex gap-4">
-                        <a href="https://linkedin.com/in/rajeevmarada" className="w-14 h-14 flex items-center justify-center rounded-full border border-gray-200 text-[#444746] hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5] transition-all click-scale">
-                            <Linkedin size={24} />
+                    <div className="flex gap-3">
+                        <a href="https://linkedin.com/in/rajeevmarada" className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 text-[#444746] hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5] transition-all hover:-translate-y-1">
+                            <Linkedin size={20} />
                         </a>
-                        <a href="https://github.com/RajeevMarada" className="w-14 h-14 flex items-center justify-center rounded-full border border-gray-200 text-[#444746] hover:bg-[#1F1F1F] hover:text-white hover:border-[#1F1F1F] transition-all click-scale">
-                            <Github size={24} />
+                        <a href="https://github.com/RajeevMarada" className="w-12 h-12 flex items-center justify-center rounded-xl border border-gray-200 text-[#444746] hover:bg-[#1F1F1F] hover:text-white hover:border-[#1F1F1F] transition-all hover:-translate-y-1">
+                            <Github size={20} />
                         </a>
                     </div>
                 </div>
 
-                <div className="text-sm text-[#444746] flex flex-col md:flex-row items-center justify-center gap-6">
+                <div className="text-xs text-gray-400 flex flex-col md:flex-row items-center justify-center gap-6 uppercase tracking-widest font-bold">
                     <span>© 2025 Rajeev Marada</span>
-                    <span className="hidden md:inline text-gray-300">•</span>
-                    <span className="flex items-center gap-2">
-                        <MapPin size={14} /> Bangalore, India
-                    </span>
                 </div>
             </div>
 
@@ -1277,7 +1323,6 @@ const App = () => {
                     isExiting={isLoaded}
                     onComplete={() => {
                         setIsLoaded(true);
-                        // Wait for fade out animation (700ms) before unmounting
                         setTimeout(() => setIsLoading(false), 700);
                     }}
                 />
