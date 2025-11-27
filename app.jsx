@@ -156,7 +156,7 @@ const FontStyles = () => (
       animation: pulse-glow 3s infinite;
     }
 
-    /* IMPROVED HIGHLIGHTER */
+    /* IMPROVED HIGHLIGHTER (Light Mode) */
     .imp-text {
       position: relative;
       font-weight: 700; 
@@ -181,6 +181,34 @@ const FontStyles = () => (
     }
     
     .imp-text:hover::after {
+      width: 100%; 
+    }
+
+    /* IMPROVED HIGHLIGHTER (Dark Mode for Patent Card) */
+    .imp-text-dark {
+      position: relative;
+      font-weight: 700; 
+      color: #FFFFFF;
+      cursor: default;
+      display: inline-block;
+      z-index: 1;
+      transition: color 0.2s ease;
+    }
+    
+    .imp-text-dark::after {
+      content: '';
+      position: absolute;
+      width: 0%; 
+      height: 3px;
+      bottom: 1px;
+      left: 0;
+      background-color: #60a5fa; /* Blue-400 */
+      opacity: 0.6;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: -1;
+    }
+    
+    .imp-text-dark:hover::after {
       width: 100%; 
     }
 
@@ -1143,16 +1171,20 @@ const Projects = () => {
 
 /* --- WHITEPAPERS & IP (Slate/Navy Theme) --- */
 const TheVault = () => {
+    const [isPatentOpen, setIsPatentOpen] = useState(false);
+
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="patents">
             <h2 className="text-4xl md:text-5xl font-bold text-[#1F1F1F] mb-16 brand-font text-center reveal-up">Intellectual Property & Research</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
 
-                {/* Patent Card - Navy Blue Enterprise Look */}
-                <div className="bg-[#1e293b] text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group hover:transform hover:scale-[1.02] transition-all duration-500 reveal-up border border-[#334155] hover-card">
+                {/* Patent Card - Navy Blue Enterprise Look 
+                    FIX: Removed row-span-2 dynamic class which caused layout breaking.
+                */}
+                <div className={`bg-[#1e293b] text-white p-10 rounded-[40px] shadow-2xl relative overflow-hidden group hover:transform transition-all duration-500 reveal-up border border-[#334155] hover-card`}>
                     <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#3b82f6]/10 to-transparent pointer-events-none"></div>
-                    <div className="relative z-10">
+                    <div className="relative z-10 flex flex-col h-full">
                         <div className="flex justify-between items-start mb-8">
                             <div className="p-4 bg-[#334155] rounded-2xl border border-[#475569]">
                                 <Award size={40} className="text-[#60a5fa] animate-pulse-soft" />
@@ -1166,12 +1198,74 @@ const TheVault = () => {
                         <p className="text-slate-300 text-lg leading-relaxed mb-8 border-l-4 border-[#60a5fa] pl-6">
                             Dual-processor architecture monitoring vital signs to trigger autonomous takeover.
                         </p>
-                        <div className="flex justify-between items-end">
+
+                        {/* Interactive Footer Area */}
+                        <div className="flex justify-between items-end mt-auto">
                             <div className="text-sm text-slate-400 font-bold uppercase tracking-widest">March 2025</div>
-                            <div className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors cursor-pointer">
-                                <ArrowUpRight size={24} />
+                            <button
+                                onClick={() => setIsPatentOpen(!isPatentOpen)}
+                                className="flex items-center gap-2 px-6 py-3 bg-[#60a5fa] hover:bg-[#3b82f6] text-[#0f172a] font-bold rounded-xl transition-all click-scale"
+                            >
+                                {isPatentOpen ? 'Close Blueprint' : 'Inspect System'}
+                                <ChevronDown size={18} className={`transition-transform duration-300 ${isPatentOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                        </div>
+
+                        {/* Expanded Content Area 
+                             FIX: Added max-h and overflow-y-auto to keep content within card size.
+                         */}
+                        <div className={`grid transition-all duration-700 ease-in-out ${isPatentOpen ? 'grid-rows-[1fr] opacity-100 mt-8 pt-8 border-t border-[#334155]' : 'grid-rows-[0fr] opacity-0'}`}>
+                            <div className="overflow-hidden space-y-8 max-h-[500px] overflow-y-auto pr-2">
+                                {/* Section 1: The Elevator Pitch */}
+                                <div>
+                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-2">The Concept</h4>
+                                    <p className="text-slate-300 leading-relaxed text-sm">
+                                        An autonomous fail-safe system designed to intervene during sudden <span className="imp-text-dark">driver incapacitation</span>. Unlike standard ADAS that looks for drowsiness, this system monitors <span className="imp-text-dark">physiological data</span> to detect acute medical emergencies (e.g., cardiac arrest, seizures) and autonomously navigates the vehicle to safety.
+                                    </p>
+                                </div>
+
+                                {/* Section 2: Novelty */}
+                                <div>
+                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-2">The Novelty</h4>
+                                    <p className="text-slate-300 leading-relaxed text-sm">
+                                        Existing systems focus on driver behavior (eye movement, head tilt). This patent introduces a <span className="imp-text-dark">Resolution Module</span> based on vital parameters. It uniquely distinguishes between <span className="imp-text-dark">'Moderate' and 'Critical' states</span>, enabling context-aware decisions: it doesn't just stop the car; it intelligently decides whether to pull over safely or <span className="imp-text-dark">re-route directly to the nearest hospital</span> based on the severity of the medical event.
+                                    </p>
+                                </div>
+
+                                {/* Section 3: Mechanism */}
+                                <div>
+                                    <h4 className="text-[#60a5fa] font-bold uppercase tracking-widest text-sm mb-4">System Architecture</h4>
+                                    <ul className="space-y-4">
+                                        <li className="flex gap-4">
+                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">01</div>
+                                            <div>
+                                                <span className="font-bold text-white block mb-1">Sense</span>
+                                                <span className="text-slate-400 text-sm">Continuous bio-feedback monitoring (Pulse, IR, Ultrasonic sensors) feeds data to a dual-processor control unit (Arduino + Raspberry Pi).</span>
+                                            </div>
+                                        </li>
+                                        <li className="flex gap-4">
+                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">02</div>
+                                            <div>
+                                                <span className="font-bold text-white block mb-1">Analyze</span>
+                                                <span className="text-slate-400 text-sm">The system compares real-time vitals against a repository of pre-set medical rules.</span>
+                                            </div>
+                                        </li>
+                                        <li className="flex gap-4">
+                                            <div className="w-8 h-8 rounded-full bg-[#334155] flex items-center justify-center text-[#60a5fa] shrink-0 font-bold text-xs">03</div>
+                                            <div>
+                                                <span className="font-bold text-white block mb-1">Takeover & Resolve</span>
+                                                <span className="text-slate-400 text-sm">
+                                                    If a threshold is breached, the Takeover Module overrides manual control.
+                                                    <br /><span className="text-[#60a5fa] text-xs uppercase font-bold mt-1 inline-block">Moderate:</span> Auto-drive to roadside.
+                                                    <br /><span className="text-[#ef4444] text-xs uppercase font-bold mt-1 inline-block">Critical:</span> Auto-drive to hospital.
+                                                </span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
