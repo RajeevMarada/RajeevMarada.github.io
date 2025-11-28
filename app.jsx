@@ -138,10 +138,10 @@ const FontStyles = () => (
     @media (max-width: 767px) { ::-webkit-scrollbar { width: 0px; background: transparent; } }
 
     /* CUSTOM COMPONENT SCROLLBAR (Patents etc) */
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
-    body.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.8); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+    body.light .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
     /* ANIMATIONS */
@@ -767,7 +767,7 @@ const Journey = ({ theme }) => {
             duration: "Aug 2024 - Present",
             desc: "Automated key business workflows using APPIAN low-code platform. Collaborated on cross-functional projects to optimize enterprise processes.",
             borderColorHex: isDark ? "#3b82f6" : "#0B57D0",
-            dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
+            dotColorClass: isDark ? "border-blue-500" : "border-[#0B57D0]",
             bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
             buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
             details: ["Automated key business workflows.", "Collaborated on cross-functional projects."]
@@ -779,7 +779,7 @@ const Journey = ({ theme }) => {
             duration: "Jul 2023 - Oct 2023",
             desc: "Developed UVM testbench for Dual-Port RAM with 100% functional coverage. Analyzed protocol compliance using SystemVerilog assertions.",
             borderColorHex: isDark ? "#22c55e" : "#34A853",
-            dotColorClass: isDark ? "bg-green-500" : "bg-[#34A853]",
+            dotColorClass: isDark ? "border-green-500" : "border-[#34A853]",
             bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
             buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#34A853] hover:bg-green-50",
             details: ["Developed comprehensive UVM testbench.", "Analyzed protocol compliance."]
@@ -791,7 +791,7 @@ const Journey = ({ theme }) => {
             duration: "Dec 2022 - Jan 2023",
             desc: "Designed AMBA AHB-APB bridge in Verilog. Deepened understanding of FSM architecture.",
             borderColorHex: isDark ? "#eab308" : "#FBBC04",
-            dotColorClass: isDark ? "bg-yellow-500" : "bg-[#FBBC04]",
+            dotColorClass: isDark ? "border-yellow-500" : "border-[#FBBC04]",
             bg: isDark ? "bg-yellow-900/10" : "bg-yellow-50/30",
             buttonColor: isDark ? "text-yellow-400 hover:bg-yellow-900/20" : "text-[#FBBC04] hover:bg-yellow-50",
             details: ["Deepened understanding of digital design.", "Designed AMBA AHB-APB bridge."]
@@ -803,7 +803,7 @@ const Journey = ({ theme }) => {
             duration: "Jun 2022 - Jul 2022",
             desc: "Built SystemVerilog testbench for full adder DUT. Achieved 100% coverage.",
             borderColorHex: isDark ? "#ef4444" : "#EA4335",
-            dotColorClass: isDark ? "bg-red-500" : "bg-[#EA4335]",
+            dotColorClass: isDark ? "border-red-500" : "border-[#EA4335]",
             bg: isDark ? "bg-red-900/10" : "bg-red-50/30",
             buttonColor: isDark ? "text-red-400 hover:bg-red-900/20" : "text-[#EA4335] hover:bg-red-50",
             details: ["Learned SystemVerilog verification.", "Developed SV testbench."]
@@ -819,10 +819,10 @@ const Journey = ({ theme }) => {
             score: "80% Score",
             icon: GraduationCap,
             borderColorHex: isDark ? "#16a34a" : "#16a34a",
-            dotColorClass: isDark ? "bg-green-600" : "bg-[#0D3818]",
-            iconColor: isDark ? "text-green-400" : "text-[#0D3818]",
+            dotColorClass: isDark ? "border-green-500" : "border-[#16a34a]",
+            iconColor: isDark ? "text-green-400" : "text-[#16a34a]",
             bg: isDark ? "bg-green-900/10" : "bg-green-50/30",
-            buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#0D3818] hover:bg-green-50",
+            buttonColor: isDark ? "text-green-400 hover:bg-green-900/20" : "text-[#16a34a] hover:bg-green-50",
             barColor: isDark ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-[#34A853]',
             barScoreColor: isDark ? 'text-green-400' : 'text-[#34A853]',
             details: ["Intensive 11-month program.", "Coursework: Analog/Digital IC Design, RISC-V."]
@@ -835,7 +835,7 @@ const Journey = ({ theme }) => {
             score: "9.4 CGPA",
             icon: BookOpen,
             borderColorHex: isDark ? "#3b82f6" : "#0B57D0",
-            dotColorClass: isDark ? "bg-blue-500" : "bg-[#0B57D0]",
+            dotColorClass: isDark ? "border-blue-500" : "border-[#0B57D0]",
             iconColor: isDark ? "text-blue-400" : "text-[#0B57D0]",
             bg: isDark ? "bg-blue-900/10" : "bg-blue-50/30",
             buttonColor: isDark ? "text-blue-400 hover:bg-blue-900/20" : "text-[#0B57D0] hover:bg-blue-50",
@@ -866,8 +866,8 @@ const Journey = ({ theme }) => {
                                     className={`group relative rounded-2xl p-6 border shadow-sm hover:shadow-md hover:-translate-y-1 hover-card border-l-[6px] reveal-up stagger-${i + 1} bg-card border-std`}
                                     style={{ borderLeftColor: exp.borderColorHex }}
                                 >
-                                    <div className={`absolute -left-[43px] top-6 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 
-                                        ${expandedId === exp.id ? `scale-125 ${exp.dotColorClass}` : `bg-main border-std group-hover:${exp.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
+                                    <div className={`absolute -left-[43px] top-6 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 bg-main
+                                        ${expandedId === exp.id ? `scale-125 ${exp.dotColorClass}` : `${exp.dotColorClass} group-hover:scale-125`}`}>
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row justify-between items-start mb-2 gap-2">
@@ -905,8 +905,8 @@ const Journey = ({ theme }) => {
                                     className={`group relative rounded-[24px] p-8 border shadow-sm border-l-[6px] hover:shadow-lg hover:-translate-y-1 hover-card reveal-up stagger-1 bg-card border-std`}
                                     style={{ borderLeftColor: edu.borderColorHex }}
                                 >
-                                    <div className={`absolute -left-[43px] top-8 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10
-                                        ${expandedId === edu.id ? `scale-125 ${edu.dotColorClass}` : `bg-main border-std group-hover:${edu.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
+                                    <div className={`absolute -left-[43px] top-8 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 bg-main
+                                        ${expandedId === edu.id ? `scale-125 ${edu.dotColorClass}` : `${edu.dotColorClass} group-hover:scale-125`}`}>
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -917,7 +917,8 @@ const Journey = ({ theme }) => {
                                                 <div className={`text-sec font-medium`}>{edu.school}</div>
                                             </div>
                                         </div>
-                                        <span className={`text-xl font-bold opacity-20 group-hover:opacity-100 transition-opacity font-mono text-sec`}>{edu.year}</span>
+                                        {/* Removed opacity to fix mobile visibility issue */}
+                                        <span className={`text-xl font-bold font-mono text-sec`}>{edu.year}</span>
                                     </div>
                                     <div className="mt-6 flex items-center gap-2">
                                         <div className={`h-1.5 flex-1 rounded-full overflow-hidden ${isDark ? 'bg-gray-800' : 'bg-gray-100'}`}>
