@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
     Menu, X, ChevronRight, ArrowRight, Github, Linkedin, Mail,
-    Cpu, Zap, Activity, Layers,
-    Box, Terminal, Globe, Award, FileText,
-    CircuitBoard, CheckCircle2, ArrowUpRight,
-    BookOpen, Camera, Music, Monitor, Coffee,
-    Calendar, MapPin, MousePointer2, Smartphone, HardDrive,
-    ChevronDown, ArrowUp, Code2, Cpu as Chip,
+    Cpu, Zap, Activity, Layers, Box, Terminal, Globe, Award,
+    FileText, CircuitBoard, CheckCircle2, ArrowUpRight, BookOpen,
+    Camera, Music, Monitor, Coffee, Calendar, MapPin, MousePointer2,
+    Smartphone, HardDrive, ChevronDown, ArrowUp, Code2, Cpu as Chip,
     Briefcase, GraduationCap, MessageSquare, Send, Loader2,
     Copy, Check, HelpCircle, ExternalLink, ChevronUp,
-    Sun, Moon
+    Sun, Moon, Search, Command
 } from 'lucide-react';
 
 /* --- THEME & ANIMATIONS --- */
@@ -17,13 +15,9 @@ const FontStyles = () => (
     <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
     
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
-    /* --- CSS VARIABLES --- */
     :root {
-        /* Default (Light) */
         --bg-main: #FAFAFA;
         --bg-card: #FFFFFF;
         --bg-card-hover: #F2F6FC;
@@ -38,7 +32,6 @@ const FontStyles = () => (
     }
 
     body.dark {
-        /* Dark Mode Overrides */
         --bg-main: #050505;
         --bg-card: #121212;
         --bg-card-hover: #18181b;
@@ -54,103 +47,106 @@ const FontStyles = () => (
 
     /* --- PERFORMANCE OPTIMIZED TRANSITIONS --- */
     body, .bg-card, .hover-card, .dock-container, .dock-item, .interactive-tag, button, a {
-      transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-      transition-duration: 0.3s;
-      transition-timing-function: ease-out;
+        transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+        transition-duration: 0.3s;
+        transition-timing-function: ease-out;
     }
 
     body {
-      font-family: 'Roboto', sans-serif;
-      overflow-x: hidden;
-      cursor: none; 
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      background-color: var(--bg-main);
-      color: var(--text-main);
+        font-family: 'Roboto', sans-serif;
+        overflow-x: hidden;
+        cursor: none; 
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: var(--bg-main);
+        color: var(--text-main);
     }
-    
+
     /* Utility Classes using Vars */
     .bg-main { background-color: var(--bg-main); }
     .bg-card { background-color: var(--bg-card); }
     .text-main { color: var(--text-main); }
     .text-sec { color: var(--text-secondary); }
     .border-std { border-color: var(--border-color); }
+
+    /* ACCESSIBILITY: Focus Styles */
+    :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 4px;
+        border-radius: 4px;
+    }
+    
+    /* ACCESSIBILITY: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+        }
+        .reveal-up { opacity: 1 !important; transform: none !important; }
+    }
+
+    /* PRINT STYLES */
+    @media print {
+        nav, #cursor-follower, .dock-container, button { display: none !important; }
+        body { background: white; color: black; cursor: auto; }
+        a { text-decoration: underline; color: black; }
+        .text-sec { color: #444; }
+        .circuit-bg { display: none; }
+    }
     
     /* --- CUSTOM CURSOR --- */
     #cursor-follower {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate3d(-50%, -50%, 0);
-      will-change: transform; 
-      transition: width 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
-                  height 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
-                  background-color 0.4s, border-color 0.4s;
-      opacity: 0; 
+        position: fixed;
+        top: 0; left: 0;
+        width: 20px; height: 20px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 9999;
+        transform: translate3d(-50%, -50%, 0);
+        will-change: transform; 
+        transition: width 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
+                    height 0.3s cubic-bezier(0.2, 0, 0.2, 1), 
+                    background-color 0.4s, border-color 0.4s;
+        opacity: 0; 
     }
 
-    body.light #cursor-follower {
-        background-color: rgba(11, 87, 208, 0.05); 
-        border: 2px solid rgba(11, 87, 208, 0.5); 
-    }
-
-    body.dark #cursor-follower {
-        background-color: rgba(96, 165, 250, 0.1);
-        border: 2px solid rgba(96, 165, 250, 0.5); 
-        box-shadow: 0 0 15px rgba(96, 165, 250, 0.2);
-    }
-    
+    body.light #cursor-follower { background-color: rgba(11, 87, 208, 0.05); border: 2px solid rgba(11, 87, 208, 0.5); }
+    body.dark #cursor-follower { background-color: rgba(96, 165, 250, 0.1); border: 2px solid rgba(96, 165, 250, 0.5); box-shadow: 0 0 15px rgba(96, 165, 250, 0.2); }
     body:hover #cursor-follower { opacity: 1; }
     body:hover #cursor-follower.hidden-cursor { opacity: 0; }
 
-    /* Interactive Cursor State */
-    a:hover ~ #cursor-follower, 
-    button:hover ~ #cursor-follower, 
-    .click-scale:hover ~ #cursor-follower, 
-    .interactive-tag:hover ~ #cursor-follower,
+    a:hover ~ #cursor-follower, button:hover ~ #cursor-follower, 
+    .click-scale:hover ~ #cursor-follower, .interactive-tag:hover ~ #cursor-follower,
     .cursor-active ~ #cursor-follower {
-      width: 50px;
-      height: 50px;
-      border-color: transparent;
-      background-color: rgba(var(--accent-rgb), 0.15);
+        width: 50px; height: 50px;
+        border-color: transparent;
+        background-color: rgba(var(--accent-rgb), 0.15);
     }
 
-    h1, h2, h3, h4, h5, .brand-font {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-    }
+    h1, h2, h3, h4, h5, .brand-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .mono-font { font-family: 'JetBrains+Mono', monospace; }
 
-    .mono-font {
-      font-family: 'JetBrains+Mono', monospace;
-    }
-
-    /* --- SCROLLBAR --- */
+    /* SCROLLBAR */
     @media (min-width: 768px) {
         ::-webkit-scrollbar { width: 12px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-track); border-left: 1px solid var(--border-color); }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 7px; border: 3px solid var(--scrollbar-track); }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
     }
-    @media (max-width: 767px) {
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-    }
+    @media (max-width: 767px) { ::-webkit-scrollbar { width: 0px; background: transparent; } }
 
-    /* --- ANIMATIONS --- */
-    .reveal-up {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s cubic-bezier(0.2, 0.0, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.0, 0.2, 1);
-      will-change: opacity, transform; 
-    }
-    .reveal-up.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
+    /* CUSTOM COMPONENT SCROLLBAR (Patents etc) */
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 10px; }
+    body.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.8); }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* ANIMATIONS */
+    .reveal-up { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.2, 0.0, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.0, 0.2, 1); will-change: opacity, transform; }
+    .reveal-up.active { opacity: 1; transform: translateY(0); }
     .stagger-1 { transition-delay: 100ms; }
     .stagger-2 { transition-delay: 200ms; }
     .stagger-3 { transition-delay: 300ms; }
@@ -158,113 +154,44 @@ const FontStyles = () => (
 
     @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
     .animate-float { animation: float 6s ease-in-out infinite; will-change: transform; }
-
     @keyframes float-delayed { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
     .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite; will-change: transform; animation-delay: 2s; }
-    
-    @keyframes pulse-glow { 
-        0%, 100% { box-shadow: 0 0 0 0px rgba(var(--accent-rgb), 0.2); } 
-        50% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); } 
-    }
+    @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 0 0px rgba(var(--accent-rgb), 0.2); } 50% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0); } }
     .animate-pulse-soft { animation: pulse-glow 3s infinite; }
 
-    /* IMPROVED HIGHLIGHTER */
-    .imp-text {
-      position: relative;
-      font-weight: 700; 
-      cursor: default;
-      display: inline-block;
-      z-index: 1;
-      color: var(--text-main);
-      transition: color 0.2s ease;
-    }
-    .imp-text::after {
-      content: '';
-      position: absolute;
-      width: 0%; height: 3px; bottom: 1px; left: 0;
-      background-color: var(--accent);
-      opacity: 0.6;
-      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: -1;
-    }
+    /* HIGHLIGHTER */
+    .imp-text { position: relative; font-weight: 700; cursor: default; display: inline-block; z-index: 1; color: var(--text-main); transition: color 0.2s ease; }
+    .imp-text::after { content: ''; position: absolute; width: 0%; height: 3px; bottom: 1px; left: 0; background-color: var(--accent); opacity: 0.6; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: -1; }
     .imp-text:hover::after { width: 100%; }
 
-    .imp-text-dark {
-      position: relative; font-weight: 700; color: #FFFFFF; cursor: default; display: inline-block; z-index: 1; transition: color 0.2s ease;
-    }
-    .imp-text-dark::after {
-      content: ''; position: absolute; width: 0%; height: 3px; bottom: 1px; left: 0; background-color: #60a5fa; opacity: 0.6; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: -1;
-    }
+    .imp-text-dark { position: relative; font-weight: 700; color: #FFFFFF; cursor: default; display: inline-block; z-index: 1; transition: color 0.2s ease; }
+    .imp-text-dark::after { content: ''; position: absolute; width: 0%; height: 3px; bottom: 1px; left: 0; background-color: #60a5fa; opacity: 0.6; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: -1; }
     .imp-text-dark:hover::after { width: 100%; }
 
     /* DOCK */
-    .dock-container {
-        pointer-events: auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border-radius: 9999px;
-        padding: 6px;
-        will-change: transform;
-    }
-    
-    body.light .dock-container {
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #CBD5E1; 
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
-    }
-    body.dark .dock-container {
-        background: rgba(20, 20, 20, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
-    }
-
+    .dock-container { pointer-events: auto; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 9999px; padding: 6px; will-change: transform; }
+    body.light .dock-container { background: rgba(255, 255, 255, 0.9); border: 1px solid #CBD5E1; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); }
+    body.dark .dock-container { background: rgba(20, 20, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
     .dock-container:hover { transform: translateY(-2px); }
 
-    .dock-item {
-      height: 44px;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      background: transparent;
-      padding: 0 12px; 
-      position: relative;
-      cursor: pointer;
-      max-width: 44px; 
-      transition: max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, color 0.4s ease;
-      overflow: hidden;
-      white-space: nowrap;
-      color: var(--text-secondary);
-    }
-    
+    .dock-item { height: 44px; border-radius: 9999px; display: flex; align-items: center; background: transparent; padding: 0 12px; position: relative; cursor: pointer; max-width: 44px; transition: max-width 0.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.4s ease, color 0.4s ease; overflow: hidden; white-space: nowrap; color: var(--text-secondary); }
     .dock-item:hover { max-width: 160px; background-color: var(--bg-card-hover); color: var(--text-main); }
     .dock-active { background-color: var(--text-main) !important; color: var(--bg-main) !important; max-width: 160px; }
-    
     .dock-text { opacity: 0; margin-left: 10px; font-weight: 600; font-size: 0.875rem; transition: opacity 0.2s ease 0.1s; }
     .dock-item:hover .dock-text, .dock-active .dock-text { opacity: 1; }
 
-    /* Interactive Cards */
-    .hover-card { 
-        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease;
-    }
+    .hover-card { transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s ease, border-color 0.3s ease; }
     .hover-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 20px 40px -10px var(--shadow-color); z-index: 10; }
-    
     .click-scale:active { transform: scale(0.96); transition: transform 0.1s; }
 
-    /* Circuit Backgrounds */
     .circuit-bg { transition: background-image 0.4s ease; }
     body.light .circuit-bg { background-image: radial-gradient(#CBD5E1 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom, black 20%, transparent 90%); }
     body.dark .circuit-bg { background-image: radial-gradient(#3f3f46 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(to bottom, black 20%, transparent 90%); }
-    
-    /* Hero Heading Gradient */
+
     .hero-heading { background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; transition: background-image 0.4s ease; }
-    
     body.light .hero-heading { background-image: linear-gradient(to right, #1F1F1F 0%, #0B57D0 50%, #1F1F1F 100%); }
     body.dark .hero-heading { background-image: linear-gradient(to right, #FFFFFF 0%, #0B57D0 50%, #FFFFFF 100%); }
 
-    /* Mobile Dock Overrides */
     @media (max-width: 640px) {
         .dock-container { gap: 2px; padding: 6px; width: 92vw; max-width: 400px; justify-content: space-evenly; }
         .dock-item { padding: 0; justify-content: center; width: 40px; height: 40px; }
@@ -272,7 +199,7 @@ const FontStyles = () => (
         .dock-active { width: 40px; max-width: 40px; padding: 0; justify-content: center; }
         .dock-text { display: none !important; }
     }
-  `}</style>
+    `}</style>
 );
 
 /* --- HOOKS --- */
@@ -329,11 +256,56 @@ const useActiveSection = () => {
         window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
     return { activeSection, showTop };
 };
 
+const useScrollProgress = () => {
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        const updateProgress = () => {
+            const scrollY = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            setProgress(Math.min(100, Math.max(0, (scrollY / docHeight) * 100)));
+        };
+        window.addEventListener('scroll', updateProgress, { passive: true });
+        return () => window.removeEventListener('scroll', updateProgress);
+    }, []);
+    return progress;
+};
+
 /* --- COMPONENTS --- */
+
+const Toast = ({ message, isVisible, onClose, theme }) => {
+    useEffect(() => {
+        if (isVisible) {
+            const timer = setTimeout(onClose, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [isVisible, onClose]);
+
+    const isDark = theme === 'dark';
+
+    return (
+        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full shadow-xl z-[60] flex items-center gap-3 transition-all duration-300 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0 pointer-events-none'} ${isDark ? 'bg-[#27272a] text-white border border-gray-700' : 'bg-white text-gray-900 border border-gray-200'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center ${isDark ? 'bg-green-500/20 text-green-400' : 'bg-green-100 text-green-600'}`}>
+                <Check size={12} />
+            </div>
+            <span className="text-sm font-semibold">{message}</span>
+        </div>
+    );
+};
+
+const ScrollProgress = ({ progress, theme }) => {
+    const isDark = theme === 'dark';
+    return (
+        <div className="fixed top-0 left-0 right-0 h-1 z-[60] pointer-events-none">
+            <div
+                className={`h-full transition-all duration-100 ease-out ${isDark ? 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]' : 'bg-[#0B57D0]'}`}
+                style={{ width: `${progress}%` }}
+            />
+        </div>
+    );
+};
 
 const CustomCursor = () => {
     const cursorRef = useRef(null);
@@ -772,7 +744,7 @@ const TechArsenal = ({ theme }) => {
                             &nbsp;&nbsp;input clk,<br />
                             &nbsp;&nbsp;input rst_n<br />
                             );<br />
-                    // ...
+                            // ...
                         </div>
                     </div>
                 </div>
@@ -846,7 +818,6 @@ const Journey = ({ theme }) => {
             year: "2024",
             score: "80% Score",
             icon: GraduationCap,
-            // Changed light mode color from dark #0D3818 to brighter #16a34a
             borderColorHex: isDark ? "#16a34a" : "#16a34a",
             dotColorClass: isDark ? "bg-green-600" : "bg-[#0D3818]",
             iconColor: isDark ? "text-green-400" : "text-[#0D3818]",
@@ -895,7 +866,6 @@ const Journey = ({ theme }) => {
                                     className={`group relative rounded-2xl p-6 border shadow-sm hover:shadow-md hover:-translate-y-1 hover-card border-l-[6px] reveal-up stagger-${i + 1} bg-card border-std`}
                                     style={{ borderLeftColor: exp.borderColorHex }}
                                 >
-                                    {/* Timeline Circle - Hover Logic Fix */}
                                     <div className={`absolute -left-[43px] top-6 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10 
                                         ${expandedId === exp.id ? `scale-125 ${exp.dotColorClass}` : `bg-main border-std group-hover:${exp.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
                                     </div>
@@ -909,7 +879,6 @@ const Journey = ({ theme }) => {
                                     </div>
                                     <p className={`text-sm leading-relaxed mt-2 text-sec`}>{exp.desc}</p>
 
-                                    {/* Updated Button to use dynamic colors */}
                                     <button onClick={() => toggleExpand(exp.id)} className={`mt-4 text-xs font-bold flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded ${exp.buttonColor}`}>
                                         {expandedId === exp.id ? "Show Less" : "View Details"} {expandedId === exp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                     </button>
@@ -936,7 +905,6 @@ const Journey = ({ theme }) => {
                                     className={`group relative rounded-[24px] p-8 border shadow-sm border-l-[6px] hover:shadow-lg hover:-translate-y-1 hover-card reveal-up stagger-1 bg-card border-std`}
                                     style={{ borderLeftColor: edu.borderColorHex }}
                                 >
-                                    {/* Timeline Circle - Hover Logic Fix */}
                                     <div className={`absolute -left-[43px] top-8 w-5 h-5 border-4 rounded-full transition-all duration-300 z-10
                                         ${expandedId === edu.id ? `scale-125 ${edu.dotColorClass}` : `bg-main border-std group-hover:${edu.dotColorClass} group-hover:border-transparent group-hover:scale-125`}`}>
                                     </div>
@@ -958,7 +926,6 @@ const Journey = ({ theme }) => {
                                         <span className={`text-sm font-bold ${edu.barScoreColor}`}>{edu.score}</span>
                                     </div>
 
-                                    {/* Updated Button to use dynamic colors */}
                                     <button onClick={() => toggleExpand(edu.id)} className={`mt-6 text-xs font-bold flex items-center gap-1 hover:underline uppercase tracking-wide py-1 px-2 -ml-2 rounded ${edu.buttonColor}`}>
                                         {expandedId === edu.id ? "Show Less" : "View Curriculum"} {expandedId === edu.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                                     </button>
@@ -978,6 +945,87 @@ const Journey = ({ theme }) => {
         </section>
     );
 };
+
+const ProjectCard = ({ project, idx, activeProject, toggleProject, isDark }) => {
+    const isRightAligned = idx % 2 === 1;
+    const [imgLoaded, setImgLoaded] = useState(false);
+
+    return (
+        <div className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${isRightAligned ? 'md:flex-row-reverse' : ''}`}>
+            <div className={`w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer ${isDark ? 'border border-[#27272a]' : ''}`} onClick={() => toggleProject(idx)}>
+                {/* Skeleton Loader */}
+                <div className={`absolute inset-0 z-0 bg-gray-200 animate-pulse transition-opacity duration-500 ${imgLoaded ? 'opacity-0' : 'opacity-100'} ${isDark ? 'bg-gray-800' : 'bg-gray-200'}`}></div>
+
+                <img
+                    src={project.img}
+                    alt={project.title}
+                    loading="lazy"
+                    onLoad={() => setImgLoaded(true)}
+                    className={`w-full h-full object-cover relative z-10 transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+                />
+                <div className={`absolute inset-0 z-20 ${isDark ? 'bg-black/40 group-hover:bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
+                <div className={`absolute bottom-4 right-4 z-30 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'bg-black/90 border border-gray-700' : 'bg-white/90'}`}>
+                    <ArrowUpRight size={24} className={isDark ? "text-white" : "text-[#1F1F1F]"} />
+                </div>
+            </div>
+
+            <div className="w-full md:w-1/2">
+                <div className={`font-bold text-sm tracking-widest uppercase mb-3 ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{project.category}</div>
+                <h3 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-6 brand-font leading-tight text-main`}>{project.title}</h3>
+
+                <p className={`text-lg leading-relaxed mb-6 text-sec`}>
+                    {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
+                        project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
+                            ? <span key={i} className="imp-text">{part}</span>
+                            : part
+                    )}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mb-8">
+                    {project.tech.map(t => (
+                        <span key={t} className={`interactive-tag px-3 py-1 text-sm font-medium rounded-lg cursor-default ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
+                            {t}
+                        </span>
+                    ))}
+                </div>
+
+                <div className="flex items-center gap-4 flex-wrap">
+                    <button onClick={() => toggleProject(idx)} className={`group flex items-center gap-2 font-bold text-lg border-b-2 transition-all duration-500 py-2 click-scale ${isDark ? 'text-white border-gray-700 hover:border-blue-500' : 'text-[#1F1F1F] border-[#E0E2EC] hover:border-[#0B57D0]'}`}>
+                        {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
+                        <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
+                    </button>
+                    {project.link && (
+                        <a href={project.link} target="_blank" rel="noopener noreferrer" className={`group flex items-center gap-2 font-bold text-lg border-b-2 border-transparent transition-all duration-500 py-2 click-scale ${isDark ? 'text-blue-400 hover:border-blue-400' : 'text-[#0B57D0] hover:border-[#0B57D0]'}`}>
+                            Read Paper <ExternalLink size={18} />
+                        </a>
+                    )}
+                </div>
+
+                <div className={`grid transition-all duration-700 ease-in-out ${activeProject === idx ? 'grid-rows-[1fr] opacity-100 mt-6' : 'grid-rows-[0fr] opacity-0'}`}>
+                    <div className="overflow-hidden">
+                        <div className={`p-8 rounded-[24px] border shadow-inner ${isRightAligned ? 'border-r-4 border-l-0' : 'border-l-4'} ${isDark ? `bg-[#121212] border-[#27272a] ${isRightAligned ? 'border-r-blue-500' : 'border-l-blue-500'}` : `bg-[#F8FAFC] border-gray-100 ${isRightAligned ? 'border-r-[#0B57D0]' : 'border-l-[#0B57D0]'}`}`}>
+                            <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
+                            <div className="flex flex-wrap gap-3 mb-4">
+                                {project.keyOutcomes.map(tag => (
+                                    <span key={tag} className={`interactive-tag px-3 py-1.5 text-sm font-bold rounded-lg border cursor-default ${isDark ? 'bg-blue-900/20 text-blue-400 border-blue-800/30 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-[#0B57D0] border-blue-100 hover:bg-[#0B57D0] hover:text-white'}`}>
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                            <p className={`text-base leading-relaxed text-sec`}>
+                                {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
+                                    project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
+                                        ? <span key={i} className="imp-text">{part}</span>
+                                        : part
+                                )}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
 
 const Projects = ({ theme }) => {
     const isDark = theme === 'dark';
@@ -1040,77 +1088,19 @@ const Projects = ({ theme }) => {
 
     return (
         <section className="py-24 px-6 max-w-[1400px] mx-auto" id="work">
-            <h2 className={`text-4xl md:text-5xl font-extrabold mb-16 brand-font reveal-up tracking-tight text-main`}>ARCHIVES</h2>
+            <h2 className={`text-4xl md:text-5xl font-extrabold mb-10 brand-font reveal-up tracking-tight text-main`}>ARCHIVES</h2>
 
-            <div className="space-y-16">
-                {projects.map((project, idx) => {
-                    const isRightAligned = idx % 2 === 1;
-                    return (
-                        <div key={idx} className={`flex flex-col md:flex-row gap-12 items-center reveal-up ${isRightAligned ? 'md:flex-row-reverse' : ''}`}>
-                            <div className={`w-full md:w-1/2 aspect-[4/3] rounded-[32px] overflow-hidden shadow-xl relative group hover-card cursor-pointer ${isDark ? 'border border-[#27272a]' : ''}`} onClick={() => toggleProject(idx)}>
-                                <img src={project.img} alt={project.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-90 group-hover:opacity-100" />
-                                <div className={`absolute inset-0 ${isDark ? 'bg-black/40 group-hover:bg-transparent' : 'bg-black/10 group-hover:bg-transparent'}`}></div>
-                                <div className={`absolute bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isDark ? 'bg-black/90 border border-gray-700' : 'bg-white/90'}`}>
-                                    <ArrowUpRight size={24} className={isDark ? "text-white" : "text-[#1F1F1F]"} />
-                                </div>
-                            </div>
-
-                            <div className="w-full md:w-1/2">
-                                <div className={`font-bold text-sm tracking-widest uppercase mb-3 ${isDark ? 'text-blue-400' : 'text-[#0B57D0]'}`}>{project.category}</div>
-                                <h3 className={`text-3xl md:text-4xl font-extrabold tracking-tight mb-6 brand-font leading-tight text-main`}>{project.title}</h3>
-
-                                <p className={`text-lg leading-relaxed mb-6 text-sec`}>
-                                    {project.desc.split(new RegExp(`(${project.keyOutcomes.join('|')})`)).map((part, i) =>
-                                        project.keyOutcomes.some(k => part.includes(k.split(' ')[0]))
-                                            ? <span key={i} className="imp-text">{part}</span>
-                                            : part
-                                    )}
-                                </p>
-
-                                <div className="flex flex-wrap gap-2 mb-8">
-                                    {project.tech.map(t => (
-                                        <span key={t} className={`interactive-tag px-3 py-1 text-sm font-medium rounded-lg cursor-default ${isDark ? 'bg-[#18181b] border border-[#27272a] text-gray-300 hover:bg-blue-600 hover:text-white hover:border-blue-600' : 'bg-[#F2F6FC] border border-[#E0E2EC] text-[#1F1F1F] hover:bg-[#0B57D0] hover:text-white'}`}>
-                                            {t}
-                                        </span>
-                                    ))}
-                                </div>
-
-                                <div className="flex items-center gap-4 flex-wrap">
-                                    <button onClick={() => toggleProject(idx)} className={`group flex items-center gap-2 font-bold text-lg border-b-2 transition-all duration-500 py-2 click-scale ${isDark ? 'text-white border-gray-700 hover:border-blue-500' : 'text-[#1F1F1F] border-[#E0E2EC] hover:border-[#0B57D0]'}`}>
-                                        {activeProject === idx ? 'Close Analysis' : 'View Tech Specs'}
-                                        <ChevronDown size={20} className={`transition-transform duration-300 ${activeProject === idx ? 'rotate-180' : ''}`} />
-                                    </button>
-                                    {project.link && (
-                                        <a href={project.link} target="_blank" rel="noopener noreferrer" className={`group flex items-center gap-2 font-bold text-lg border-b-2 border-transparent transition-all duration-500 py-2 click-scale ${isDark ? 'text-blue-400 hover:border-blue-400' : 'text-[#0B57D0] hover:border-[#0B57D0]'}`}>
-                                            Read Paper <ExternalLink size={18} />
-                                        </a>
-                                    )}
-                                </div>
-
-                                {/* Increased max-height from 500px to 1500px to prevent text cut-off on mobile */}
-                                <div className={`overflow-hidden transition-all duration-500 ease-in-out ${activeProject === idx ? 'max-h-[1500px] opacity-100 mt-6' : 'max-h-0 opacity-0'}`}>
-                                    <div className={`p-8 rounded-[24px] border shadow-inner ${isRightAligned ? 'border-r-4 border-l-0' : 'border-l-4'} ${isDark ? `bg-[#121212] border-[#27272a] ${isRightAligned ? 'border-r-blue-500' : 'border-l-blue-500'}` : `bg-[#F8FAFC] border-gray-100 ${isRightAligned ? 'border-r-[#0B57D0]' : 'border-l-[#0B57D0]'}`}`}>
-                                        <h4 className={`text-xs font-bold uppercase tracking-wider mb-3 text-sec`}>Key Outcomes</h4>
-                                        <div className="flex flex-wrap gap-3 mb-4">
-                                            {project.keyOutcomes.map(tag => (
-                                                <span key={tag} className={`interactive-tag px-3 py-1.5 text-sm font-bold rounded-lg border cursor-default ${isDark ? 'bg-blue-900/20 text-blue-400 border-blue-800/30 hover:bg-blue-600 hover:text-white' : 'bg-blue-50 text-[#0B57D0] border-blue-100 hover:bg-[#0B57D0] hover:text-white'}`}>
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                        <p className={`text-base leading-relaxed text-sec`}>
-                                            {project.deepContext.split(new RegExp(`(${project.contextHighlights.join('|')})`, 'gi')).map((part, i) =>
-                                                project.contextHighlights.some(highlight => highlight.toLowerCase() === part.toLowerCase())
-                                                    ? <span key={i} className="imp-text">{part}</span>
-                                                    : part
-                                            )}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                })}
+            <div className="space-y-16 min-h-[500px]">
+                {projects.map((project, idx) => (
+                    <ProjectCard
+                        key={project.title}
+                        project={project}
+                        idx={idx}
+                        activeProject={activeProject}
+                        toggleProject={toggleProject}
+                        isDark={isDark}
+                    />
+                ))}
             </div>
         </section>
     );
@@ -1152,7 +1142,7 @@ const TheVault = ({ theme }) => {
                         </div>
 
                         <div className={`grid transition-all duration-700 ease-in-out ${isPatentOpen ? `grid-rows-[1fr] opacity-100 mt-8 pt-8 border-t ${isDark ? 'border-blue-900/30' : 'border-[#334155]'}` : 'grid-rows-[0fr] opacity-0'}`}>
-                            <div className="overflow-hidden space-y-8 max-h-[500px] overflow-y-auto pr-2">
+                            <div className="overflow-hidden space-y-8 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
                                 <div>
                                     <h4 className={`font-bold uppercase tracking-widest text-sm mb-2 ${isDark ? 'text-blue-400' : 'text-[#60a5fa]'}`}>The Concept</h4>
                                     <p className={`leading-relaxed text-sm ${isDark ? 'text-gray-300' : 'text-slate-300'}`}>An autonomous fail-safe system designed to intervene during sudden <span className="imp-text-dark">driver incapacitation</span>. Unlike standard ADAS that looks for drowsiness, this system monitors <span className="imp-text-dark">physiological data</span> to detect acute medical emergencies (e.g., cardiac arrest, seizures) and autonomously navigates the vehicle to safety.</p>
@@ -1223,7 +1213,6 @@ const IdleCycles = ({ theme }) => {
                     <h2 className={`text-3xl font-bold brand-font text-main`}>Idle Cycles</h2>
                 </div>
 
-                {/* Updated Grid for Mobile Alignment: Starts at 1 col, then 2 col, then 4 col */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 reveal-up stagger-1">
                     {[
                         { title: 'Photography', sub: 'Chasing shots', icon: Camera, color: isDark ? 'text-red-400' : 'text-[#EA4335]', bg: isDark ? 'group-hover:bg-red-900/20' : 'group-hover:bg-[#FEF2F2]' },
@@ -1248,9 +1237,15 @@ const IdleCycles = ({ theme }) => {
     );
 };
 
-const Contact = ({ showTop, theme }) => {
+const Contact = ({ showTop, theme, triggerToast }) => {
     const isDark = theme === 'dark';
     const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const copyEmail = (e) => {
+        e.preventDefault();
+        navigator.clipboard.writeText('rajeevmarada02@gmail.com');
+        triggerToast("Email copied to clipboard!");
+    };
 
     return (
         <footer className={`py-20 border-t relative bg-main border-std`} id="contact">
@@ -1270,6 +1265,12 @@ const Contact = ({ showTop, theme }) => {
                     <a href="mailto:rajeevmarada02@gmail.com" className={`px-8 py-3 rounded-xl font-medium text-base transition-all duration-300 shadow-lg w-full sm:w-auto hover:-translate-y-1 ${isDark ? 'bg-white text-black hover:bg-gray-200' : 'bg-[#1F1F1F] text-white hover:bg-[#333] shadow-gray-200'}`}>
                         Say Hello
                     </a>
+                    {/* Improved Copy Email Button */}
+                    <button onClick={copyEmail} className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-base transition-all duration-300 border hover:-translate-y-1 ${isDark ? 'border-gray-700 text-gray-400 hover:bg-white hover:text-black' : 'border-gray-200 text-[#444746] hover:bg-[#1F1F1F] hover:text-white'}`} title="Copy Email">
+                        <Copy size={18} />
+                        <span>Copy Email</span>
+                    </button>
+                    <div className="w-[1px] h-8 bg-gray-300 hidden sm:block mx-2"></div>
                     <div className="flex gap-3">
                         <a href="https://linkedin.com/in/rajeevmarada" className={`w-12 h-12 flex items-center justify-center rounded-xl border transition-all duration-300 hover:-translate-y-1 ${isDark ? 'border-gray-700 text-gray-400 hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5]' : 'border-gray-200 text-[#444746] hover:bg-[#0077B5] hover:text-white hover:border-[#0077B5]'}`}>
                             <Linkedin size={20} />
@@ -1295,29 +1296,34 @@ const Contact = ({ showTop, theme }) => {
 const App = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoaded, setIsLoaded] = useState(false);
+    const scrollProgress = useScrollProgress();
 
-    // Theme Persistance Logic Changed to SessionStorage
+    // Toast State
+    const [toast, setToast] = useState({ visible: false, message: '' });
+    const triggerToast = (msg) => {
+        setToast({ visible: true, message: msg });
+    };
+
+    // Enhanced Theme Logic: LocalStorage + System Preference
     const [theme, setTheme] = useState(() => {
-        // Initialize state directly from storage to prevent flashing
         if (typeof window !== 'undefined') {
-            const savedTheme = sessionStorage.getItem('theme');
-            return savedTheme || 'light';
+            const savedTheme = localStorage.getItem('theme'); // Changed to localStorage
+            if (savedTheme) return savedTheme;
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         return 'light';
     });
 
     useEffect(() => {
         document.body.className = theme;
-        sessionStorage.setItem('theme', theme);
+        localStorage.setItem('theme', theme); // Changed to localStorage
     }, [theme]);
 
-    // Add Favicon Programmatically
     useEffect(() => {
         const favicon = document.createElement("link");
         favicon.rel = "icon";
         favicon.type = "image/svg+xml";
-        favicon.href =
-            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
+        favicon.href = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%231F1F1F'/%3E%3Ctext x='50' y='58' font-size='42' font-family='Plus Jakarta Sans, Roboto, sans-serif' fill='white' text-anchor='middle' font-weight='700'%3ERM%3C/text%3E%3C/svg%3E";
 
         // Remove existing icon if any
         const existingIcon = document.querySelector("link[rel*='icon']");
@@ -1335,18 +1341,22 @@ const App = () => {
         }
     }, []);
 
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
-    };
-
-    // Passed theme to observer to fix missing content bug
+    const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
     useScrollObserver(isLoading, theme);
-
     const { activeSection, showTop } = useActiveSection();
 
     return (
         <div className={`min-h-screen ${theme === 'dark' ? 'selection:bg-blue-500/30 selection:text-blue-200' : 'selection:bg-[#D2E3FC] selection:text-[#174EA6]'}`}>
             <FontStyles />
+
+            {/* New Global UI Elements */}
+            <ScrollProgress progress={scrollProgress} theme={theme} />
+            <Toast
+                theme={theme}
+                message={toast.message}
+                isVisible={toast.visible}
+                onClose={() => setToast({ ...toast, visible: false })}
+            />
 
             {/* Loading Screen */}
             {isLoading && (
@@ -1363,7 +1373,11 @@ const App = () => {
             {/* Main Content */}
             <div className={`transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
                 <CustomCursor />
-                <Navbar activeSection={activeSection} theme={theme} toggleTheme={toggleTheme} />
+                <Navbar
+                    activeSection={activeSection}
+                    theme={theme}
+                    toggleTheme={toggleTheme}
+                />
                 <main className="relative z-10">
                     <Hero theme={theme} />
                     <OriginStory theme={theme} />
@@ -1373,7 +1387,7 @@ const App = () => {
                     <TheVault theme={theme} />
                     <IdleCycles theme={theme} />
                 </main>
-                <Contact showTop={showTop} theme={theme} />
+                <Contact showTop={showTop} theme={theme} triggerToast={triggerToast} />
             </div>
         </div>
     );
